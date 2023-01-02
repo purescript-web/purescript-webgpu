@@ -14,3 +14,4 @@ export const featuresImpl = (insert) => (empty) => (adapter) => () => {
     }
     return out;
 }
+export const limitsImpl = (adapter) => () => adapter.limits;

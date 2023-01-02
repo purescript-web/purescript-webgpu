@@ -1,122 +1,129 @@
 module WebGPU
-  ( Undefinable
-  --
+  ( GPU
+  , GPUAdapter
+  , GPUFeatureName
+  , GPUPowerPreference
+  , GPURequestAdapter
+  , GPUTextureFormat
+  , Undefinable
   , class ConvertOptionsWithDefaults
   , convertOptionsWithDefaults
-  --
-  , GPUPowerPreference
+  , features
+  , fn'bgra8unormStorage
+  , fn'depth32floatStencil8
+  , fn'depthClipControl
+  , fn'indirectFirstInstance
+  , fn'rg11b10ufloatRenderable
+  , fn'shaderF16
+  , fn'textureCompressionAstc
+  , fn'textureCompressionBc
+  , fn'textureCompressionEtc2
+  , fn'timestampQuery
+  , getPreferredCanvasFormat
+  , gpu
   , highPerformance
   , lowPower
-  --
-  , GPUTextureFormat
-  , r8unorm
-  , r8snorm
-  , r8uint
-  , r8sint
-  , r16uint
-  , r16sint
-  , r16float
-  , rg8unorm
-  , rg8snorm
-  , rg8uint
-  , rg8sint
-  , r32uint
-  , r32sint
-  , r32float
-  , rg16uint
-  , rg16sint
-  , rg16float
-  , rgba8unorm
-  , rgba8unormSrgb
-  , rgba8snorm
-  , rgba8uint
-  , rgba8sint
-  , bgra8unorm
-  , bgra8unormSrgb
-  , rgb9e5ufloat
-  , rgb10a2unorm
-  , rg11b10ufloat
-  , rg32uint
-  , rg32sint
-  , rg32float
-  , rgba16uint
-  , rgba16sint
-  , rgba16float
-  , rgba32uint
-  , rgba32sint
-  , rgba32float
-  , stencil8
-  , depth16unorm
-  , depth24plus
-  , depth24plusStencil8
-  , depth32float
-  , depth32floatStencil8
-  , bc1RgbaUnorm
-  , bc1RgbaUnormSrgb
-  , bc2RgbaUnorm
-  , bc2RgbaUnormSrgb
-  , bc3RgbaUnorm
-  , bc3RgbaUnormSrgb
-  , bc4RUnorm
-  , bc4RSnorm
-  , bc5RgUnorm
-  , bc5RgSnorm
-  , bc6hRgbUfloat
-  , bc6hRgbFloat
-  , bc7RgbaUnorm
-  , bc7RgbaUnormSrgb
-  , etc2Rgb8unorm
-  , etc2Rgb8unormSrgb
-  , etc2Rgb8a1unorm
-  , etc2Rgb8a1unormSrgb
-  , etc2Rgba8unorm
-  , etc2Rgba8unormSrgb
-  , eacR11unorm
-  , eacR11snorm
-  , eacRg11unorm
-  , eacRg11snorm
-  , astc4x4Unorm
-  , astc4x4UnormSrgb
-  , astc5x4Unorm
-  , astc5x4UnormSrgb
-  , astc5x5Unorm
-  , astc5x5UnormSrgb
-  , astc6x5Unorm
-  , astc6x5UnormSrgb
-  , astc6x6Unorm
-  , astc6x6UnormSrgb
-  , astc8x5Unorm
-  , astc8x5UnormSrgb
-  , astc8x6Unorm
-  , astc8x6UnormSrgb
-  , astc8x8Unorm
-  , astc8x8UnormSrgb
-  , astc10x5Unorm
-  , astc10x5UnormSrgb
-  , astc10x6Unorm
-  , astc10x6UnormSrgb
-  , astc10x8Unorm
-  , astc10x8UnormSrgb
-  , astc10x10Unorm
-  , astc10x10UnormSrgb
-  , astc12x10Unorm
-  , astc12x10UnormSrgb
-  , astc12x12Unorm
-  , astc12x12UnormSrgb
-  --
-  , GPU
-  , gpu
-  --
-  , GPURequestAdapter
-  , GPUAdapter
   , requestAdapter
-  --
-  , getPreferredCanvasFormat
+  , tf'astc10x10Unorm
+  , tf'astc10x10UnormSrgb
+  , tf'astc10x5Unorm
+  , tf'astc10x5UnormSrgb
+  , tf'astc10x6Unorm
+  , tf'astc10x6UnormSrgb
+  , tf'astc10x8Unorm
+  , tf'astc10x8UnormSrgb
+  , tf'astc12x10Unorm
+  , tf'astc12x10UnormSrgb
+  , tf'astc12x12Unorm
+  , tf'astc12x12UnormSrgb
+  , tf'astc4x4Unorm
+  , tf'astc4x4UnormSrgb
+  , tf'astc5x4Unorm
+  , tf'astc5x4UnormSrgb
+  , tf'astc5x5Unorm
+  , tf'astc5x5UnormSrgb
+  , tf'astc6x5Unorm
+  , tf'astc6x5UnormSrgb
+  , tf'astc6x6Unorm
+  , tf'astc6x6UnormSrgb
+  , tf'astc8x5Unorm
+  , tf'astc8x5UnormSrgb
+  , tf'astc8x6Unorm
+  , tf'astc8x6UnormSrgb
+  , tf'astc8x8Unorm
+  , tf'astc8x8UnormSrgb
+  , tf'bc1RgbaUnorm
+  , tf'bc1RgbaUnormSrgb
+  , tf'bc2RgbaUnorm
+  , tf'bc2RgbaUnormSrgb
+  , tf'bc3RgbaUnorm
+  , tf'bc3RgbaUnormSrgb
+  , tf'bc4RSnorm
+  , tf'bc4RUnorm
+  , tf'bc5RgSnorm
+  , tf'bc5RgUnorm
+  , tf'bc6hRgbFloat
+  , tf'bc6hRgbUfloat
+  , tf'bc7RgbaUnorm
+  , tf'bc7RgbaUnormSrgb
+  , tf'bgra8unorm
+  , tf'bgra8unormSrgb
+  , tf'depth16unorm
+  , tf'depth24plus
+  , tf'depth24plusStencil8
+  , tf'depth32float
+  , tf'depth32floatStencil8
+  , tf'eacR11snorm
+  , tf'eacR11unorm
+  , tf'eacRg11snorm
+  , tf'eacRg11unorm
+  , tf'etc2Rgb8a1unorm
+  , tf'etc2Rgb8a1unormSrgb
+  , tf'etc2Rgb8unorm
+  , tf'etc2Rgb8unormSrgb
+  , tf'etc2Rgba8unorm
+  , tf'etc2Rgba8unormSrgb
+  , tf'r16float
+  , tf'r16sint
+  , tf'r16uint
+  , tf'r32float
+  , tf'r32sint
+  , tf'r32uint
+  , tf'r8sint
+  , tf'r8snorm
+  , tf'r8uint
+  , tf'r8unorm
+  , tf'rg11b10ufloat
+  , tf'rg16float
+  , tf'rg16sint
+  , tf'rg16uint
+  , tf'rg32float
+  , tf'rg32sint
+  , tf'rg32uint
+  , tf'rg8sint
+  , tf'rg8snorm
+  , tf'rg8uint
+  , tf'rg8unorm
+  , tf'rgb10a2unorm
+  , tf'rgb9e5ufloat
+  , tf'rgba16float
+  , tf'rgba16sint
+  , tf'rgba16uint
+  , tf'rgba32float
+  , tf'rgba32sint
+  , tf'rgba32uint
+  , tf'rgba8sint
+  , tf'rgba8snorm
+  , tf'rgba8uint
+  , tf'rgba8unorm
+  , tf'rgba8unormSrgb
+  , tf'stencil8
   ) where
 
 import Prelude
 
 import Data.Maybe (Maybe(..))
+import Data.Set as Set
 import Data.Symbol (class IsSymbol)
 import Effect (Effect)
 import Prim.Row as Row
@@ -215,8 +222,14 @@ data GPUAdapter
 foreign import requestAdapterImpl :: (GPUAdapter -> Maybe GPUAdapter) -> Maybe GPUAdapter -> GPU -> { | GPURequestAdapterOptions } -> Effect (Promise (Maybe GPUAdapter))
 
 newtype GPUPowerPreference = GPUPowerPreference String
+
+derive instance Eq GPUPowerPreference
+derive instance Ord GPUPowerPreference
+derive newtype instance Show GPUPowerPreference
+
 lowPower ∷ GPUPowerPreference
 lowPower = GPUPowerPreference "low-power"
+
 highPerformance ∷ GPUPowerPreference
 highPerformance = GPUPowerPreference "high-performance"
 
@@ -254,106 +267,132 @@ requestAdapter g provided = requestAdapterImpl Just Nothing g all
   all :: { | GPURequestAdapterOptions }
   all = convertOptionsWithDefaults GPURequestAdapter defaultGPURequestAdapterOptions provided
 
-
-
 ---- getPreferredCanvasFormat
 newtype GPUTextureFormat = GPUTextureFormat String
+derive instance Eq GPUTextureFormat
+derive instance Ord GPUTextureFormat
+derive newtype instance Show GPUTextureFormat
 
-r8unorm = GPUTextureFormat "r8unorm" :: GPUTextureFormat
-r8snorm = GPUTextureFormat "r8snorm" :: GPUTextureFormat
-r8uint = GPUTextureFormat "r8uint" :: GPUTextureFormat
-r8sint = GPUTextureFormat "r8sint" :: GPUTextureFormat
-r16uint = GPUTextureFormat "r16uint" :: GPUTextureFormat
-r16sint = GPUTextureFormat "r16sint" :: GPUTextureFormat
-r16float = GPUTextureFormat "r16float" :: GPUTextureFormat
-rg8unorm = GPUTextureFormat "rg8unorm" :: GPUTextureFormat
-rg8snorm = GPUTextureFormat "rg8snorm" :: GPUTextureFormat
-rg8uint = GPUTextureFormat "rg8uint" :: GPUTextureFormat
-rg8sint = GPUTextureFormat "rg8sint" :: GPUTextureFormat
-r32uint = GPUTextureFormat "r32uint" :: GPUTextureFormat
-r32sint = GPUTextureFormat "r32sint" :: GPUTextureFormat
-r32float = GPUTextureFormat "r32float" :: GPUTextureFormat
-rg16uint = GPUTextureFormat "rg16uint" :: GPUTextureFormat
-rg16sint = GPUTextureFormat "rg16sint" :: GPUTextureFormat
-rg16float = GPUTextureFormat "rg16float" :: GPUTextureFormat
-rgba8unorm = GPUTextureFormat "rgba8unorm" :: GPUTextureFormat
-rgba8unormSrgb = GPUTextureFormat "rgba8unorm-srgb" :: GPUTextureFormat
-rgba8snorm = GPUTextureFormat "rgba8snorm" :: GPUTextureFormat
-rgba8uint = GPUTextureFormat "rgba8uint" :: GPUTextureFormat
-rgba8sint = GPUTextureFormat "rgba8sint" :: GPUTextureFormat
-bgra8unorm = GPUTextureFormat "bgra8unorm" :: GPUTextureFormat
-bgra8unormSrgb = GPUTextureFormat "bgra8unorm-srgb" :: GPUTextureFormat
-rgb9e5ufloat = GPUTextureFormat "rgb9e5ufloat" :: GPUTextureFormat
-rgb10a2unorm = GPUTextureFormat "rgb10a2unorm" :: GPUTextureFormat
-rg11b10ufloat = GPUTextureFormat "rg11b10ufloat" :: GPUTextureFormat
-rg32uint = GPUTextureFormat "rg32uint" :: GPUTextureFormat
-rg32sint = GPUTextureFormat "rg32sint" :: GPUTextureFormat
-rg32float = GPUTextureFormat "rg32float" :: GPUTextureFormat
-rgba16uint = GPUTextureFormat "rgba16uint" :: GPUTextureFormat
-rgba16sint = GPUTextureFormat "rgba16sint" :: GPUTextureFormat
-rgba16float = GPUTextureFormat "rgba16float" :: GPUTextureFormat
-rgba32uint = GPUTextureFormat "rgba32uint" :: GPUTextureFormat
-rgba32sint = GPUTextureFormat "rgba32sint" :: GPUTextureFormat
-rgba32float = GPUTextureFormat "rgba32float" :: GPUTextureFormat
-stencil8 = GPUTextureFormat "stencil8" :: GPUTextureFormat
-depth16unorm = GPUTextureFormat "depth16unorm" :: GPUTextureFormat
-depth24plus = GPUTextureFormat "depth24plus" :: GPUTextureFormat
-depth24plusStencil8 = GPUTextureFormat "depth24plus-stencil8" :: GPUTextureFormat
-depth32float = GPUTextureFormat "depth32float" :: GPUTextureFormat
-depth32floatStencil8 = GPUTextureFormat "depth32float-stencil8" :: GPUTextureFormat
-bc1RgbaUnorm = GPUTextureFormat "bc1-rgba-unorm" :: GPUTextureFormat
-bc1RgbaUnormSrgb = GPUTextureFormat "bc1-rgba-unorm-srgb" :: GPUTextureFormat
-bc2RgbaUnorm = GPUTextureFormat "bc2-rgba-unorm" :: GPUTextureFormat
-bc2RgbaUnormSrgb = GPUTextureFormat "bc2-rgba-unorm-srgb" :: GPUTextureFormat
-bc3RgbaUnorm = GPUTextureFormat "bc3-rgba-unorm" :: GPUTextureFormat
-bc3RgbaUnormSrgb = GPUTextureFormat "bc3-rgba-unorm-srgb" :: GPUTextureFormat
-bc4RUnorm = GPUTextureFormat "bc4-r-unorm" :: GPUTextureFormat
-bc4RSnorm = GPUTextureFormat "bc4-r-snorm" :: GPUTextureFormat
-bc5RgUnorm = GPUTextureFormat "bc5-rg-unorm" :: GPUTextureFormat
-bc5RgSnorm = GPUTextureFormat "bc5-rg-snorm" :: GPUTextureFormat
-bc6hRgbUfloat = GPUTextureFormat "bc6h-rgb-ufloat" :: GPUTextureFormat
-bc6hRgbFloat = GPUTextureFormat "bc6h-rgb-float" :: GPUTextureFormat
-bc7RgbaUnorm = GPUTextureFormat "bc7-rgba-unorm" :: GPUTextureFormat
-bc7RgbaUnormSrgb = GPUTextureFormat "bc7-rgba-unorm-srgb" :: GPUTextureFormat
-etc2Rgb8unorm = GPUTextureFormat "etc2-rgb8unorm" :: GPUTextureFormat
-etc2Rgb8unormSrgb = GPUTextureFormat "etc2-rgb8unorm-srgb" :: GPUTextureFormat
-etc2Rgb8a1unorm = GPUTextureFormat "etc2-rgb8a1unorm" :: GPUTextureFormat
-etc2Rgb8a1unormSrgb = GPUTextureFormat "etc2-rgb8a1unorm-srgb" :: GPUTextureFormat
-etc2Rgba8unorm = GPUTextureFormat "etc2-rgba8unorm" :: GPUTextureFormat
-etc2Rgba8unormSrgb = GPUTextureFormat "etc2-rgba8unorm-srgb" :: GPUTextureFormat
-eacR11unorm = GPUTextureFormat "eac-r11unorm" :: GPUTextureFormat
-eacR11snorm = GPUTextureFormat "eac-r11snorm" :: GPUTextureFormat
-eacRg11unorm = GPUTextureFormat "eac-rg11unorm" :: GPUTextureFormat
-eacRg11snorm = GPUTextureFormat "eac-rg11snorm" :: GPUTextureFormat
-astc4x4Unorm = GPUTextureFormat "astc-4x4-unorm" :: GPUTextureFormat
-astc4x4UnormSrgb = GPUTextureFormat "astc-4x4-unorm-srgb" :: GPUTextureFormat
-astc5x4Unorm = GPUTextureFormat "astc-5x4-unorm" :: GPUTextureFormat
-astc5x4UnormSrgb = GPUTextureFormat "astc-5x4-unorm-srgb" :: GPUTextureFormat
-astc5x5Unorm = GPUTextureFormat "astc-5x5-unorm" :: GPUTextureFormat
-astc5x5UnormSrgb = GPUTextureFormat "astc-5x5-unorm-srgb" :: GPUTextureFormat
-astc6x5Unorm = GPUTextureFormat "astc-6x5-unorm" :: GPUTextureFormat
-astc6x5UnormSrgb = GPUTextureFormat "astc-6x5-unorm-srgb" :: GPUTextureFormat
-astc6x6Unorm = GPUTextureFormat "astc-6x6-unorm" :: GPUTextureFormat
-astc6x6UnormSrgb = GPUTextureFormat "astc-6x6-unorm-srgb" :: GPUTextureFormat
-astc8x5Unorm = GPUTextureFormat "astc-8x5-unorm" :: GPUTextureFormat
-astc8x5UnormSrgb = GPUTextureFormat "astc-8x5-unorm-srgb" :: GPUTextureFormat
-astc8x6Unorm = GPUTextureFormat "astc-8x6-unorm" :: GPUTextureFormat
-astc8x6UnormSrgb = GPUTextureFormat "astc-8x6-unorm-srgb" :: GPUTextureFormat
-astc8x8Unorm = GPUTextureFormat "astc-8x8-unorm" :: GPUTextureFormat
-astc8x8UnormSrgb = GPUTextureFormat "astc-8x8-unorm-srgb" :: GPUTextureFormat
-astc10x5Unorm = GPUTextureFormat "astc-10x5-unorm" :: GPUTextureFormat
-astc10x5UnormSrgb = GPUTextureFormat "astc-10x5-unorm-srgb" :: GPUTextureFormat
-astc10x6Unorm = GPUTextureFormat "astc-10x6-unorm" :: GPUTextureFormat
-astc10x6UnormSrgb = GPUTextureFormat "astc-10x6-unorm-srgb" :: GPUTextureFormat
-astc10x8Unorm = GPUTextureFormat "astc-10x8-unorm" :: GPUTextureFormat
-astc10x8UnormSrgb = GPUTextureFormat "astc-10x8-unorm-srgb" :: GPUTextureFormat
-astc10x10Unorm = GPUTextureFormat "astc-10x10-unorm" :: GPUTextureFormat
-astc10x10UnormSrgb = GPUTextureFormat "astc-10x10-unorm-srgb" :: GPUTextureFormat
-astc12x10Unorm = GPUTextureFormat "astc-12x10-unorm" :: GPUTextureFormat
-astc12x10UnormSrgb = GPUTextureFormat "astc-12x10-unorm-srgb" :: GPUTextureFormat
-astc12x12Unorm = GPUTextureFormat "astc-12x12-unorm" :: GPUTextureFormat
-astc12x12UnormSrgb = GPUTextureFormat "astc-12x12-unorm-srgb" :: GPUTextureFormat
+tf'r8unorm = GPUTextureFormat "r8unorm" :: GPUTextureFormat
+tf'r8snorm = GPUTextureFormat "r8snorm" :: GPUTextureFormat
+tf'r8uint = GPUTextureFormat "r8uint" :: GPUTextureFormat
+tf'r8sint = GPUTextureFormat "r8sint" :: GPUTextureFormat
+tf'r16uint = GPUTextureFormat "r16uint" :: GPUTextureFormat
+tf'r16sint = GPUTextureFormat "r16sint" :: GPUTextureFormat
+tf'r16float = GPUTextureFormat "r16float" :: GPUTextureFormat
+tf'rg8unorm = GPUTextureFormat "rg8unorm" :: GPUTextureFormat
+tf'rg8snorm = GPUTextureFormat "rg8snorm" :: GPUTextureFormat
+tf'rg8uint = GPUTextureFormat "rg8uint" :: GPUTextureFormat
+tf'rg8sint = GPUTextureFormat "rg8sint" :: GPUTextureFormat
+tf'r32uint = GPUTextureFormat "r32uint" :: GPUTextureFormat
+tf'r32sint = GPUTextureFormat "r32sint" :: GPUTextureFormat
+tf'r32float = GPUTextureFormat "r32float" :: GPUTextureFormat
+tf'rg16uint = GPUTextureFormat "rg16uint" :: GPUTextureFormat
+tf'rg16sint = GPUTextureFormat "rg16sint" :: GPUTextureFormat
+tf'rg16float = GPUTextureFormat "rg16float" :: GPUTextureFormat
+tf'rgba8unorm = GPUTextureFormat "rgba8unorm" :: GPUTextureFormat
+tf'rgba8unormSrgb = GPUTextureFormat "rgba8unorm-srgb" :: GPUTextureFormat
+tf'rgba8snorm = GPUTextureFormat "rgba8snorm" :: GPUTextureFormat
+tf'rgba8uint = GPUTextureFormat "rgba8uint" :: GPUTextureFormat
+tf'rgba8sint = GPUTextureFormat "rgba8sint" :: GPUTextureFormat
+tf'bgra8unorm = GPUTextureFormat "bgra8unorm" :: GPUTextureFormat
+tf'bgra8unormSrgb = GPUTextureFormat "bgra8unorm-srgb" :: GPUTextureFormat
+tf'rgb9e5ufloat = GPUTextureFormat "rgb9e5ufloat" :: GPUTextureFormat
+tf'rgb10a2unorm = GPUTextureFormat "rgb10a2unorm" :: GPUTextureFormat
+tf'rg11b10ufloat = GPUTextureFormat "rg11b10ufloat" :: GPUTextureFormat
+tf'rg32uint = GPUTextureFormat "rg32uint" :: GPUTextureFormat
+tf'rg32sint = GPUTextureFormat "rg32sint" :: GPUTextureFormat
+tf'rg32float = GPUTextureFormat "rg32float" :: GPUTextureFormat
+tf'rgba16uint = GPUTextureFormat "rgba16uint" :: GPUTextureFormat
+tf'rgba16sint = GPUTextureFormat "rgba16sint" :: GPUTextureFormat
+tf'rgba16float = GPUTextureFormat "rgba16float" :: GPUTextureFormat
+tf'rgba32uint = GPUTextureFormat "rgba32uint" :: GPUTextureFormat
+tf'rgba32sint = GPUTextureFormat "rgba32sint" :: GPUTextureFormat
+tf'rgba32float = GPUTextureFormat "rgba32float" :: GPUTextureFormat
+tf'stencil8 = GPUTextureFormat "stencil8" :: GPUTextureFormat
+tf'depth16unorm = GPUTextureFormat "depth16unorm" :: GPUTextureFormat
+tf'depth24plus = GPUTextureFormat "depth24plus" :: GPUTextureFormat
+tf'depth24plusStencil8 = GPUTextureFormat "depth24plus-stencil8" :: GPUTextureFormat
+tf'depth32float = GPUTextureFormat "depth32float" :: GPUTextureFormat
+tf'depth32floatStencil8 = GPUTextureFormat "depth32float-stencil8" :: GPUTextureFormat
+tf'bc1RgbaUnorm = GPUTextureFormat "bc1-rgba-unorm" :: GPUTextureFormat
+tf'bc1RgbaUnormSrgb = GPUTextureFormat "bc1-rgba-unorm-srgb" :: GPUTextureFormat
+tf'bc2RgbaUnorm = GPUTextureFormat "bc2-rgba-unorm" :: GPUTextureFormat
+tf'bc2RgbaUnormSrgb = GPUTextureFormat "bc2-rgba-unorm-srgb" :: GPUTextureFormat
+tf'bc3RgbaUnorm = GPUTextureFormat "bc3-rgba-unorm" :: GPUTextureFormat
+tf'bc3RgbaUnormSrgb = GPUTextureFormat "bc3-rgba-unorm-srgb" :: GPUTextureFormat
+tf'bc4RUnorm = GPUTextureFormat "bc4-r-unorm" :: GPUTextureFormat
+tf'bc4RSnorm = GPUTextureFormat "bc4-r-snorm" :: GPUTextureFormat
+tf'bc5RgUnorm = GPUTextureFormat "bc5-rg-unorm" :: GPUTextureFormat
+tf'bc5RgSnorm = GPUTextureFormat "bc5-rg-snorm" :: GPUTextureFormat
+tf'bc6hRgbUfloat = GPUTextureFormat "bc6h-rgb-ufloat" :: GPUTextureFormat
+tf'bc6hRgbFloat = GPUTextureFormat "bc6h-rgb-float" :: GPUTextureFormat
+tf'bc7RgbaUnorm = GPUTextureFormat "bc7-rgba-unorm" :: GPUTextureFormat
+tf'bc7RgbaUnormSrgb = GPUTextureFormat "bc7-rgba-unorm-srgb" :: GPUTextureFormat
+tf'etc2Rgb8unorm = GPUTextureFormat "etc2-rgb8unorm" :: GPUTextureFormat
+tf'etc2Rgb8unormSrgb = GPUTextureFormat "etc2-rgb8unorm-srgb" :: GPUTextureFormat
+tf'etc2Rgb8a1unorm = GPUTextureFormat "etc2-rgb8a1unorm" :: GPUTextureFormat
+tf'etc2Rgb8a1unormSrgb = GPUTextureFormat "etc2-rgb8a1unorm-srgb" :: GPUTextureFormat
+tf'etc2Rgba8unorm = GPUTextureFormat "etc2-rgba8unorm" :: GPUTextureFormat
+tf'etc2Rgba8unormSrgb = GPUTextureFormat "etc2-rgba8unorm-srgb" :: GPUTextureFormat
+tf'eacR11unorm = GPUTextureFormat "eac-r11unorm" :: GPUTextureFormat
+tf'eacR11snorm = GPUTextureFormat "eac-r11snorm" :: GPUTextureFormat
+tf'eacRg11unorm = GPUTextureFormat "eac-rg11unorm" :: GPUTextureFormat
+tf'eacRg11snorm = GPUTextureFormat "eac-rg11snorm" :: GPUTextureFormat
+tf'astc4x4Unorm = GPUTextureFormat "astc-4x4-unorm" :: GPUTextureFormat
+tf'astc4x4UnormSrgb = GPUTextureFormat "astc-4x4-unorm-srgb" :: GPUTextureFormat
+tf'astc5x4Unorm = GPUTextureFormat "astc-5x4-unorm" :: GPUTextureFormat
+tf'astc5x4UnormSrgb = GPUTextureFormat "astc-5x4-unorm-srgb" :: GPUTextureFormat
+tf'astc5x5Unorm = GPUTextureFormat "astc-5x5-unorm" :: GPUTextureFormat
+tf'astc5x5UnormSrgb = GPUTextureFormat "astc-5x5-unorm-srgb" :: GPUTextureFormat
+tf'astc6x5Unorm = GPUTextureFormat "astc-6x5-unorm" :: GPUTextureFormat
+tf'astc6x5UnormSrgb = GPUTextureFormat "astc-6x5-unorm-srgb" :: GPUTextureFormat
+tf'astc6x6Unorm = GPUTextureFormat "astc-6x6-unorm" :: GPUTextureFormat
+tf'astc6x6UnormSrgb = GPUTextureFormat "astc-6x6-unorm-srgb" :: GPUTextureFormat
+tf'astc8x5Unorm = GPUTextureFormat "astc-8x5-unorm" :: GPUTextureFormat
+tf'astc8x5UnormSrgb = GPUTextureFormat "astc-8x5-unorm-srgb" :: GPUTextureFormat
+tf'astc8x6Unorm = GPUTextureFormat "astc-8x6-unorm" :: GPUTextureFormat
+tf'astc8x6UnormSrgb = GPUTextureFormat "astc-8x6-unorm-srgb" :: GPUTextureFormat
+tf'astc8x8Unorm = GPUTextureFormat "astc-8x8-unorm" :: GPUTextureFormat
+tf'astc8x8UnormSrgb = GPUTextureFormat "astc-8x8-unorm-srgb" :: GPUTextureFormat
+tf'astc10x5Unorm = GPUTextureFormat "astc-10x5-unorm" :: GPUTextureFormat
+tf'astc10x5UnormSrgb = GPUTextureFormat "astc-10x5-unorm-srgb" :: GPUTextureFormat
+tf'astc10x6Unorm = GPUTextureFormat "astc-10x6-unorm" :: GPUTextureFormat
+tf'astc10x6UnormSrgb = GPUTextureFormat "astc-10x6-unorm-srgb" :: GPUTextureFormat
+tf'astc10x8Unorm = GPUTextureFormat "astc-10x8-unorm" :: GPUTextureFormat
+tf'astc10x8UnormSrgb = GPUTextureFormat "astc-10x8-unorm-srgb" :: GPUTextureFormat
+tf'astc10x10Unorm = GPUTextureFormat "astc-10x10-unorm" :: GPUTextureFormat
+tf'astc10x10UnormSrgb = GPUTextureFormat "astc-10x10-unorm-srgb" :: GPUTextureFormat
+tf'astc12x10Unorm = GPUTextureFormat "astc-12x10-unorm" :: GPUTextureFormat
+tf'astc12x10UnormSrgb = GPUTextureFormat "astc-12x10-unorm-srgb" :: GPUTextureFormat
+tf'astc12x12Unorm = GPUTextureFormat "astc-12x12-unorm" :: GPUTextureFormat
+tf'astc12x12UnormSrgb = GPUTextureFormat "astc-12x12-unorm-srgb" :: GPUTextureFormat
 
 foreign import getPreferredCanvasFormatImpl :: GPU -> Effect GPUTextureFormat
+
 getPreferredCanvasFormat :: GPU -> Effect GPUTextureFormat
-getPreferredCanvasFormat= getPreferredCanvasFormatImpl
+getPreferredCanvasFormat = getPreferredCanvasFormatImpl
+
+-- GPUAdapter
+
+newtype GPUFeatureName = GPUFeatureName String
+
+derive instance Eq GPUFeatureName
+derive instance Ord GPUFeatureName
+derive newtype instance Show GPUFeatureName
+fn'depthClipControl = GPUFeatureName "depth-clip-control" :: GPUFeatureName
+fn'depth32floatStencil8 = GPUFeatureName "depth32float-stencil8" :: GPUFeatureName
+fn'textureCompressionBc = GPUFeatureName "texture-compression-bc" :: GPUFeatureName
+fn'textureCompressionEtc2 = GPUFeatureName "texture-compression-etc2" :: GPUFeatureName
+fn'textureCompressionAstc = GPUFeatureName "texture-compression-astc" :: GPUFeatureName
+fn'timestampQuery = GPUFeatureName "timestamp-query" :: GPUFeatureName
+fn'indirectFirstInstance = GPUFeatureName "indirect-first-instance" :: GPUFeatureName
+fn'shaderF16 = GPUFeatureName "shader-f16" :: GPUFeatureName
+fn'bgra8unormStorage = GPUFeatureName "bgra8unorm-storage" :: GPUFeatureName
+fn'rg11b10ufloatRenderable = GPUFeatureName "rg11b10ufloat-renderable" :: GPUFeatureName
+
+---- features
+foreign import featuresImpl :: (GPUFeatureName -> Set.Set GPUFeatureName -> Set.Set GPUFeatureName) -> Set.Set GPUFeatureName -> GPUAdapter -> Effect (Set.Set GPUFeatureName)
+
+features :: GPUAdapter -> Effect (Set.Set GPUFeatureName)
+features = featuresImpl Set.insert Set.empty

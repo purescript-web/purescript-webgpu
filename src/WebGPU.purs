@@ -24,6 +24,7 @@ module WebGPU
   , getPreferredCanvasFormat
   , gpu
   , highPerformance
+  , isFallbackAdapter
   , limits
   , lowPower
   , requestAdapter
@@ -445,3 +446,8 @@ foreign import limitsImpl :: GPUAdapter -> Effect GPUSupportedLimits
 
 limits :: GPUAdapter -> Effect GPUSupportedLimits
 limits = limitsImpl
+
+foreign import isFallbackAdapterImpl :: GPUAdapter -> Effect Boolean
+
+isFallbackAdapter :: GPUAdapter -> Effect Boolean
+isFallbackAdapter = isFallbackAdapterImpl

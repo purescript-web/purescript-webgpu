@@ -15,3 +15,4 @@ export const featuresImpl = (insert) => (empty) => (adapter) => () => {
     return out;
 }
 export const limitsImpl = (adapter) => () => adapter.limits;
+export const isFallbackAdapterImpl = (adapter) => () => adapter.isFallbackAdapter;

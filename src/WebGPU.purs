@@ -122,8 +122,7 @@ module WebGPU
   , tf'rgba8unorm
   , tf'rgba8unormSrgb
   , tf'stencil8
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -409,7 +408,7 @@ features = featuresImpl Set.insert Set.empty
 
 -- limits
 type GPUSupportedLimits =
-  { maxTextureDimension1D :: UnsignedLong
+  ( maxTextureDimension1D :: UnsignedLong
   , maxTextureDimension2D :: UnsignedLong
   , maxTextureDimension3D :: UnsignedLong
   , maxTextureArrayLayers :: UnsignedLong
@@ -440,14 +439,16 @@ type GPUSupportedLimits =
   , maxComputeWorkgroupSizeY :: UnsignedLong
   , maxComputeWorkgroupSizeZ :: UnsignedLong
   , maxComputeWorkgroupsPerDimension :: UnsignedLong
-  }
+  )
 
-foreign import limitsImpl :: GPUAdapter -> Effect GPUSupportedLimits
+foreign import limitsImpl :: GPUAdapter -> Effect { | GPUSupportedLimits }
 
-limits :: GPUAdapter -> Effect GPUSupportedLimits
+limits :: GPUAdapter -> Effect { | GPUSupportedLimits }
 limits = limitsImpl
 
 foreign import isFallbackAdapterImpl :: GPUAdapter -> Effect Boolean
 
 isFallbackAdapter :: GPUAdapter -> Effect Boolean
 isFallbackAdapter = isFallbackAdapterImpl
+
+---- requestDevice

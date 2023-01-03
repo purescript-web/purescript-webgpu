@@ -18,6 +18,7 @@ to generate this file without the comments in this block.
   , "ordered-collections"
   , "prelude"
   , "record"
+  , "tuples"
   , "unsafe-coerce"
   , "web-html"
   , "web-promise"

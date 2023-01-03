@@ -4,6 +4,7 @@ module Web.GPU.Internal.Types
   , GPUBuffer(..)
   , GPUDevice
   , GPUQueue
+  , GPUTexture(..)
   )
   where
 
@@ -12,3 +13,4 @@ data GPUAdapter
 data GPUDevice
 data GPUQueue
 data GPUBuffer
+data GPUTexture

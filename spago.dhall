@@ -12,12 +12,12 @@ to generate this file without the comments in this block.
 -}
 { name = "webgpu"
 , dependencies =
-  [ "console"
-  , "effect"
+  [ "effect"
   , "maybe"
   , "ordered-collections"
   , "prelude"
   , "record"
+  , "unsafe-coerce"
   , "web-html"
   , "web-promise"
   ]

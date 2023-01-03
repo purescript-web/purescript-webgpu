@@ -12,7 +12,8 @@ to generate this file without the comments in this block.
 -}
 { name = "webgpu"
 , dependencies =
-  [ "effect"
+  [ "arrays"
+  , "effect"
   , "integers"
   , "maybe"
   , "ordered-collections"

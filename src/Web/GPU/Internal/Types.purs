@@ -1,6 +1,7 @@
 module Web.GPU.Internal.Types
   ( GPU
   , GPUAdapter
+  , GPUBuffer(..)
   , GPUDevice
   , GPUQueue
   )
@@ -10,3 +11,4 @@ data GPU
 data GPUAdapter
 data GPUDevice
 data GPUQueue
+data GPUBuffer

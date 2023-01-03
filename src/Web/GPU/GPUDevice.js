@@ -9,3 +9,4 @@ export const featuresImpl = (insert) => (empty) => (adapter) => () => {
 export const limitsImpl = (adapter) => () => adapter.limits;
 export const queueImpl = (device) => () => device.queue;
 export const destroyImpl = (device) => () => device.destroy();
+export const createBufferImpl = (device) => (options) => () => device.createBuffer(options);

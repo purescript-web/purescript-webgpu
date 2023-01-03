@@ -13,6 +13,7 @@ to generate this file without the comments in this block.
 { name = "webgpu"
 , dependencies =
   [ "effect"
+  , "integers"
   , "maybe"
   , "ordered-collections"
   , "prelude"

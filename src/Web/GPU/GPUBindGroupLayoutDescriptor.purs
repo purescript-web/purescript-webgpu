@@ -1,5 +1,5 @@
 module Web.GPU.GPUBindGroupLayoutDescriptor
-  ( (:)
+  ( (:+)
   , GPUBufferBindingLayout
   , GPUExternalTextureBindingLayout
   , GPUSamplerBindingLayout
@@ -41,4 +41,4 @@ add
   -> GPUBindGroupLayoutDescriptor current
 add = unsafeAdd
 
-infixr 5 add as :
+infixr 5 add as :+

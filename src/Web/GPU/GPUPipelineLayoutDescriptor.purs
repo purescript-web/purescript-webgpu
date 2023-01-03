@@ -1,5 +1,5 @@
 module Web.GPU.GPUPipelineLayoutDescriptor
-  ( (:)
+  ( (:++)
   , GPUBufferBindingLayout
   , GPUExternalTextureBindingLayout
   , GPUSamplerBindingLayout
@@ -44,4 +44,4 @@ add
   -> GPUPipelineLayoutDescriptor current
 add = unsafeAdd
 
-infixr 5 add as :
+infixr 5 add as :++

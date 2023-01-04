@@ -1,1 +1,5 @@
-export const unsafeAdd = (bindGroupLayout) => ({ bindGroupLayouts }) => ({ bindGroupLayouts: [...bindGroupLayouts, bindGroupLayout] });
+export const unsafeAdd =
+  (bindGroupLayout) =>
+  ({ bindGroupLayouts }) => ({
+    bindGroupLayouts: [...bindGroupLayouts, bindGroupLayout],
+  });

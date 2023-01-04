@@ -2,10 +2,10 @@ module Web.GPU.GPUPowerPreference
   ( GPUPowerPreference(..)
   , highPerformance
   , lowPower
-  )
-  where
+  ) where
 
 import Prelude
+
 newtype GPUPowerPreference = GPUPowerPreference String
 
 derive instance Eq GPUPowerPreference

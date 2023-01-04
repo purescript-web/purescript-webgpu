@@ -1,7 +1,5 @@
 module Web.GPU.GPUBindGroupDescriptor where
 
-
-
 import Prim.RowList (class RowToList, Cons, Nil, RowList)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.GPU.GPUBindGroupEntry (GPUBufferBinding)

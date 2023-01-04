@@ -8,8 +8,7 @@ module Web.GPU.GPUBindGroupEntry
   , bindGroupEntryForTextureView
   , empty
   , gpuBufferBinding
-  )
-  where
+  ) where
 
 import Data.Reflectable (class Reflectable, reflectType)
 import Prim.Int (class ToString, class Compare)

@@ -94,10 +94,10 @@ module Web.GPU.GPUTextureFormat
   , rgba8unorm
   , rgba8unormSrgb
   , stencil8
-  )
-  where
+  ) where
 
 import Prelude
+
 newtype GPUTextureFormat = GPUTextureFormat String
 
 derive instance Eq GPUTextureFormat

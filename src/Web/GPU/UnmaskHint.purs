@@ -4,10 +4,10 @@ module Web.GPU.UnmaskHint
   , description
   , device
   , vendor
-  )
-  where
+  ) where
 
 import Prelude
+
 newtype UnmaskHint = UnmaskHint String
 vendor = UnmaskHint "vendor" :: UnmaskHint
 architecture = UnmaskHint "architecture" :: UnmaskHint

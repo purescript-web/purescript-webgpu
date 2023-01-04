@@ -3,8 +3,7 @@ module Web.GPU.Internal.Undefinable
   , undefined
   , undefinedImpl
   , Undefinable
-  )
-  where
+  ) where
 
 import Unsafe.Coerce (unsafeCoerce)
 

@@ -4,7 +4,6 @@ module Web.GPU.GPU
   , GPURequestAdapter
   ) where
 
-
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Web.GPU.GPUPowerPreference (GPUPowerPreference)

@@ -41,8 +41,7 @@ module Web.GPU.Device
   , limits
   , queue
   , vertexBufferLayout
-  )
-  where
+  ) where
 
 import Prelude
 

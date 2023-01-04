@@ -10,8 +10,7 @@ module Web.GPU.GPUFeatureName
   , textureCompressionBc
   , textureCompressionEtc2
   , timestampQuery
-  )
-  where
+  ) where
 
 import Prelude
 

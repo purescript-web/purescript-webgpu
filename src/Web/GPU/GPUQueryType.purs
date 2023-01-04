@@ -2,8 +2,7 @@ module Web.GPU.GPUQueryType
   ( GPUQueryType
   , occlusion
   , timestamp
-  )
-  where
+  ) where
 
 import Prelude
 

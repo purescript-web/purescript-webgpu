@@ -1,1 +1,3 @@
-export const unsafeAdd = (entry) => ({ entries }) => ({ entries: [...entries, entry] });
+export const unsafeAdd =
+  (entry) =>
+  ({ entries }) => ({ entries: [...entries, entry] });

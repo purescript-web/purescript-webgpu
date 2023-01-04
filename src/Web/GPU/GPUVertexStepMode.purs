@@ -10,5 +10,6 @@ derive newtype instance Show GPUVertexStepMode
 
 vertex :: GPUVertexStepMode
 vertex = GPUVertexStepMode "vertex"
+
 instance' :: GPUVertexStepMode
 instance' = GPUVertexStepMode "instance"

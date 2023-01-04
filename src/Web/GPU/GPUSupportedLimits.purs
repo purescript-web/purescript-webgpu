@@ -4,8 +4,7 @@ module Web.GPU.GPUSupportedLimits
   , Identity'
   , UndefinableGPUSupportedLimits
   , defaultGPUSupportedLimits
-  )
-  where
+  ) where
 
 import Web.GPU.Internal.Undefinable (Undefinable, undefined)
 import Web.GPU.Internal.Unsigned (UnsignedLong, UnsignedLongLong)

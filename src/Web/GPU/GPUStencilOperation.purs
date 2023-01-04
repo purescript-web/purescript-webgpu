@@ -8,8 +8,7 @@ module Web.GPU.GPUStencilOperation
   , keep
   , replace
   , zero
-  )
-  where
+  ) where
 
 import Prelude
 

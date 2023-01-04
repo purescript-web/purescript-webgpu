@@ -3,8 +3,7 @@ module Web.GPU.GPUBufferBindingType
   , readOnlyStorage
   , storage
   , uniform
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -16,7 +15,9 @@ derive newtype instance Show GPUBufferBindingType
 
 uniform :: GPUBufferBindingType
 uniform = GPUBufferBindingType "uniform"
+
 storage :: GPUBufferBindingType
-storage = GPUBufferBindingType    "storage"
+storage = GPUBufferBindingType "storage"
+
 readOnlyStorage :: GPUBufferBindingType
-readOnlyStorage = GPUBufferBindingType    "read-only-storage"
+readOnlyStorage = GPUBufferBindingType "read-only-storage"

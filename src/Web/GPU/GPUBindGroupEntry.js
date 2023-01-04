@@ -1,1 +1,1 @@
-export const unsafeAdd = (entry) => (entries) => ([...entries, entry]);
+export const unsafeAdd = (entry) => (entries) => [...entries, entry];

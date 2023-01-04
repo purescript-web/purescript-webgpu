@@ -13,8 +13,7 @@ module Web.GPU.GPUBlendFactor
   , srcAlpha
   , srcAlphaSaturated
   , zero
-  )
-  where
+  ) where
 
 import Prelude
 

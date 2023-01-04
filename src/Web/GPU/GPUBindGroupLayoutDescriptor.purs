@@ -12,6 +12,7 @@ import Web.GPU.Internal.Types (GPUBindGroupLayoutDescriptor, GPUBindGroupLayoutE
 
 empty :: GPUBindGroupLayoutDescriptor ()
 empty = unsafeCoerce { entries: [] }
+
 foreign import unsafeAdd :: forall x y z. x -> y -> z
 
 add

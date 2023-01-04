@@ -10,8 +10,7 @@ module Web.GPU.Internal.Unsigned
   , UnsignedLong
   , UnsignedLongLong
   , UnsignedShort
-  )
-  where
+  ) where
 
 type Long = Int
 type UnsignedShort = Int

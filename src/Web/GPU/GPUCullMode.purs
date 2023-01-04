@@ -3,8 +3,7 @@ module Web.GPU.GPUCullMode
   , back
   , front
   , none
-  )
-  where
+  ) where
 
 import Prelude
 

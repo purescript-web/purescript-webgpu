@@ -29,8 +29,7 @@ module Web.GPU.Internal.Types
   , GPUTexture
   , GPUTextureBindingLayout
   , GPUTextureView
-  )
-  where
+  ) where
 
 data GPU
 data GPUAdapter
@@ -46,6 +45,7 @@ data GPUBindGroupLayoutDescriptor (entries :: Row Binding)
 data GPUPipelineLayoutDescriptor (entries :: Row Type)
 data Binding
 data GPUBindGroupLayoutEntry (i :: Int) (binding :: Binding)
+
 foreign import data GPUBufferBindingLayout :: Binding
 foreign import data GPUSamplerBindingLayout :: Binding
 foreign import data GPUTextureBindingLayout :: Binding

@@ -8,7 +8,6 @@ module Web.GPU.GPUAdapter
   , requestDevice
   ) where
 
-
 import Data.Maybe (Maybe(..))
 import Data.Set as Set
 import Effect (Effect)

@@ -31,8 +31,7 @@ module Web.GPU.Internal.Ints
   , b7
   , b8
   , b9
-  )
-  where
+  ) where
 
 import Type.Proxy (Proxy(..))
 

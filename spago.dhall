@@ -13,7 +13,6 @@ to generate this file without the comments in this block.
 { name = "webgpu"
 , dependencies =
   [ "arraybuffer-types"
-  , "arrays"
   , "effect"
   , "foreign"
   , "foreign-object"
@@ -22,7 +21,6 @@ to generate this file without the comments in this block.
   , "ordered-collections"
   , "prelude"
   , "record"
-  , "tuples"
   , "unsafe-coerce"
   , "web-html"
   , "web-promise"

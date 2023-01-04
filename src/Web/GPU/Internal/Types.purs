@@ -7,20 +7,27 @@ module Web.GPU.Internal.Types
   , GPUBindGroupLayout
   , GPUBindGroupLayoutEntry
   , GPUBuffer
+  , GPUColor
+  , GPUCommandBuffer
   , GPUCommandEncoder
+  , GPUComputePassEncoder
   , GPUComputePipeline
   , GPUDevice
+  , GPUExtent3D
   , GPUExternalTexture
+  , GPUOrigin3D
   , GPUPipelineLayout
   , GPUQuerySet
   , GPUQueue
+  , GPURenderPassEncoder
   , GPURenderPipeline
   , GPUSampler
   , GPUShaderModule
   , GPUShaderModuleCompilationHint
   , GPUTexture
   , GPUTextureView
-  ) where
+  )
+  where
 
 data GPU
 data GPUAdapter
@@ -44,3 +51,9 @@ data GPUComputePipeline
 data GPURenderPipeline
 data GPUCommandEncoder
 data GPUQuerySet
+data GPUColor
+data GPURenderPassEncoder
+data GPUComputePassEncoder
+data GPUCommandBuffer
+data GPUOrigin3D
+data GPUExtent3D

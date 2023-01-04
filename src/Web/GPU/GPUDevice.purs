@@ -57,7 +57,6 @@ import Web.GPU.GPUBufferUsage (GPUBufferUsage)
 import Web.GPU.GPUColorWrite (GPUColorWrite)
 import Web.GPU.GPUCompareFunction (GPUCompareFunction)
 import Web.GPU.GPUCullMode (GPUCullMode)
-import Web.GPU.GPUExtent3D (class AsGPUExtent3D, asGPUExtent3D)
 import Web.GPU.GPUFeatureName (GPUFeatureName)
 import Web.GPU.GPUFilterMode (GPUFilterMode)
 import Web.GPU.GPUFrontFace (GPUFrontFace)
@@ -78,7 +77,7 @@ import Web.GPU.GPUTextureViewDimension (GPUTextureViewDimension)
 import Web.GPU.GPUVertexFormat (GPUVertexFormat)
 import Web.GPU.GPUVertexStepMode (GPUVertexStepMode)
 import Web.GPU.Internal.ConvertibleOptions (class ConvertOption, class ConvertOptionsWithDefaults, convertOptionsWithDefaults)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupEntry, GPUBindGroupLayout, GPUBindGroupLayoutEntry, GPUBuffer, GPUCommandEncoder, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUPipelineLayout, GPUQuerySet, GPUQueue, GPURenderPipeline, GPUSampler, GPUShaderModule, GPUShaderModuleCompilationHint, GPUTexture)
+import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupEntry, GPUBindGroupLayout, GPUBindGroupLayoutEntry, GPUBuffer, GPUCommandEncoder, GPUComputePipeline, GPUDevice, GPUExtent3D, GPUExternalTexture, GPUPipelineLayout, GPUQuerySet, GPUQueue, GPURenderPipeline, GPUSampler, GPUShaderModule, GPUShaderModuleCompilationHint, GPUTexture)
 import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
 import Web.GPU.Internal.Unsigned (GPUDepthBias, GPUIntegerCoordinate, GPUSampleMask, GPUSize32, GPUSize64, GPUStencilValue, UnsignedShort, GPUIndex32)
 import Web.GPU.PredefinedColorSpace (PredefinedColorSpace)
@@ -160,8 +159,8 @@ type GPUTextureDescriptorOptional =
   , label :: Undefinable String
   )
 
-type GPUTextureDescriptor gpuExtent3D =
-  ( size :: gpuExtent3D
+type GPUTextureDescriptor =
+  ( size :: GPUExtent3D
   , usage :: GPUTextureUsage
   , format :: GPUTextureFormat
   | GPUTextureDescriptorOptional
@@ -178,9 +177,6 @@ defaultGPUTextureDescriptorOptions =
 
 data TextureDescriptor = TextureDescriptor
 
-instance AsGPUExtent3D gpuExtent3DProvided gpuExtent3D => ConvertOption TextureDescriptor "size" gpuExtent3DProvided gpuExtent3D where
-  convertOption _ _ = asGPUExtent3D
-
 instance ConvertOption TextureDescriptor "mipLevelCount" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
   convertOption _ _ = defined
 
@@ -196,17 +192,17 @@ instance ConvertOption TextureDescriptor "viewFormats" (Array GPUTextureFormat) 
 instance ConvertOption TextureDescriptor "label" String (Undefinable String) where
   convertOption _ _ = defined
 
-foreign import createTextureImpl :: forall gpuExtent3D. GPUDevice -> { | GPUTextureDescriptor gpuExtent3D } -> Effect GPUTexture
+foreign import createTextureImpl :: GPUDevice -> { | GPUTextureDescriptor } -> Effect GPUTexture
 
 createTexture
-  :: forall provided gpuExtent3D
-   . ConvertOptionsWithDefaults TextureDescriptor { | GPUTextureDescriptorOptional } { | provided } { | GPUTextureDescriptor gpuExtent3D }
+  :: forall provided
+   . ConvertOptionsWithDefaults TextureDescriptor { | GPUTextureDescriptorOptional } { | provided } { | GPUTextureDescriptor }
   => GPUDevice
   -> { | provided }
   -> Effect GPUTexture
 createTexture gpuDevice provided = createTextureImpl gpuDevice all
   where
-  all :: { | GPUTextureDescriptor gpuExtent3D }
+  all :: { | GPUTextureDescriptor }
   all = convertOptionsWithDefaults
     TextureDescriptor
     defaultGPUTextureDescriptorOptions

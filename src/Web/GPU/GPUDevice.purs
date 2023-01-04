@@ -6,6 +6,7 @@ module Web.GPU.Device
   , ExternalTextureBindingLayout
   , ExternalTextureDescriptor
   , GPUColorTargetState
+  , RenderPipelineDescriptor
   , SamplerBindingLayout
   , SamplerDescriptor
   , ShaderModuleDescriptor
@@ -13,7 +14,6 @@ module Web.GPU.Device
   , TextureBindingLayout
   , TextureDescriptor
   , VertexBufferLayout
-  , RenderPipelineDescriptor
   , bindGroupLayoutEntryForBuffer
   , bindGroupLayoutEntryForExternalTexture
   , bindGroupLayoutEntryForSampler
@@ -24,8 +24,10 @@ module Web.GPU.Device
   , createBindGroupLayout
   , createBuffer
   , createComputePipeline
+  , createComputePipelineAsnyc
   , createPipelineLayout
   , createRenderPipeline
+  , createRenderPipelineAsync
   , createSampler
   , createShaderModule
   , createTexture
@@ -81,6 +83,7 @@ import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
 import Web.GPU.Internal.Unsigned (GPUIndex32, GPUIntegerCoordinate, GPUSampleMask, GPUSize32, GPUSize64, GPUStencilValue, UnsignedShort, GPUDepthBias)
 import Web.GPU.PredefinedColorSpace (PredefinedColorSpace)
 import Web.HTML (HTMLVideoElement)
+import Web.Promise (Promise)
 
 -- features
 foreign import featuresImpl :: (GPUFeatureName -> Set.Set GPUFeatureName -> Set.Set GPUFeatureName) -> Set.Set GPUFeatureName -> GPUDevice -> Effect (Set.Set GPUFeatureName)
@@ -175,22 +178,22 @@ defaultGPUTextureDescriptorOptions =
 
 data TextureDescriptor = TextureDescriptor
 
-instance AsGPUExtent3D gpuExtent3DProvided gpuExtent3D => ConvertOption TextureDescriptor  "size" gpuExtent3DProvided gpuExtent3D where
+instance AsGPUExtent3D gpuExtent3DProvided gpuExtent3D => ConvertOption TextureDescriptor "size" gpuExtent3DProvided gpuExtent3D where
   convertOption _ _ = asGPUExtent3D
 
-instance ConvertOption TextureDescriptor  "mipLevelCount" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
+instance ConvertOption TextureDescriptor "mipLevelCount" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
   convertOption _ _ = defined
 
-instance ConvertOption TextureDescriptor  "sampleCount" GPUSize32 (Undefinable GPUSize32) where
+instance ConvertOption TextureDescriptor "sampleCount" GPUSize32 (Undefinable GPUSize32) where
   convertOption _ _ = defined
 
-instance ConvertOption TextureDescriptor  "dimension" GPUTextureDimension (Undefinable GPUTextureDimension) where
+instance ConvertOption TextureDescriptor "dimension" GPUTextureDimension (Undefinable GPUTextureDimension) where
   convertOption _ _ = defined
 
-instance ConvertOption TextureDescriptor  "viewFormats" (Array GPUTextureFormat) (Undefinable (Array GPUTextureFormat)) where
+instance ConvertOption TextureDescriptor "viewFormats" (Array GPUTextureFormat) (Undefinable (Array GPUTextureFormat)) where
   convertOption _ _ = defined
 
-instance ConvertOption TextureDescriptor  "label" String (Undefinable String) where
+instance ConvertOption TextureDescriptor "label" String (Undefinable String) where
   convertOption _ _ = defined
 
 foreign import createTextureImpl :: forall gpuExtent3D. GPUDevice -> { | GPUTextureDescriptor gpuExtent3D } -> Effect GPUTexture
@@ -873,7 +876,7 @@ type GPUBlendState gpuBlendColor gpuBlendAlpha =
   )
 
 instance ConvertOptionsWithDefaults BlendComponent { | GPUBlendComponentOptional } { | gpuBlendColor } { | GPUBlendComponent } => ConvertOption BlendComponent "color" { | gpuBlendColor } { | GPUBlendComponent } where
-  convertOption _ _ provided =  convertOptionsWithDefaults BlendComponent defaultGPUBlendComponentOptions provided
+  convertOption _ _ provided = convertOptionsWithDefaults BlendComponent defaultGPUBlendComponentOptions provided
 
 instance ConvertOptionsWithDefaults BlendComponent { | GPUBlendComponentOptional } { | gpuBlendAlpha } { | GPUBlendComponent } => ConvertOption BlendComponent "alpha" { | gpuBlendAlpha } { | GPUBlendComponent } where
   convertOption _ _ provided = convertOptionsWithDefaults BlendComponent defaultGPUBlendComponentOptions provided
@@ -890,7 +893,7 @@ type GPUColorTargetState' gpuBlendColor gpuBlendAlpha =
   | GPUColorTargetStateOptional gpuBlendColor gpuBlendAlpha
   )
 
-newtype GPUColorTargetState = GPUColorTargetState  { | GPUColorTargetState' GPUBlendComponent GPUBlendComponent }
+newtype GPUColorTargetState = GPUColorTargetState { | GPUColorTargetState' GPUBlendComponent GPUBlendComponent }
 
 defaultGPUColorTargetStateOptions :: forall gpuBlendColor gpuBlendAlpha. { | GPUColorTargetStateOptional gpuBlendColor gpuBlendAlpha }
 defaultGPUColorTargetStateOptions = { blend: undefined, writeMask: undefined }
@@ -975,6 +978,35 @@ createRenderPipeline
   -> { | provided }
   -> Effect GPURenderPipeline
 createRenderPipeline gpuDevice provided = createRenderPipelineImpl gpuDevice all
+  where
+  all :: { | GPURenderPipelineDescriptor GPUStencilFaceState GPUStencilFaceState }
+  all = convertOptionsWithDefaults RenderPipelineDescriptor defaultGPURenderPipelineDescriptorOptions provided
+
+-- createComputePipelineAsnyc
+foreign import createComputePipelineAsyncImpl :: GPUDevice -> { | GPUComputePipelineDescriptor } -> Effect (Promise GPUComputePipeline)
+
+createComputePipelineAsnyc
+  :: forall provided
+   . ConvertOptionsWithDefaults ComputePipelineDescriptor { | GPUComputePipelineDescriptorOptional } { | provided } { | GPUComputePipelineDescriptor }
+  => GPUDevice
+  -> { | provided }
+  -> Effect (Promise GPUComputePipeline)
+createComputePipelineAsnyc gpuDevice provided = createComputePipelineAsyncImpl gpuDevice all
+  where
+  all :: { | GPUComputePipelineDescriptor }
+  all = convertOptionsWithDefaults ComputePipelineDescriptor defaultGPUComputePipelineDescriptorOptions provided
+
+-- createRenderPipelineAsync
+
+foreign import createRenderPipelineAsyncImpl :: forall stencilFront stencilBack. GPUDevice -> { | GPURenderPipelineDescriptor stencilFront stencilBack } -> Effect (Promise GPURenderPipeline)
+
+createRenderPipelineAsync
+  :: forall provided stencilFront stencilBack
+   . ConvertOptionsWithDefaults RenderPipelineDescriptor { | GPURenderPipelineDescriptorOptional stencilFront stencilBack } { | provided } { | GPURenderPipelineDescriptor GPUStencilFaceState GPUStencilFaceState }
+  => GPUDevice
+  -> { | provided }
+  -> Effect (Promise GPURenderPipeline)
+createRenderPipelineAsync gpuDevice provided = createRenderPipelineAsyncImpl gpuDevice all
   where
   all :: { | GPURenderPipelineDescriptor GPUStencilFaceState GPUStencilFaceState }
   all = convertOptionsWithDefaults RenderPipelineDescriptor defaultGPURenderPipelineDescriptorOptions provided

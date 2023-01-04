@@ -1,10 +1,15 @@
-module Web.GPU.GPUShaderModule (compilationInfo, GPUCompilationMessageType, error, warning, info) where
+module Web.GPU.GPUShaderModule
+  ( compilationInfo
+  , GPUCompilationMessageType
+  , error
+  , warning
+  , info
+  ) where
 
 import Prelude
 
 import Effect (Effect)
-import Web.GPU.Internal.Types (GPUShaderModule)
-import Web.GPU.Internal.Unsigned (UnsignedLongLong)
+import Web.GPU.Internal.Types (GPUShaderModule, UnsignedLongLong)
 import Web.Promise (Promise)
 
 newtype GPUCompilationMessageType = GPUCompilationMessageType String
@@ -35,7 +40,8 @@ type GPUCompilationInfo =
   { messages :: Array GPUCompilationMessage
   }
 
-foreign import compilationInfoImpl :: GPUShaderModule -> Effect (Promise GPUCompilationInfo)
+foreign import compilationInfoImpl
+  :: GPUShaderModule -> Effect (Promise GPUCompilationInfo)
 
 compilationInfo :: GPUShaderModule -> Effect (Promise GPUCompilationInfo)
 compilationInfo = compilationInfoImpl

@@ -143,9 +143,13 @@ rgba32float = GPUTextureFormat "rgba32float" :: GPUTextureFormat
 stencil8 = GPUTextureFormat "stencil8" :: GPUTextureFormat
 depth16unorm = GPUTextureFormat "depth16unorm" :: GPUTextureFormat
 depth24plus = GPUTextureFormat "depth24plus" :: GPUTextureFormat
-depth24plusStencil8 = GPUTextureFormat "depth24plus-stencil8" :: GPUTextureFormat
+depth24plusStencil8 =
+  GPUTextureFormat "depth24plus-stencil8" :: GPUTextureFormat
+
 depth32float = GPUTextureFormat "depth32float" :: GPUTextureFormat
-depth32floatStencil8 = GPUTextureFormat "depth32float-stencil8" :: GPUTextureFormat
+depth32floatStencil8 =
+  GPUTextureFormat "depth32float-stencil8" :: GPUTextureFormat
+
 bc1RgbaUnorm = GPUTextureFormat "bc1-rgba-unorm" :: GPUTextureFormat
 bc1RgbaUnormSrgb = GPUTextureFormat "bc1-rgba-unorm-srgb" :: GPUTextureFormat
 bc2RgbaUnorm = GPUTextureFormat "bc2-rgba-unorm" :: GPUTextureFormat
@@ -163,7 +167,9 @@ bc7RgbaUnormSrgb = GPUTextureFormat "bc7-rgba-unorm-srgb" :: GPUTextureFormat
 etc2Rgb8unorm = GPUTextureFormat "etc2-rgb8unorm" :: GPUTextureFormat
 etc2Rgb8unormSrgb = GPUTextureFormat "etc2-rgb8unorm-srgb" :: GPUTextureFormat
 etc2Rgb8a1unorm = GPUTextureFormat "etc2-rgb8a1unorm" :: GPUTextureFormat
-etc2Rgb8a1unormSrgb = GPUTextureFormat "etc2-rgb8a1unorm-srgb" :: GPUTextureFormat
+etc2Rgb8a1unormSrgb =
+  GPUTextureFormat "etc2-rgb8a1unorm-srgb" :: GPUTextureFormat
+
 etc2Rgba8unorm = GPUTextureFormat "etc2-rgba8unorm" :: GPUTextureFormat
 etc2Rgba8unormSrgb = GPUTextureFormat "etc2-rgba8unorm-srgb" :: GPUTextureFormat
 eacR11unorm = GPUTextureFormat "eac-r11unorm" :: GPUTextureFormat
@@ -193,8 +199,13 @@ astc10x6UnormSrgb = GPUTextureFormat "astc-10x6-unorm-srgb" :: GPUTextureFormat
 astc10x8Unorm = GPUTextureFormat "astc-10x8-unorm" :: GPUTextureFormat
 astc10x8UnormSrgb = GPUTextureFormat "astc-10x8-unorm-srgb" :: GPUTextureFormat
 astc10x10Unorm = GPUTextureFormat "astc-10x10-unorm" :: GPUTextureFormat
-astc10x10UnormSrgb = GPUTextureFormat "astc-10x10-unorm-srgb" :: GPUTextureFormat
+astc10x10UnormSrgb =
+  GPUTextureFormat "astc-10x10-unorm-srgb" :: GPUTextureFormat
+
 astc12x10Unorm = GPUTextureFormat "astc-12x10-unorm" :: GPUTextureFormat
-astc12x10UnormSrgb = GPUTextureFormat "astc-12x10-unorm-srgb" :: GPUTextureFormat
+astc12x10UnormSrgb =
+  GPUTextureFormat "astc-12x10-unorm-srgb" :: GPUTextureFormat
+
 astc12x12Unorm = GPUTextureFormat "astc-12x12-unorm" :: GPUTextureFormat
-astc12x12UnormSrgb = GPUTextureFormat "astc-12x12-unorm-srgb" :: GPUTextureFormat
+astc12x12UnormSrgb =
+  GPUTextureFormat "astc-12x12-unorm-srgb" :: GPUTextureFormat

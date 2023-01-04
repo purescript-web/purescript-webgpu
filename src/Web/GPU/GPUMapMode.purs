@@ -6,7 +6,7 @@ module Web.GPU.GPUMapMode
 
 import Data.Int.Bits as Bits
 import Web.GPU.Internal.Bitwise (class Bitwise)
-import Web.GPU.Internal.Unsigned (UnsignedLong)
+import Web.GPU.Internal.Types (UnsignedLong)
 
 newtype GPUMapMode = GPUMapMode UnsignedLong
 

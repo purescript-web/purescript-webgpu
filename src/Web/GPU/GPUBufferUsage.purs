@@ -1,5 +1,6 @@
 module Web.GPU.GPUBufferUsage
   ( GPUBufferUsage
+  , GPUBufferUsageFlags
   , copyDst
   , copySrc
   , index
@@ -14,7 +15,7 @@ module Web.GPU.GPUBufferUsage
 
 import Data.Int.Bits as Bits
 import Web.GPU.Internal.Bitwise (class Bitwise)
-import Web.GPU.Internal.Unsigned (UnsignedLong)
+import Web.GPU.Internal.Types (UnsignedLong)
 
 newtype GPUBufferUsage = GPUBufferUsage UnsignedLong
 
@@ -32,3 +33,4 @@ foreign import queryResolve :: GPUBufferUsage
 instance Bitwise GPUBufferUsage where
   or (GPUBufferUsage a) (GPUBufferUsage b) = GPUBufferUsage (a `Bits.or` b)
 
+type GPUBufferUsageFlags = GPUBufferUsage

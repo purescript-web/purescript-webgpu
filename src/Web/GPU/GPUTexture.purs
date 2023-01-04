@@ -1,6 +1,5 @@
 module Web.GPU.GPUTexture
-  ( TextureViewDescriptor
-  , createViewWithDescriptor
+  ( createViewWithDescriptor
   , createView
   , destroy
   , width
@@ -16,60 +15,20 @@ module Web.GPU.GPUTexture
 import Prelude
 
 import Effect (Effect)
-import Web.GPU.GPUTextureAspect (GPUTextureAspect)
 import Web.GPU.GPUTextureDimension (GPUTextureDimension)
 import Web.GPU.GPUTextureFormat (GPUTextureFormat)
 import Web.GPU.GPUTextureUsage (GPUTextureUsage)
-import Web.GPU.GPUTextureViewDimension (GPUTextureViewDimension)
-import Web.GPU.Internal.ConvertibleOptions (class ConvertOption, class ConvertOptionsWithDefaults, convertOptionsWithDefaults)
-import Web.GPU.Internal.Types (GPUTexture, GPUTextureView)
-import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
-import Web.GPU.Internal.Unsigned (GPUIntegerCoordinate, GPUSize32)
+import Web.GPU.GPUTextureViewDescriptor (GPUTextureViewDescriptor)
+import Web.GPU.Internal.Types (GPUTexture, GPUTextureView, GPUIntegerCoordinate, GPUSize32)
 
-type GPUTextureViewDescriptorOptional =
-  ( aspect :: Undefinable GPUTextureAspect
-  , baseMipLevel :: Undefinable GPUIntegerCoordinate
-  , baseArrayLayer :: Undefinable GPUIntegerCoordinate
-  )
-
-type GPUTextureViewDescriptor =
-  ( format :: GPUTextureFormat
-  , dimension :: GPUTextureViewDimension
-  , mipLevelCount :: GPUIntegerCoordinate
-  , arrayLayerCount :: GPUIntegerCoordinate
-  | GPUTextureViewDescriptorOptional
-  )
-
-defaultGPUTextureViewDescriptorOptions :: { | GPUTextureViewDescriptorOptional }
-defaultGPUTextureViewDescriptorOptions =
-  { aspect: undefined
-  , baseMipLevel: undefined
-  , baseArrayLayer: undefined
-  }
-
-data TextureViewDescriptor = TextureViewDescriptor
-
-instance ConvertOption TextureViewDescriptor "aspect" GPUTextureAspect (Undefinable GPUTextureAspect) where
-  convertOption _ _ = defined
-
-instance ConvertOption TextureViewDescriptor "baseMipLevel" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
-  convertOption _ _ = defined
-
-instance ConvertOption TextureViewDescriptor "baseArrayLayer" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
-  convertOption _ _ = defined
-
-foreign import createViewWithDescriptorImpl :: GPUTexture -> { | GPUTextureViewDescriptor } -> Effect GPUTextureView
+foreign import createViewWithDescriptorImpl
+  :: GPUTexture -> GPUTextureViewDescriptor -> Effect GPUTextureView
 
 createViewWithDescriptor
-  :: forall provided
-   . ConvertOptionsWithDefaults TextureViewDescriptor { | GPUTextureViewDescriptorOptional } { | provided } { | GPUTextureViewDescriptor }
-  => GPUTexture
-  -> { | provided }
+  :: GPUTexture
+  -> GPUTextureViewDescriptor
   -> Effect GPUTextureView
-createViewWithDescriptor gpuDevice provided = createViewWithDescriptorImpl gpuDevice all
-  where
-  all :: { | GPUTextureViewDescriptor }
-  all = convertOptionsWithDefaults TextureViewDescriptor defaultGPUTextureViewDescriptorOptions provided
+createViewWithDescriptor = createViewWithDescriptorImpl
 
 foreign import createViewImpl :: GPUTexture -> Effect GPUTextureView
 
@@ -93,7 +52,8 @@ foreign import heightImpl :: GPUTexture -> Effect GPUIntegerCoordinate
 height :: GPUTexture -> Effect GPUIntegerCoordinate
 height = heightImpl
 
-foreign import depthOrArrayLayersImpl :: GPUTexture -> Effect GPUIntegerCoordinate
+foreign import depthOrArrayLayersImpl
+  :: GPUTexture -> Effect GPUIntegerCoordinate
 
 depthOrArrayLayers :: GPUTexture -> Effect GPUIntegerCoordinate
 depthOrArrayLayers = depthOrArrayLayersImpl

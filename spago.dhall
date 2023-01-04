@@ -18,10 +18,12 @@ to generate this file without the comments in this block.
   , "foreign-object"
   , "integers"
   , "maybe"
+  , "newtype"
   , "ordered-collections"
   , "prelude"
   , "record"
   , "unsafe-coerce"
+  , "web-events"
   , "web-html"
   , "web-promise"
   ]

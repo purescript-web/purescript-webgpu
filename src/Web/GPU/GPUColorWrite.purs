@@ -1,5 +1,6 @@
 module Web.GPU.GPUColorWrite
   ( GPUColorWrite
+  , GPUColorWriteFlags
   , red
   , green
   , blue
@@ -9,7 +10,7 @@ module Web.GPU.GPUColorWrite
 
 import Data.Int.Bits as Bits
 import Web.GPU.Internal.Bitwise (class Bitwise)
-import Web.GPU.Internal.Unsigned (UnsignedLong)
+import Web.GPU.Internal.Types (UnsignedLong)
 
 newtype GPUColorWrite = GPUColorWrite UnsignedLong
 
@@ -22,3 +23,4 @@ foreign import all :: GPUColorWrite
 instance Bitwise GPUColorWrite where
   or (GPUColorWrite a) (GPUColorWrite b) = GPUColorWrite (a `Bits.or` b)
 
+type GPUColorWriteFlags = GPUColorWrite

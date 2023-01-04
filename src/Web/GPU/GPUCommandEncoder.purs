@@ -1,114 +1,50 @@
-module Web.GPU.GPUCommandEncoder where
+module Web.GPU.GPUCommandEncoder
+  ( beginComputePass
+  , beginRenderPass
+  , clearBuffer
+  , clearBufferWithOffset
+  , clearBufferWithOffsetAndSize
+  , clearBufferWithSize
+  , copyBufferToBuffer
+  , copyBufferToTexture
+  , copyTextureToBuffer
+  , copyTextureToTexture
+  , finish
+  , insertDebugMarker
+  , popDebugGroup
+  , pushDebugGroup
+  , resolveQuerySet
+  , writeTimestamp
+  )
+  where
 
 import Prelude
 
 import Effect (Effect)
-import Web.GPU.GPUComputePassTimestampLocation (GPUComputePassTimestampLocation)
-import Web.GPU.GPULoadOp (GPULoadOp)
-import Web.GPU.GPURenderPassTimestampLocation (GPURenderPassTimestampLocation)
-import Web.GPU.GPUStoreOp (GPUStoreOp)
-import Web.GPU.GPUTextureAspect (GPUTextureAspect)
-import Web.GPU.Internal.ConvertibleOptions (class ConvertOption, class ConvertOptionsWithDefaults, convertOptionsWithDefaults)
-import Web.GPU.Internal.Types (GPUBuffer, GPUColor, GPUCommandBuffer, GPUCommandEncoder, GPUComputePassEncoder, GPUExtent3D, GPUOrigin3D, GPUQuerySet, GPURenderPassEncoder, GPUTexture, GPUTextureView)
-import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
-import Web.GPU.Internal.Unsigned (GPUSize32, GPUSize64, GPUStencilValue, GPUIntegerCoordinate)
+import Web.GPU.GPUComputePassDescriptor (GPUComputePassDescriptor)
+import Web.GPU.GPUImageCopyBuffer (GPUImageCopyBuffer)
+import Web.GPU.GPUImageCopyTexture (GPUImageCopyTexture)
+import Web.GPU.GPURenderPassDescriptor (GPURenderPassDescriptor)
+import Web.GPU.Internal.Types (GPUBuffer, GPUCommandBuffer, GPUCommandEncoder, GPUComputePassEncoder, GPUExtent3D, GPUQuerySet, GPURenderPassEncoder, GPUSize32, GPUSize64)
 
--- todo
--- convertible options on GPURenderPassDescriptor
+foreign import beginRenderPassImpl
+  :: GPUCommandEncoder
+  -> GPURenderPassDescriptor
+  -> Effect GPURenderPassEncoder
 
-type GPURenderPassTimestampWrite =
-  { querySet :: GPUQuerySet
-  , queryIndex :: GPUSize32
-  , location :: GPURenderPassTimestampLocation
-  }
+beginRenderPass
+  :: GPUCommandEncoder -> GPURenderPassDescriptor -> Effect GPURenderPassEncoder
+beginRenderPass = beginRenderPassImpl
 
-type GPURenderPassTimestampWrites = Array GPURenderPassTimestampWrite
+foreign import beginComputePassImpl
+  :: GPUCommandEncoder
+  -> GPUComputePassDescriptor
+  -> GPUComputePassEncoder
 
-type GPURenderPassDescriptorOptional :: forall k. k -> Row Type
-type GPURenderPassDescriptorOptional gpuRenderPassDepthStencilAttachment =
-  ( depthStencilAttachment :: Undefinable gpuRenderPassDepthStencilAttachment
-  , occlusionQuerySet :: Undefinable GPUQuerySet
-  , timestampWrites :: Undefinable GPURenderPassTimestampWrites
-  , maxDrawCount :: Undefinable GPUSize64
-  )
+beginComputePass
+  :: GPUCommandEncoder -> GPUComputePassDescriptor -> GPUComputePassEncoder
+beginComputePass = beginComputePassImpl
 
-type GPURenderPassColorAttachmentOptional =
-  ( resolveTarget :: Undefinable GPUTextureView
-  , clearValue :: Undefinable GPUColor
-  )
-
-type GPURenderPassColorAttachment =
-  ( view :: GPUTextureView
-  , loadOp :: GPULoadOp
-  , storeOp :: GPUStoreOp
-  | GPURenderPassColorAttachmentOptional
-  )
-
-defaultGPURenderPassColorAttachmentOptions :: { | GPURenderPassColorAttachmentOptional }
-defaultGPURenderPassColorAttachmentOptions =
-  { resolveTarget: undefined
-  , clearValue: undefined
-  }
-
-data RenderPassColorAttachment = RenderPassColorAttachment
-
-instance ConvertOption RenderPassColorAttachment "resolveTarget" GPUTextureView (Undefinable GPUTextureView) where
-  convertOption _ _ = defined
-
-instance ConvertOption RenderPassColorAttachment "clearValue" GPUColor (Undefinable GPUColor) where
-  convertOption _ _ = defined
-
-gpuRenderPassColorAttachment
-  :: forall provided
-   . ConvertOptionsWithDefaults RenderPassColorAttachment { | GPURenderPassColorAttachmentOptional } { | provided } { | GPURenderPassColorAttachment }
-  => { | provided }
-  -> { | GPURenderPassColorAttachment }
-
-gpuRenderPassColorAttachment provided = all
-  where
-  all :: { | GPURenderPassColorAttachment }
-  all = convertOptionsWithDefaults RenderPassColorAttachment defaultGPURenderPassColorAttachmentOptions provided
-
-type GPURenderPassDepthStencilAttachmentOptional =
-  ( depthClearValue :: Undefinable Number
-  , depthReadOnly :: Undefinable Boolean
-  , stencilClearValue :: Undefinable GPUStencilValue
-  , stencilReadOnly :: Undefinable Boolean
-  )
-
-type GPURenderPassDepthStencilAttachment =
-  ( view :: GPUTextureView
-  , depthLoadOp :: GPULoadOp
-  , depthStoreOp :: GPUStoreOp
-  , stencilLoadOp :: GPULoadOp
-  , stencilStoreOp :: GPUStoreOp
-  | GPURenderPassDepthStencilAttachmentOptional
-  )
-
-type GPURenderPassDescriptor :: forall k. k -> Row Type
-type GPURenderPassDescriptor gpuRenderPassDepthStencilAttachment =
-  ( colorAttachments :: Array { | GPURenderPassColorAttachment }
-  | GPURenderPassDescriptorOptional gpuRenderPassDepthStencilAttachment
-  )
-
-type GPUComputePassTimestampWrite =
-  { querySet :: GPUQuerySet
-  , queryIndex :: GPUSize32
-  , location :: GPUComputePassTimestampLocation
-  }
-
-type GPUComputePassTimestampWrites = Array GPUComputePassTimestampWrite
-type GPUComputePassDescriptorOptional =
-  ( timestampWrites :: Undefinable GPUComputePassTimestampWrites
-  )
-
-type GPUComputePassDescriptor =
-  (
-  | GPUComputePassDescriptorOptional
-  )
-
-foreign import beginRenderPassImpl :: GPUCommandEncoder -> { | GPURenderPassDescriptor GPURenderPassDepthStencilAttachment } -> Effect GPURenderPassEncoder
-foreign import beginComputePassImpl :: GPUCommandEncoder -> { | GPUComputePassDescriptor } -> GPUComputePassEncoder
 foreign import copyBufferToBufferImpl
   :: GPUCommandEncoder
   -> GPUBuffer
@@ -118,53 +54,46 @@ foreign import copyBufferToBufferImpl
   -> GPUSize64
   -> Effect Unit
 
-type GPUImageCopyBufferOptional =
-  ( offset :: GPUSize64
-  , bytesPerRow :: GPUSize32
-  , rowsPerImage :: GPUSize32
-  )
-
-type GPUImageCopyBuffer =
-  ( buffer :: GPUBuffer
-  | GPUImageCopyBufferOptional
-  )
-
-type GPUImageCopyTextureOptional =
-  ( mipLevel :: GPUIntegerCoordinate
-  , origin :: GPUOrigin3D
-  , aspect :: GPUTextureAspect
-  )
-
-type GPUImageCopyTexture =
-  ( texture :: GPUTexture
-  | GPUImageCopyTextureOptional
-  )
+copyBufferToBuffer :: GPUCommandEncoder -> GPUBuffer -> Int -> GPUBuffer -> Int -> Int -> Effect Unit
+copyBufferToBuffer = copyBufferToBufferImpl
 
 foreign import copyBufferToTextureImpl
   :: GPUCommandEncoder
-  -> { | GPUImageCopyBuffer }
-  -> { | GPUImageCopyTexture }
+  -> GPUImageCopyBuffer
+  -> GPUImageCopyTexture
   -> GPUExtent3D
   -> Effect Unit
+
+copyBufferToTexture ∷ GPUCommandEncoder → GPUImageCopyBuffer → GPUImageCopyTexture → GPUExtent3D → Effect Unit
+copyBufferToTexture = copyBufferToTextureImpl
 
 foreign import copyTextureToBufferImpl
   :: GPUCommandEncoder
-  -> { | GPUImageCopyTexture }
-  -> { | GPUImageCopyBuffer }
+  -> GPUImageCopyTexture 
+  -> GPUImageCopyBuffer 
   -> GPUExtent3D
   -> Effect Unit
 
+copyTextureToBuffer :: GPUCommandEncoder -> GPUImageCopyTexture -> GPUImageCopyBuffer -> GPUExtent3D -> Effect Unit
+copyTextureToBuffer = copyTextureToBufferImpl
+
 foreign import copyTextureToTextureImpl
   :: GPUCommandEncoder
-  -> { | GPUImageCopyTexture }
-  -> { | GPUImageCopyTexture }
+  -> GPUImageCopyTexture 
+  -> GPUImageCopyTexture 
   -> GPUExtent3D
   -> Effect Unit
+
+copyTextureToTexture :: GPUCommandEncoder -> GPUImageCopyTexture -> GPUImageCopyTexture -> GPUExtent3D -> Effect Unit
+copyTextureToTexture = copyTextureToTextureImpl
 
 foreign import clearBufferImpl
   :: GPUCommandEncoder
   -> GPUBuffer
   -> Effect Unit
+
+clearBuffer :: GPUCommandEncoder -> GPUBuffer -> Effect Unit
+clearBuffer = clearBufferImpl
 
 foreign import clearBufferWithOffsetImpl
   :: GPUCommandEncoder
@@ -172,11 +101,17 @@ foreign import clearBufferWithOffsetImpl
   -> GPUSize64
   -> Effect Unit
 
+clearBufferWithOffset :: GPUCommandEncoder -> GPUBuffer -> Int -> Effect Unit
+clearBufferWithOffset = clearBufferWithOffsetImpl
+
 foreign import clearBufferWithSizeImpl
   :: GPUCommandEncoder
   -> GPUBuffer
   -> GPUSize64
   -> Effect Unit
+
+clearBufferWithSize :: GPUCommandEncoder -> GPUBuffer -> Int -> Effect Unit
+clearBufferWithSize = clearBufferWithSizeImpl
 
 foreign import clearBufferWithOffsetAndSizeImpl
   :: GPUCommandEncoder
@@ -185,7 +120,14 @@ foreign import clearBufferWithOffsetAndSizeImpl
   -> GPUSize64
   -> Effect Unit
 
-foreign import writeTimestampImpl :: GPUCommandEncoder -> GPUQuerySet -> GPUSize32 -> Effect Unit
+clearBufferWithOffsetAndSize :: GPUCommandEncoder -> GPUBuffer -> Int -> Int -> Effect Unit
+clearBufferWithOffsetAndSize = clearBufferWithOffsetAndSizeImpl
+
+foreign import writeTimestampImpl
+  :: GPUCommandEncoder -> GPUQuerySet -> GPUSize32 -> Effect Unit
+writeTimestamp :: GPUCommandEncoder -> GPUQuerySet -> Int -> Effect Unit
+writeTimestamp = writeTimestampImpl
+
 
 foreign import resolveQuerySetImpl
   :: GPUCommandEncoder
@@ -195,9 +137,19 @@ foreign import resolveQuerySetImpl
   -> GPUBuffer
   -> GPUSize64
   -> Effect Unit
+resolveQuerySet :: GPUCommandEncoder -> GPUQuerySet -> Int -> Int -> GPUBuffer -> Int -> Effect Unit
+resolveQuerySet = resolveQuerySetImpl
 
 foreign import finishImpl :: GPUCommandEncoder -> Effect GPUCommandBuffer
+finish :: GPUCommandEncoder -> Effect GPUCommandBuffer
+finish = finishImpl
 
 foreign import pushDebugGroupImpl :: GPUCommandEncoder -> String -> Effect Unit
+pushDebugGroup :: GPUCommandEncoder -> String -> Effect Unit
+pushDebugGroup = pushDebugGroupImpl
 foreign import popDebugGroupImpl :: GPUCommandEncoder -> Effect Unit
+popDebugGroup :: GPUCommandEncoder -> Effect Unit
+popDebugGroup = popDebugGroupImpl
 foreign import insertDebugMarkerImpl :: GPUCommandEncoder -> String -> Effect Unit
+insertDebugMarker :: GPUCommandEncoder -> String -> Effect Unit
+insertDebugMarker = insertDebugMarkerImpl

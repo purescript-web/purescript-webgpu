@@ -1,6 +1,5 @@
 module Web.GPU.Internal.Types
-  ( Binding
-  , GPU
+  ( GPU
   , GPUAdapter
   , GPUBindGroup
   , GPUBindGroupEntry
@@ -12,22 +11,32 @@ module Web.GPU.Internal.Types
   , GPUCommandEncoder
   , GPUComputePassEncoder
   , GPUComputePipeline
+  , GPUDepthBias
   , GPUDevice
   , GPUExtent3D
   , GPUExternalTexture
+  , GPUIndex32
+  , GPUIntegerCoordinate
   , GPUOrigin3D
   , GPUPipelineLayout
   , GPUQuerySet
   , GPUQueue
   , GPURenderPassEncoder
   , GPURenderPipeline
+  , GPUSampleMask
   , GPUSampler
   , GPUShaderModule
   , GPUShaderModuleCompilationHint
+  , GPUSize32
+  , GPUSize64
+  , GPUStencilValue
   , GPUTexture
   , GPUTextureView
-  )
-  where
+  , Long
+  , UnsignedLong
+  , UnsignedLongLong
+  , UnsignedShort
+  ) where
 
 data GPU
 data GPUAdapter
@@ -39,10 +48,8 @@ data GPUSampler
 data GPUExternalTexture
 data GPUBindGroupLayout
 data GPUPipelineLayout
-data Binding
 data GPUBindGroupLayoutEntry
 data GPUBindGroupEntry
-data GPUBindGroupEntries
 data GPUTextureView
 data GPUBindGroup
 data GPUShaderModuleCompilationHint
@@ -57,3 +64,14 @@ data GPUComputePassEncoder
 data GPUCommandBuffer
 data GPUOrigin3D
 data GPUExtent3D
+type Long = Int
+type UnsignedShort = Int
+type UnsignedLong = Int
+type UnsignedLongLong = Int
+type GPUSize64 = UnsignedLongLong
+type GPUIntegerCoordinate = UnsignedLong
+type GPUSize32 = UnsignedLong
+type GPUIndex32 = UnsignedLong
+type GPUStencilValue = UnsignedLong
+type GPUSampleMask = UnsignedLong
+type GPUDepthBias = Long

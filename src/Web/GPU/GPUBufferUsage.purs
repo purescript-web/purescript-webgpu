@@ -10,12 +10,12 @@ module Web.GPU.GPUBufferUsage
   , storage
   , uniform
   , vertex
-  , or
-  , (.|.)
   ) where
 
-import Web.GPU.Internal.Unsigned (UnsignedLong)
 import Data.Int.Bits as Bits
+import Web.GPU.Internal.Bitwise (class Bitwise)
+import Web.GPU.Internal.Unsigned (UnsignedLong)
+
 newtype GPUBufferUsage = GPUBufferUsage UnsignedLong
 
 foreign import mapRead :: GPUBufferUsage
@@ -29,7 +29,6 @@ foreign import storage :: GPUBufferUsage
 foreign import indirect :: GPUBufferUsage
 foreign import queryResolve :: GPUBufferUsage
 
-or :: GPUBufferUsage -> GPUBufferUsage -> GPUBufferUsage
-or (GPUBufferUsage a) (GPUBufferUsage b) = GPUBufferUsage (a `Bits.or` b)
+instance Bitwise GPUBufferUsage where
+  or (GPUBufferUsage a) (GPUBufferUsage b) = GPUBufferUsage (a `Bits.or` b)
 
-infixl 10 or as .|.

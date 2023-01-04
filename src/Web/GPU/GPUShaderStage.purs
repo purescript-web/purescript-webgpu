@@ -3,19 +3,17 @@ module Web.GPU.GPUShaderStage
   , vertex
   , fragment
   , compute
-  , or
-  , (.|.)
   ) where
 
-import Web.GPU.Internal.Unsigned (UnsignedLong)
 import Data.Int.Bits as Bits
+import Web.GPU.Internal.Bitwise (class Bitwise)
+import Web.GPU.Internal.Unsigned (UnsignedLong)
+
 newtype GPUShaderStage = GPUShaderStage UnsignedLong
 
 foreign import vertex :: GPUShaderStage
 foreign import fragment :: GPUShaderStage
 foreign import compute :: GPUShaderStage
 
-or :: GPUShaderStage -> GPUShaderStage -> GPUShaderStage
-or (GPUShaderStage a) (GPUShaderStage b) = GPUShaderStage (a `Bits.or` b)
-
-infixl 10 or as .|.
+instance Bitwise GPUShaderStage where
+  or (GPUShaderStage a) (GPUShaderStage b) = GPUShaderStage (a `Bits.or` b)

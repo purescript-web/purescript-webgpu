@@ -1,48 +1,71 @@
 module Web.GPU.Device
   ( BufferBindingLayout
   , BufferDescriptor
+  , ColorTargetState
+  , ComputePipelineDescriptor
+  , ExternalTextureBindingLayout
   , ExternalTextureDescriptor
+  , GPUColorTargetState
   , SamplerBindingLayout
   , SamplerDescriptor
+  , ShaderModuleDescriptor
   , StorageTextureBindingLayout
   , TextureBindingLayout
   , TextureDescriptor
-  , ExternalTextureBindingLayout
+  , VertexBufferLayout
+  , RenderPipelineDescriptor
   , bindGroupLayoutEntryForBuffer
   , bindGroupLayoutEntryForExternalTexture
   , bindGroupLayoutEntryForSampler
   , bindGroupLayoutEntryForStorageTexture
   , bindGroupLayoutEntryForTexture
+  , colorTargetState
+  , createBindGroup
   , createBindGroupLayout
   , createBuffer
+  , createComputePipeline
   , createPipelineLayout
+  , createRenderPipeline
   , createSampler
+  , createShaderModule
   , createTexture
   , destroy
   , features
   , importExternalTexture
   , limits
   , queue
-  ) where
+  , vertexBufferLayout
+  )
+  where
 
 import Prelude
 
 import Data.Reflectable (class Reflectable, reflectType)
 import Data.Set as Set
 import Effect (Effect)
+import Foreign (Foreign)
+import Foreign.Object (Object)
 import Prim.Int (class Compare)
 import Prim.Ordering (LT)
 import Type.Proxy (Proxy)
 import Web.GPU.GPUAddressMode (GPUAddressMode)
+import Web.GPU.GPUBlendFactor (GPUBlendFactor)
+import Web.GPU.GPUBlendOperation (GPUBlendOperation)
 import Web.GPU.GPUBufferBindingType (GPUBufferBindingType)
 import Web.GPU.GPUBufferUsage (GPUBufferUsage)
+import Web.GPU.GPUColorWrite (GPUColorWrite)
 import Web.GPU.GPUCompareFunction (GPUCompareFunction)
+import Web.GPU.GPUCullMode (GPUCullMode)
 import Web.GPU.GPUExtent3D (class AsGPUExtent3D, asGPUExtent3D)
 import Web.GPU.GPUFeatureName (GPUFeatureName)
 import Web.GPU.GPUFilterMode (GPUFilterMode)
+import Web.GPU.GPUFrontFace (GPUFrontFace)
+import Web.GPU.GPUIndexFormat (GPUIndexFormat)
 import Web.GPU.GPUMipmapFilterMode (GPUMipmapFilterMode)
+import Web.GPU.GPUPrimitiveTopology (GPUPrimitiveTopology)
 import Web.GPU.GPUSamplerBindingType (GPUSamplerBindingType)
 import Web.GPU.GPUShaderStage (GPUShaderStage)
+import Web.GPU.GPUStencilOperation (GPUStencilOperation)
 import Web.GPU.GPUStorageTextureAccess (GPUStorageTextureAccess)
 import Web.GPU.GPUSupportedLimits (GPUSupportedLimits)
 import Web.GPU.GPUTextureDimension (GPUTextureDimension)
@@ -50,10 +73,12 @@ import Web.GPU.GPUTextureFormat (GPUTextureFormat)
 import Web.GPU.GPUTextureSampleType (GPUTextureSampleType)
 import Web.GPU.GPUTextureUsage (GPUTextureUsage)
 import Web.GPU.GPUTextureViewDimension (GPUTextureViewDimension)
+import Web.GPU.GPUVertexFormat (GPUVertexFormat)
+import Web.GPU.GPUVertexStepMode (GPUVertexStepMode)
 import Web.GPU.Internal.ConvertibleOptions (class ConvertOption, class ConvertOptionsWithDefaults, convertOptionsWithDefaults)
-import Web.GPU.Internal.Types (GPUBindGroupLayout, GPUBindGroupLayoutDescriptor, GPUBindGroupLayoutEntry, GPUBuffer, GPUBufferBindingLayout, GPUDevice, GPUExternalTexture, GPUExternalTextureBindingLayout, GPUPipelineLayout, GPUPipelineLayoutDescriptor, GPUQueue, GPUSampler, GPUSamplerBindingLayout, GPUStorageTextureBindingLayout, GPUTexture, GPUTextureBindingLayout)
+import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupDescriptor, GPUBindGroupLayout, GPUBindGroupLayoutDescriptor, GPUBindGroupLayoutEntry, GPUBuffer, GPUBufferBindingLayout, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUExternalTextureBindingLayout, GPUPipelineLayout, GPUPipelineLayoutDescriptor, GPUQueue, GPURenderPipeline, GPUSampler, GPUSamplerBindingLayout, GPUShaderModule, GPUShaderModuleCompilationHint, GPUStorageTextureBindingLayout, GPUTexture, GPUTextureBindingLayout)
 import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
-import Web.GPU.Internal.Unsigned (GPUIntegerCoordinate, GPUSize32, GPUSize64, UnsignedShort, GPUIndex32)
+import Web.GPU.Internal.Unsigned (GPUIndex32, GPUIntegerCoordinate, GPUSampleMask, GPUSize32, GPUSize64, GPUStencilValue, UnsignedShort, GPUDepthBias)
 import Web.GPU.PredefinedColorSpace (PredefinedColorSpace)
 import Web.HTML (HTMLVideoElement)
 
@@ -148,31 +173,31 @@ defaultGPUTextureDescriptorOptions =
   , label: undefined
   }
 
-data TextureDescriptor (gpuExtent3D :: Type) = TextureDescriptor
+data TextureDescriptor = TextureDescriptor
 
-instance AsGPUExtent3D gpuExtent3DProvided gpuExtent3D => ConvertOption (TextureDescriptor gpuExtent3D) "size" gpuExtent3DProvided gpuExtent3D where
+instance AsGPUExtent3D gpuExtent3DProvided gpuExtent3D => ConvertOption TextureDescriptor  "size" gpuExtent3DProvided gpuExtent3D where
   convertOption _ _ = asGPUExtent3D
 
-instance ConvertOption (TextureDescriptor gpuExtent3D) "mipLevelCount" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
+instance ConvertOption TextureDescriptor  "mipLevelCount" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
   convertOption _ _ = defined
 
-instance ConvertOption (TextureDescriptor gpuExtent3D) "sampleCount" GPUSize32 (Undefinable GPUSize32) where
+instance ConvertOption TextureDescriptor  "sampleCount" GPUSize32 (Undefinable GPUSize32) where
   convertOption _ _ = defined
 
-instance ConvertOption (TextureDescriptor gpuExtent3D) "dimension" GPUTextureDimension (Undefinable GPUTextureDimension) where
+instance ConvertOption TextureDescriptor  "dimension" GPUTextureDimension (Undefinable GPUTextureDimension) where
   convertOption _ _ = defined
 
-instance ConvertOption (TextureDescriptor gpuExtent3D) "viewFormats" (Array GPUTextureFormat) (Undefinable (Array GPUTextureFormat)) where
+instance ConvertOption TextureDescriptor  "viewFormats" (Array GPUTextureFormat) (Undefinable (Array GPUTextureFormat)) where
   convertOption _ _ = defined
 
-instance ConvertOption (TextureDescriptor gpuExtent3D) "label" String (Undefinable String) where
+instance ConvertOption TextureDescriptor  "label" String (Undefinable String) where
   convertOption _ _ = defined
 
 foreign import createTextureImpl :: forall gpuExtent3D. GPUDevice -> { | GPUTextureDescriptor gpuExtent3D } -> Effect GPUTexture
 
 createTexture
   :: forall provided gpuExtent3D
-   . ConvertOptionsWithDefaults (TextureDescriptor gpuExtent3D) { | GPUTextureDescriptorOptional } { | provided } { | GPUTextureDescriptor gpuExtent3D }
+   . ConvertOptionsWithDefaults TextureDescriptor { | GPUTextureDescriptorOptional } { | provided } { | GPUTextureDescriptor gpuExtent3D }
   => GPUDevice
   -> { | provided }
   -> Effect GPUTexture
@@ -180,7 +205,7 @@ createTexture gpuDevice provided = createTextureImpl gpuDevice all
   where
   all :: { | GPUTextureDescriptor gpuExtent3D }
   all = convertOptionsWithDefaults
-    (TextureDescriptor :: TextureDescriptor gpuExtent3D)
+    TextureDescriptor
     defaultGPUTextureDescriptorOptions
     provided
 
@@ -516,3 +541,440 @@ createPipelineLayout
   -> GPUPipelineLayoutDescriptor bindingLayouts
   -> Effect (GPUPipelineLayout bindingLayouts)
 createPipelineLayout = createPipelineLayoutImpl
+
+-- createBindGroup
+
+foreign import createBindGroupImpl :: forall layoutEntries entries. GPUDevice -> GPUBindGroupDescriptor layoutEntries entries -> Effect (GPUBindGroup layoutEntries entries)
+
+createBindGroup :: forall layoutEntries entries. GPUDevice -> GPUBindGroupDescriptor layoutEntries entries -> Effect (GPUBindGroup layoutEntries entries)
+createBindGroup = createBindGroupImpl
+
+-- createShaderModule
+
+type GPUShaderModuleDescriptorOptional =
+  ( sourceMap :: Undefinable Foreign
+  , hints :: Undefinable (Object GPUShaderModuleCompilationHint)
+  )
+
+type GPUShaderModuleDescriptor =
+  ( code :: String
+  | GPUShaderModuleDescriptorOptional
+  )
+
+defaultGPUShaderModuleDescriptorOptions :: { | GPUShaderModuleDescriptorOptional }
+defaultGPUShaderModuleDescriptorOptions =
+  { sourceMap: undefined
+  , hints: undefined
+  }
+
+data ShaderModuleDescriptor = ShaderModuleDescriptor
+
+instance ConvertOption ShaderModuleDescriptor "sourceMap" Foreign (Undefinable Foreign) where
+  convertOption _ _ = defined
+
+instance ConvertOption ShaderModuleDescriptor "hints" (Object GPUShaderModuleCompilationHint) (Undefinable (Object GPUShaderModuleCompilationHint)) where
+  convertOption _ _ = defined
+
+foreign import createShaderModuleImpl :: GPUDevice -> { | GPUShaderModuleDescriptor } -> Effect GPUShaderModule
+
+createShaderModule
+  :: forall provided
+   . ConvertOptionsWithDefaults ShaderModuleDescriptor { | GPUShaderModuleDescriptorOptional } { | provided } { | GPUShaderModuleDescriptor }
+  => GPUDevice
+  -> { | provided }
+  -> Effect GPUShaderModule
+createShaderModule gpuDevice provided = createShaderModuleImpl gpuDevice all
+  where
+  all :: { | GPUShaderModuleDescriptor }
+  all = convertOptionsWithDefaults ShaderModuleDescriptor defaultGPUShaderModuleDescriptorOptions provided
+
+-- createComputePipeline
+type GPUProgrammableStageOptional =
+  (constants :: Undefinable (Object Number))
+
+type GPUProgrammableStage =
+  ( module :: GPUShaderModule
+  , entryPoint :: String
+  | GPUProgrammableStageOptional
+  )
+
+defaultGPUProgrammableStageOptions :: { | GPUProgrammableStageOptional }
+defaultGPUProgrammableStageOptions = { constants: undefined }
+
+data ProgrammableStage = ProgrammableStage
+
+instance ConvertOption ProgrammableStage "constants" (Object Number) (Undefinable (Object Number)) where
+  convertOption _ _ = defined
+
+type GPUComputePipelineDescriptorOptional :: forall k. Row k
+type GPUComputePipelineDescriptorOptional = ()
+
+type GPUComputePipelineDescriptor =
+  ( compute :: { | GPUProgrammableStage }
+  | GPUComputePipelineDescriptorOptional
+  )
+
+defaultGPUComputePipelineDescriptorOptions :: { | GPUComputePipelineDescriptorOptional }
+defaultGPUComputePipelineDescriptorOptions = {}
+
+data ComputePipelineDescriptor = ComputePipelineDescriptor
+
+instance ConvertOptionsWithDefaults ProgrammableStage { | GPUProgrammableStageOptional } { | provided } { | GPUProgrammableStage } => ConvertOption ComputePipelineDescriptor "compute" { | provided } { | GPUProgrammableStage } where
+  convertOption _ _ = convertOptionsWithDefaults ProgrammableStage defaultGPUProgrammableStageOptions
+
+foreign import createComputePipelineImpl :: GPUDevice -> { | GPUComputePipelineDescriptor } -> Effect GPUComputePipeline
+
+createComputePipeline
+  :: forall provided
+   . ConvertOptionsWithDefaults ComputePipelineDescriptor { | GPUComputePipelineDescriptorOptional } { | provided } { | GPUComputePipelineDescriptor }
+  => GPUDevice
+  -> { | provided }
+  -> Effect GPUComputePipeline
+createComputePipeline gpuDevice provided = createComputePipelineImpl gpuDevice all
+  where
+  all :: { | GPUComputePipelineDescriptor }
+  all = convertOptionsWithDefaults ComputePipelineDescriptor defaultGPUComputePipelineDescriptorOptions provided
+
+-- createRenderPipeline
+
+-- createRenderPipeline
+
+-------- vertexAttribute
+type GPUVertexAttribute =
+  { format :: GPUVertexFormat
+  , offset :: GPUSize64
+  , shaderLocation :: GPUIndex32
+  }
+
+------ vertexBufferLayout
+
+type GPUVertexBufferLayoutOptional =
+  (stepMode :: Undefinable GPUVertexStepMode)
+
+type GPUVertexBufferLayout =
+  ( arrayStride :: GPUSize64
+  , attributes :: Array GPUVertexAttribute
+  | GPUVertexBufferLayoutOptional
+  )
+
+defaultGPUVertexBufferLayoutOptions :: { | GPUVertexBufferLayoutOptional }
+defaultGPUVertexBufferLayoutOptions = { stepMode: undefined }
+
+data VertexBufferLayout = VertexBufferLayout
+
+instance ConvertOption VertexBufferLayout "stepMode" GPUVertexStepMode (Undefinable GPUVertexStepMode) where
+  convertOption _ _ = defined
+
+vertexBufferLayout
+  :: forall provided
+   . ConvertOptionsWithDefaults VertexBufferLayout { | GPUVertexBufferLayoutOptional } { | provided } { | GPUVertexBufferLayout }
+  => { | provided }
+  -> { | GPUVertexBufferLayout }
+vertexBufferLayout provided = all
+  where
+  all :: { | GPUVertexBufferLayout }
+  all = convertOptionsWithDefaults VertexBufferLayout defaultGPUVertexBufferLayoutOptions provided
+
+---- vertexState
+type GPUVertexStateOptional :: forall k. Row k
+type GPUVertexStateOptional = ()
+
+type GPUVertexState =
+  ( buffers :: Array { | GPUVertexBufferLayout }
+  | GPUVertexStateOptional
+  )
+
+defaultGPUVertexStateOptions :: { | GPUVertexStateOptional }
+defaultGPUVertexStateOptions = {}
+
+data VertexState = VertexState
+
+---- primitiveState
+type GPUPrimitiveStateOptional =
+  ( topology :: Undefinable GPUPrimitiveTopology
+  , stripIndexFormat :: Undefinable GPUIndexFormat
+  , frontFace :: Undefinable GPUFrontFace
+  , cullMode :: Undefinable GPUCullMode
+  , unclippedDepth :: Undefinable Boolean
+  )
+
+type GPUPrimitiveState = (| GPUPrimitiveStateOptional)
+
+defaultGPUPrimitiveStateOptions :: { | GPUPrimitiveStateOptional }
+defaultGPUPrimitiveStateOptions =
+  { topology: undefined
+  , stripIndexFormat: undefined
+  , frontFace: undefined
+  , cullMode: undefined
+  , unclippedDepth: undefined
+  }
+
+data PrimitiveState = PrimitiveState
+
+instance ConvertOption PrimitiveState "topology" GPUPrimitiveTopology (Undefinable GPUPrimitiveTopology) where
+  convertOption _ _ = defined
+
+instance ConvertOption PrimitiveState "stripIndexFormat" GPUIndexFormat (Undefinable GPUIndexFormat) where
+  convertOption _ _ = defined
+
+instance ConvertOption PrimitiveState "frontFace" GPUFrontFace (Undefinable GPUFrontFace) where
+  convertOption _ _ = defined
+
+instance ConvertOption PrimitiveState "cullMode" GPUCullMode (Undefinable GPUCullMode) where
+  convertOption _ _ = defined
+
+instance ConvertOption PrimitiveState "unclippedDepth" Boolean (Undefinable Boolean) where
+  convertOption _ _ = defined
+
+------ gpuStencilFaceState
+
+type GPUStencilFaceStateOptional =
+  ( compare :: Undefinable GPUCompareFunction
+  , failOp :: Undefinable GPUStencilOperation
+  , depthFailOp :: Undefinable GPUStencilOperation
+  , passOp :: Undefinable GPUStencilOperation
+  )
+
+type GPUStencilFaceState = (| GPUStencilFaceStateOptional)
+
+defaultGPUStencilFaceStateOptions :: { | GPUStencilFaceStateOptional }
+defaultGPUStencilFaceStateOptions = { compare: undefined, failOp: undefined, depthFailOp: undefined, passOp: undefined }
+
+data StencilFaceState = StencilFaceState
+
+instance ConvertOption StencilFaceState "compare" GPUCompareFunction (Undefinable GPUCompareFunction) where
+  convertOption _ _ = defined
+
+instance ConvertOption StencilFaceState "failOp" GPUStencilOperation (Undefinable GPUStencilOperation) where
+  convertOption _ _ = defined
+
+instance ConvertOption StencilFaceState "depthFailOp" GPUStencilOperation (Undefinable GPUStencilOperation) where
+  convertOption _ _ = defined
+
+instance ConvertOption StencilFaceState "passOp" GPUStencilOperation (Undefinable GPUStencilOperation) where
+  convertOption _ _ = defined
+
+---- depthStencilState
+type GPUDepthStencilStateOptional :: forall k1 k2. k1 -> k2 -> Row Type
+type GPUDepthStencilStateOptional stencilFront stencilBack =
+  ( depthWriteEnabled :: Undefinable Boolean
+  , depthCompare :: Undefinable GPUCompareFunction
+  , stencilFront :: Undefinable stencilFront
+  , stencilBack :: Undefinable stencilBack
+  , stencilReadMask :: Undefinable GPUStencilValue
+  , stencilWriteMask :: Undefinable GPUStencilValue
+  , depthBias :: Undefinable GPUDepthBias
+  , depthBiasSlopeScale :: Undefinable Number
+  , depthBiasClamp :: Undefinable Number
+  )
+
+type GPUDepthStencilState :: forall k1 k2. k1 -> k2 -> Row Type
+type GPUDepthStencilState stencilFront stencilBack =
+  ( format :: GPUTextureFormat
+  | GPUDepthStencilStateOptional stencilFront stencilBack
+  )
+
+defaultGPUDepthStencilStateOptions :: forall stencilFront stencilBack. { | GPUDepthStencilStateOptional stencilFront stencilBack }
+defaultGPUDepthStencilStateOptions =
+  { depthWriteEnabled: undefined
+  , depthCompare: undefined
+  , stencilFront: undefined
+  , stencilBack: undefined
+  , stencilReadMask: undefined
+  , stencilWriteMask: undefined
+  , depthBias: undefined
+  , depthBiasSlopeScale: undefined
+  , depthBiasClamp: undefined
+
+  }
+
+data DepthStencilState = DepthStencilState
+
+instance ConvertOption DepthStencilState "depthWriteEnabled" Boolean (Undefinable Boolean) where
+  convertOption _ _ = defined
+
+instance ConvertOption DepthStencilState "depthCompare" GPUCompareFunction (Undefinable GPUCompareFunction) where
+  convertOption _ _ = defined
+
+instance ConvertOptionsWithDefaults StencilFaceState { | GPUStencilFaceStateOptional } { | stencilFront } { | GPUStencilFaceState } => ConvertOption DepthStencilState "stencilFront" { | stencilFront } (Undefinable { | GPUStencilFaceState }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults StencilFaceState defaultGPUStencilFaceStateOptions provided
+
+instance ConvertOptionsWithDefaults StencilFaceState { | GPUStencilFaceStateOptional } { | stencilBack } { | GPUStencilFaceState } => ConvertOption DepthStencilState "stencilBack" { | stencilBack } (Undefinable { | GPUStencilFaceState }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults StencilFaceState defaultGPUStencilFaceStateOptions provided
+
+instance ConvertOption DepthStencilState "stencilReadMask" GPUStencilValue (Undefinable GPUStencilValue) where
+  convertOption _ _ = defined
+
+instance ConvertOption DepthStencilState "stencilWriteMask" GPUStencilValue (Undefinable GPUStencilValue) where
+  convertOption _ _ = defined
+
+instance ConvertOption DepthStencilState "depthBias" GPUDepthBias (Undefinable GPUDepthBias) where
+  convertOption _ _ = defined
+
+instance ConvertOption DepthStencilState "depthBiasSlopeScale" Number (Undefinable Number) where
+  convertOption _ _ = defined
+
+instance ConvertOption DepthStencilState "depthBiasClamp" Number (Undefinable Number) where
+  convertOption _ _ = defined
+
+---- multisampleState
+type GPUMultisampleStateOptional =
+  ( count :: Undefinable GPUSize32
+  , mask :: Undefinable GPUSampleMask
+  , alphaToCoverageEnabled :: Undefinable Boolean
+  )
+
+type GPUMultisampleState =
+  ( | GPUMultisampleStateOptional
+  )
+
+defaultGPUMultisampleStateOptions :: { | GPUMultisampleStateOptional }
+defaultGPUMultisampleStateOptions = { count: undefined, mask: undefined, alphaToCoverageEnabled: undefined }
+
+data MultisampleState = MultisampleState
+
+instance ConvertOption MultisampleState "count" GPUSize32 (Undefinable GPUSize32) where
+  convertOption _ _ = defined
+
+instance ConvertOption MultisampleState "mask" GPUSampleMask (Undefinable GPUSampleMask) where
+  convertOption _ _ = defined
+
+instance ConvertOption MultisampleState "alphaToCoverageEnabled" Boolean (Undefinable Boolean) where
+  convertOption _ _ = defined
+
+------ GPUBlendComponent
+type GPUBlendComponentOptional =
+  ( operation :: Undefinable GPUBlendOperation
+  , srcFactor :: Undefinable GPUBlendFactor
+  , dstFactor :: Undefinable GPUBlendFactor
+  )
+
+type GPUBlendComponent = (| GPUBlendComponentOptional)
+
+defaultGPUBlendComponentOptions :: { | GPUBlendComponentOptional }
+defaultGPUBlendComponentOptions = { operation: undefined, srcFactor: undefined, dstFactor: undefined }
+
+data BlendComponent = BlendComponent
+
+instance ConvertOption BlendComponent "operation" GPUBlendOperation (Undefinable GPUBlendOperation) where
+  convertOption _ _ = defined
+
+instance ConvertOption BlendComponent "srcFactor" GPUBlendFactor (Undefinable GPUBlendFactor) where
+  convertOption _ _ = defined
+
+instance ConvertOption BlendComponent "dstFactor" GPUBlendFactor (Undefinable GPUBlendFactor) where
+  convertOption _ _ = defined
+
+------ colorTargetState
+
+type GPUBlendState gpuBlendColor gpuBlendAlpha =
+  ( color :: { | gpuBlendColor }
+  , alpha :: { | gpuBlendAlpha }
+  )
+
+instance ConvertOptionsWithDefaults BlendComponent { | GPUBlendComponentOptional } { | gpuBlendColor } { | GPUBlendComponent } => ConvertOption BlendComponent "color" { | gpuBlendColor } { | GPUBlendComponent } where
+  convertOption _ _ provided =  convertOptionsWithDefaults BlendComponent defaultGPUBlendComponentOptions provided
+
+instance ConvertOptionsWithDefaults BlendComponent { | GPUBlendComponentOptional } { | gpuBlendAlpha } { | GPUBlendComponent } => ConvertOption BlendComponent "alpha" { | gpuBlendAlpha } { | GPUBlendComponent } where
+  convertOption _ _ provided = convertOptionsWithDefaults BlendComponent defaultGPUBlendComponentOptions provided
+
+data BlendState = BlendState
+
+type GPUColorTargetStateOptional gpuBlendColor gpuBlendAlpha =
+  ( blend :: Undefinable { | GPUBlendState gpuBlendColor gpuBlendAlpha }
+  , writeMask :: Undefinable GPUColorWrite
+  )
+
+type GPUColorTargetState' gpuBlendColor gpuBlendAlpha =
+  ( format :: GPUTextureFormat
+  | GPUColorTargetStateOptional gpuBlendColor gpuBlendAlpha
+  )
+
+newtype GPUColorTargetState = GPUColorTargetState  { | GPUColorTargetState' GPUBlendComponent GPUBlendComponent }
+
+defaultGPUColorTargetStateOptions :: forall gpuBlendColor gpuBlendAlpha. { | GPUColorTargetStateOptional gpuBlendColor gpuBlendAlpha }
+defaultGPUColorTargetStateOptions = { blend: undefined, writeMask: undefined }
+
+data ColorTargetState = ColorTargetState
+
+instance
+  ( ConvertOptionsWithDefaults BlendState {} { | blendState } { | GPUBlendState GPUBlendComponent GPUBlendComponent }
+  ) =>
+  ConvertOption ColorTargetState "blend" { | blendState } (Undefinable { | GPUBlendState GPUBlendComponent GPUBlendComponent }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults BlendState {} provided
+
+instance ConvertOption ColorTargetState "writeMask" GPUColorWrite (Undefinable GPUColorWrite) where
+  convertOption _ _ = defined
+
+colorTargetState
+  :: forall provided gpuBlendColor gpuBlendAlpha
+   . ConvertOptionsWithDefaults ColorTargetState { | GPUColorTargetStateOptional gpuBlendColor gpuBlendAlpha } { | provided } { | GPUColorTargetState' GPUBlendComponent GPUBlendComponent }
+  => { | provided }
+  -> GPUColorTargetState
+colorTargetState provided = GPUColorTargetState all
+  where
+  all :: { | GPUColorTargetState' GPUBlendComponent GPUBlendComponent }
+  all = convertOptionsWithDefaults ColorTargetState defaultGPUColorTargetStateOptions provided
+
+---- fragmentState
+
+type GPUFragmentStateOptional :: forall k. Row k
+type GPUFragmentStateOptional = ()
+
+type GPUFragmentState =
+  ( targets :: Array GPUColorTargetState
+  | GPUFragmentStateOptional
+  )
+
+defaultGPUFragmentStateOptions :: { | GPUFragmentStateOptional }
+defaultGPUFragmentStateOptions = {}
+
+data FragmentState = FragmentState
+
+--
+type GPURenderPipelineDescriptorOptional :: forall k1 k2. k1 -> k2 -> Row Type
+type GPURenderPipelineDescriptorOptional stencilFront stencilBack =
+  ( primitive :: Undefinable { | GPUPrimitiveState }
+  , depthStencil :: Undefinable { | GPUDepthStencilState stencilFront stencilBack }
+  , multisample :: Undefinable { | GPUMultisampleState }
+  , fragment :: Undefinable { | GPUFragmentState }
+  )
+
+type GPURenderPipelineDescriptor :: forall k1 k2. k1 -> k2 -> Row Type
+type GPURenderPipelineDescriptor stencilFront stencilBack =
+  ( vertex :: { | GPUVertexState }
+  | GPURenderPipelineDescriptorOptional stencilFront stencilBack
+  )
+
+defaultGPURenderPipelineDescriptorOptions :: forall stencilFront stencilBack. { | GPURenderPipelineDescriptorOptional stencilFront stencilBack }
+defaultGPURenderPipelineDescriptorOptions = { primitive: undefined, depthStencil: undefined, multisample: undefined, fragment: undefined }
+
+data RenderPipelineDescriptor = RenderPipelineDescriptor
+
+instance ConvertOptionsWithDefaults PrimitiveState { | GPUPrimitiveStateOptional } { | provided } { | GPUPrimitiveState } => ConvertOption RenderPipelineDescriptor "primitive" { | provided } (Undefinable { | GPUPrimitiveState }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults PrimitiveState defaultGPUPrimitiveStateOptions provided
+
+instance ConvertOptionsWithDefaults DepthStencilState { | GPUDepthStencilStateOptional stencilFront stencilBack } { | provided } { | GPUDepthStencilState stencilFront stencilBack } => ConvertOption RenderPipelineDescriptor "depthStencil" { | provided } (Undefinable { | GPUDepthStencilState stencilFront stencilBack }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults DepthStencilState defaultGPUDepthStencilStateOptions provided
+
+instance ConvertOptionsWithDefaults MultisampleState { | GPUMultisampleStateOptional } { | provided } { | GPUMultisampleState } => ConvertOption RenderPipelineDescriptor "multisample" { | provided } (Undefinable { | GPUMultisampleState }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults MultisampleState defaultGPUMultisampleStateOptions provided
+
+instance ConvertOptionsWithDefaults FragmentState { | GPUFragmentStateOptional } { | provided } { | GPUFragmentState } => ConvertOption RenderPipelineDescriptor "fragment" { | provided } (Undefinable { | GPUFragmentState }) where
+  convertOption _ _ provided = defined $ convertOptionsWithDefaults FragmentState defaultGPUFragmentStateOptions provided
+
+instance ConvertOptionsWithDefaults VertexState { | GPUVertexStateOptional } { | provided } { | GPUVertexState } => ConvertOption RenderPipelineDescriptor "vertex" { | provided } { | GPUVertexState } where
+  convertOption _ _ provided = convertOptionsWithDefaults VertexState defaultGPUVertexStateOptions provided
+
+foreign import createRenderPipelineImpl :: forall stencilFront stencilBack. GPUDevice -> { | GPURenderPipelineDescriptor stencilFront stencilBack } -> Effect GPURenderPipeline
+
+createRenderPipeline
+  :: forall provided stencilFront stencilBack
+   . ConvertOptionsWithDefaults RenderPipelineDescriptor { | GPURenderPipelineDescriptorOptional stencilFront stencilBack } { | provided } { | GPURenderPipelineDescriptor GPUStencilFaceState GPUStencilFaceState }
+  => GPUDevice
+  -> { | provided }
+  -> Effect GPURenderPipeline
+createRenderPipeline gpuDevice provided = createRenderPipelineImpl gpuDevice all
+  where
+  all :: { | GPURenderPipelineDescriptor GPUStencilFaceState GPUStencilFaceState }
+  all = convertOptionsWithDefaults RenderPipelineDescriptor defaultGPURenderPipelineDescriptorOptions provided

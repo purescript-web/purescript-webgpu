@@ -2,12 +2,11 @@ module Web.GPU.GPUTextureUsage
   ( GPUTextureUsage
   , copyDst
   , copySrc
-  , or
-  , (.|.)
   ) where
 
-import Web.GPU.Internal.Unsigned (UnsignedLong)
 import Data.Int.Bits as Bits
+import Web.GPU.Internal.Bitwise (class Bitwise)
+import Web.GPU.Internal.Unsigned (UnsignedLong)
 
 newtype GPUTextureUsage = GPUTextureUsage UnsignedLong
 
@@ -17,7 +16,5 @@ foreign import textureBinding :: GPUTextureUsage
 foreign import storageBinding :: GPUTextureUsage
 foreign import renderAttachment :: GPUTextureUsage
 
-or :: GPUTextureUsage -> GPUTextureUsage -> GPUTextureUsage
-or (GPUTextureUsage a) (GPUTextureUsage b) = GPUTextureUsage (a `Bits.or` b)
-
-infixl 10 or as .|.
+instance Bitwise GPUTextureUsage where
+  or (GPUTextureUsage a) (GPUTextureUsage b) = GPUTextureUsage (a `Bits.or` b)

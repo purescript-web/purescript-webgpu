@@ -14,6 +14,8 @@ to generate this file without the comments in this block.
 , dependencies =
   [ "arrays"
   , "effect"
+  , "foreign"
+  , "foreign-object"
   , "integers"
   , "maybe"
   , "ordered-collections"

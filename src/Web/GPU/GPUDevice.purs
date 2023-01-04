@@ -45,14 +45,10 @@ module Web.GPU.Device
 
 import Prelude
 
-import Data.Reflectable (class Reflectable, reflectType)
 import Data.Set as Set
 import Effect (Effect)
 import Foreign (Foreign)
 import Foreign.Object (Object)
-import Prim.Int (class Compare)
-import Prim.Ordering (LT)
-import Type.Proxy (Proxy)
 import Web.GPU.GPUAddressMode (GPUAddressMode)
 import Web.GPU.GPUBlendFactor (GPUBlendFactor)
 import Web.GPU.GPUBlendOperation (GPUBlendOperation)
@@ -82,9 +78,9 @@ import Web.GPU.GPUTextureViewDimension (GPUTextureViewDimension)
 import Web.GPU.GPUVertexFormat (GPUVertexFormat)
 import Web.GPU.GPUVertexStepMode (GPUVertexStepMode)
 import Web.GPU.Internal.ConvertibleOptions (class ConvertOption, class ConvertOptionsWithDefaults, convertOptionsWithDefaults)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupDescriptor, GPUBindGroupLayout, GPUBindGroupLayoutDescriptor, GPUBindGroupLayoutEntry, GPUBuffer, GPUBufferBindingLayout, GPUCommandEncoder, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUExternalTextureBindingLayout, GPUPipelineLayout, GPUPipelineLayoutDescriptor, GPUQuerySet, GPUQueue, GPURenderPipeline, GPUSampler, GPUSamplerBindingLayout, GPUShaderModule, GPUShaderModuleCompilationHint, GPUStorageTextureBindingLayout, GPUTexture, GPUTextureBindingLayout)
+import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupEntry, GPUBindGroupLayout, GPUBindGroupLayoutEntry, GPUBuffer, GPUCommandEncoder, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUPipelineLayout, GPUQuerySet, GPUQueue, GPURenderPipeline, GPUSampler, GPUShaderModule, GPUShaderModuleCompilationHint, GPUTexture)
 import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
-import Web.GPU.Internal.Unsigned (GPUIndex32, GPUIntegerCoordinate, GPUSampleMask, GPUSize32, GPUSize64, GPUStencilValue, UnsignedShort, GPUDepthBias)
+import Web.GPU.Internal.Unsigned (GPUDepthBias, GPUIntegerCoordinate, GPUSampleMask, GPUSize32, GPUSize64, GPUStencilValue, UnsignedShort, GPUIndex32)
 import Web.GPU.PredefinedColorSpace (PredefinedColorSpace)
 import Web.HTML (HTMLVideoElement)
 import Web.Promise (Promise)
@@ -329,21 +325,21 @@ importExternalTexture gpuDevice provided = importExternalTextureImpl gpuDevice a
 
 -- createBindGroupLayout
 
-bindingToGPUIndex32 :: forall i. Reflectable i Int => Proxy i -> GPUIndex32
-bindingToGPUIndex32 = reflectType
-
 type GPUBindGroupLayoutOptions =
   { binding :: GPUIndex32
   , visibility :: GPUShaderStage
   }
 
-foreign import createBindGroupLayoutImpl :: forall entries. GPUDevice -> GPUBindGroupLayoutDescriptor entries -> Effect (GPUBindGroupLayout entries)
+type GPUBindGroupLayoutDescriptor =
+  ( entries :: Array GPUBindGroupLayoutEntry
+  )
+
+foreign import createBindGroupLayoutImpl :: GPUDevice -> { | GPUBindGroupLayoutDescriptor } -> Effect GPUBindGroupLayout
 
 createBindGroupLayout
-  :: forall entries
-   . GPUDevice
-  -> GPUBindGroupLayoutDescriptor entries
-  -> Effect (GPUBindGroupLayout entries)
+  ::  GPUDevice
+  -> { | GPUBindGroupLayoutDescriptor }
+  -> Effect GPUBindGroupLayout
 createBindGroupLayout = createBindGroupLayoutImpl
 
 ---- bindGroupLayoutEntryForBuffer
@@ -375,18 +371,16 @@ instance ConvertOption BufferBindingLayout "hasDynamicOffset" Boolean (Undefinab
 instance ConvertOption BufferBindingLayout "minBindingSize" GPUSize64 (Undefinable GPUSize64) where
   convertOption _ _ = defined
 
-foreign import bindGroupLayoutEntryForBufferImpl :: forall i g. GPUBindGroupLayoutOptions -> { | GPUBufferBindingLayoutAll } -> GPUBindGroupLayoutEntry i g
+foreign import bindGroupLayoutEntryForBufferImpl :: GPUBindGroupLayoutOptions -> { | GPUBufferBindingLayoutAll } -> GPUBindGroupLayoutEntry
 
 bindGroupLayoutEntryForBuffer
-  :: forall provided i
+  :: forall provided
    . ConvertOptionsWithDefaults BufferBindingLayout { | GPUBufferBindingLayoutOptional } { | provided } { | GPUBufferBindingLayoutAll }
-  => Reflectable i Int
-  => Compare (-1) i LT
-  => Proxy i
+  => GPUIndex32
   -> GPUShaderStage
   -> { | provided }
-  -> GPUBindGroupLayoutEntry i GPUBufferBindingLayout
-bindGroupLayoutEntryForBuffer binding visibility provided = bindGroupLayoutEntryForBufferImpl { binding: bindingToGPUIndex32 binding, visibility } all
+  -> GPUBindGroupLayoutEntry
+bindGroupLayoutEntryForBuffer binding visibility provided = bindGroupLayoutEntryForBufferImpl { binding, visibility } all
   where
   all :: { | GPUBufferBindingLayoutAll }
   all = convertOptionsWithDefaults BufferBindingLayout defaultGPUBufferBindingLayoutOptions provided
@@ -410,18 +404,16 @@ data SamplerBindingLayout = SamplerBindingLayout
 instance ConvertOption SamplerBindingLayout "type" GPUSamplerBindingType (Undefinable GPUSamplerBindingType) where
   convertOption _ _ = defined
 
-foreign import bindGroupLayoutEntryForSamplerImpl :: forall i g. GPUBindGroupLayoutOptions -> { | GPUSamplerBindingLayoutAll } -> GPUBindGroupLayoutEntry i g
+foreign import bindGroupLayoutEntryForSamplerImpl :: GPUBindGroupLayoutOptions -> { | GPUSamplerBindingLayoutAll } -> GPUBindGroupLayoutEntry
 
 bindGroupLayoutEntryForSampler
-  :: forall provided i
+  :: forall provided
    . ConvertOptionsWithDefaults SamplerBindingLayout { | GPUSamplerBindingLayoutOptional } { | provided } { | GPUSamplerBindingLayoutAll }
-  => Reflectable i Int
-  => Compare (-1) i LT
-  => Proxy i
+  => GPUIndex32
   -> GPUShaderStage
   -> { | provided }
-  -> GPUBindGroupLayoutEntry i GPUSamplerBindingLayout
-bindGroupLayoutEntryForSampler binding visibility provided = bindGroupLayoutEntryForSamplerImpl { binding: bindingToGPUIndex32 binding, visibility } all
+  -> GPUBindGroupLayoutEntry
+bindGroupLayoutEntryForSampler binding visibility provided = bindGroupLayoutEntryForSamplerImpl { binding, visibility } all
   where
   all :: { | GPUSamplerBindingLayoutAll }
   all = convertOptionsWithDefaults SamplerBindingLayout defaultGPUSamplerBindingLayoutOptions provided
@@ -455,18 +447,16 @@ instance ConvertOption TextureBindingLayout "viewDimension" GPUTextureViewDimens
 instance ConvertOption TextureBindingLayout "multisampled" Boolean (Undefinable Boolean) where
   convertOption _ _ = defined
 
-foreign import bindGroupLayoutEntryForTextureImpl :: forall i g. GPUBindGroupLayoutOptions -> { | GPUTextureBindingLayoutAll } -> GPUBindGroupLayoutEntry i g
+foreign import bindGroupLayoutEntryForTextureImpl :: GPUBindGroupLayoutOptions -> { | GPUTextureBindingLayoutAll } -> GPUBindGroupLayoutEntry
 
 bindGroupLayoutEntryForTexture
-  :: forall provided i
+  :: forall provided
    . ConvertOptionsWithDefaults TextureBindingLayout { | GPUTextureBindingLayoutOptional } { | provided } { | GPUTextureBindingLayoutAll }
-  => Reflectable i Int
-  => Compare (-1) i LT
-  => Proxy i
+  => GPUIndex32
   -> GPUShaderStage
   -> { | provided }
-  -> GPUBindGroupLayoutEntry i GPUTextureBindingLayout
-bindGroupLayoutEntryForTexture binding visibility provided = bindGroupLayoutEntryForTextureImpl { binding: bindingToGPUIndex32 binding, visibility } all
+  -> GPUBindGroupLayoutEntry
+bindGroupLayoutEntryForTexture binding visibility provided = bindGroupLayoutEntryForTextureImpl { binding, visibility } all
   where
   all :: { | GPUTextureBindingLayoutAll }
   all = convertOptionsWithDefaults TextureBindingLayout defaultGPUTextureBindingLayoutOptions provided
@@ -494,18 +484,16 @@ instance ConvertOption StorageTextureBindingLayout "access" GPUStorageTextureAcc
 instance ConvertOption StorageTextureBindingLayout "viewDimension" GPUTextureViewDimension (Undefinable GPUTextureViewDimension) where
   convertOption _ _ = defined
 
-foreign import bindGroupLayoutEntryForStorageTextureImpl :: forall i g. GPUBindGroupLayoutOptions -> { | GPUStorageTextureBindingLayoutAll } -> GPUBindGroupLayoutEntry i g
+foreign import bindGroupLayoutEntryForStorageTextureImpl :: GPUBindGroupLayoutOptions -> { | GPUStorageTextureBindingLayoutAll } -> GPUBindGroupLayoutEntry
 
 bindGroupLayoutEntryForStorageTexture
-  :: forall provided i
+  :: forall provided
    . ConvertOptionsWithDefaults StorageTextureBindingLayout { | GPUStorageTextureBindingLayoutOptional } { | provided } { | GPUStorageTextureBindingLayoutAll }
-  => Reflectable i Int
-  => Compare (-1) i LT
-  => Proxy i
+  => GPUIndex32
   -> GPUShaderStage
   -> { | provided }
-  -> GPUBindGroupLayoutEntry i GPUStorageTextureBindingLayout
-bindGroupLayoutEntryForStorageTexture binding visibility provided = bindGroupLayoutEntryForStorageTextureImpl { binding: bindingToGPUIndex32 binding, visibility } all
+  -> GPUBindGroupLayoutEntry
+bindGroupLayoutEntryForStorageTexture binding visibility provided = bindGroupLayoutEntryForStorageTextureImpl { binding, visibility } all
   where
   all :: { | GPUStorageTextureBindingLayoutAll }
   all = convertOptionsWithDefaults StorageTextureBindingLayout defaultGPUStorageTextureBindingLayoutOptions provided
@@ -522,38 +510,42 @@ defaultGPUExternalTextureBindingLayoutOptions = {}
 
 data ExternalTextureBindingLayout = ExternalTextureBindingLayout
 
-foreign import bindGroupLayoutEntryForExternalTextureImpl :: forall i g. GPUBindGroupLayoutOptions -> { | GPUExternalTextureBindingLayoutAll } -> GPUBindGroupLayoutEntry i g
+foreign import bindGroupLayoutEntryForExternalTextureImpl :: GPUBindGroupLayoutOptions -> { | GPUExternalTextureBindingLayoutAll } -> GPUBindGroupLayoutEntry
 
 bindGroupLayoutEntryForExternalTexture
-  :: forall provided i
+  :: forall provided
    . ConvertOptionsWithDefaults ExternalTextureBindingLayout { | GPUExternalTextureBindingLayoutOptional } { | provided } { | GPUExternalTextureBindingLayoutAll }
-  => Reflectable i Int
-  => Compare (-1) i LT
-  => Proxy i
+  => GPUIndex32
   -> GPUShaderStage
   -> { | provided }
-  -> GPUBindGroupLayoutEntry i GPUExternalTextureBindingLayout
-bindGroupLayoutEntryForExternalTexture binding visibility provided = bindGroupLayoutEntryForExternalTextureImpl { binding: bindingToGPUIndex32 binding, visibility } all
+  -> GPUBindGroupLayoutEntry
+bindGroupLayoutEntryForExternalTexture binding visibility provided = bindGroupLayoutEntryForExternalTextureImpl { binding, visibility } all
   where
   all :: { | GPUExternalTextureBindingLayoutAll }
   all = convertOptionsWithDefaults ExternalTextureBindingLayout defaultGPUExternalTextureBindingLayoutOptions provided
 
 -- createPipelineLayout
+type GPUPipelineLayoutDescriptor =
+  { bindGroupLayouts :: Array GPUBindGroupLayout
+  }
 
-foreign import createPipelineLayoutImpl :: forall entries. GPUDevice -> GPUPipelineLayoutDescriptor entries -> Effect (GPUPipelineLayout entries)
+foreign import createPipelineLayoutImpl :: GPUDevice -> GPUPipelineLayoutDescriptor  -> Effect GPUPipelineLayout
 
 createPipelineLayout
-  :: forall bindingLayouts
-   . GPUDevice
-  -> GPUPipelineLayoutDescriptor bindingLayouts
-  -> Effect (GPUPipelineLayout bindingLayouts)
+  :: GPUDevice
+  -> GPUPipelineLayoutDescriptor
+  -> Effect GPUPipelineLayout
 createPipelineLayout = createPipelineLayoutImpl
 
 -- createBindGroup
+type GPUBindGroupDescriptor =
+  { layout :: GPUBindGroupLayout
+  , entries :: Array GPUBindGroupEntry
+  }
 
-foreign import createBindGroupImpl :: forall layoutEntries entries. GPUDevice -> GPUBindGroupDescriptor layoutEntries entries -> Effect (GPUBindGroup layoutEntries entries)
+foreign import createBindGroupImpl ::  GPUDevice -> GPUBindGroupDescriptor  -> Effect GPUBindGroup 
 
-createBindGroup :: forall layoutEntries entries. GPUDevice -> GPUBindGroupDescriptor layoutEntries entries -> Effect (GPUBindGroup layoutEntries entries)
+createBindGroup :: GPUDevice -> GPUBindGroupDescriptor -> Effect GPUBindGroup 
 createBindGroup = createBindGroupImpl
 
 -- createShaderModule

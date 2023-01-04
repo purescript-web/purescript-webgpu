@@ -11,5 +11,6 @@ class GPUPipelineBase a where
 
 instance GPUPipelineBase GPUComputePipeline where
   getBindGroupLayout = unsafeGetBindGroupLayoutImpl
+
 instance GPUPipelineBase GPURenderPipeline where
   getBindGroupLayout = unsafeGetBindGroupLayoutImpl

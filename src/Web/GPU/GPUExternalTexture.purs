@@ -1,7 +1,5 @@
 module Web.GPU.GPUExternalTexture where
 
-
-
 import Effect (Effect)
 import Web.GPU.Internal.Types (GPUExternalTexture)
 

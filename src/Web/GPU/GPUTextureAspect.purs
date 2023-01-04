@@ -18,5 +18,6 @@ all = GPUTextureAspect "all"
 
 stencilOnly :: GPUTextureAspect
 stencilOnly = GPUTextureAspect "stencil-only"
+
 depthOnly :: GPUTextureAspect
 depthOnly = GPUTextureAspect "depth-only"

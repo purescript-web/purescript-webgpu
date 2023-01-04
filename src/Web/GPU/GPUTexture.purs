@@ -1,5 +1,6 @@
 module Web.GPU.GPUTexture
   ( TextureViewDescriptor
+  , createViewWithDescriptor
   , createView
   , destroy
   , width
@@ -57,18 +58,25 @@ instance ConvertOption TextureViewDescriptor "baseMipLevel" GPUIntegerCoordinate
 instance ConvertOption TextureViewDescriptor "baseArrayLayer" GPUIntegerCoordinate (Undefinable GPUIntegerCoordinate) where
   convertOption _ _ = defined
 
-foreign import createViewImpl :: GPUTexture -> { | GPUTextureViewDescriptor } -> Effect GPUTextureView
+foreign import createViewWithDescriptorImpl :: GPUTexture -> { | GPUTextureViewDescriptor } -> Effect GPUTextureView
 
-createView
+createViewWithDescriptor
   :: forall provided
    . ConvertOptionsWithDefaults TextureViewDescriptor { | GPUTextureViewDescriptorOptional } { | provided } { | GPUTextureViewDescriptor }
   => GPUTexture
   -> { | provided }
   -> Effect GPUTextureView
-createView gpuDevice provided = createViewImpl gpuDevice all
+createViewWithDescriptor gpuDevice provided = createViewWithDescriptorImpl gpuDevice all
   where
   all :: { | GPUTextureViewDescriptor }
   all = convertOptionsWithDefaults TextureViewDescriptor defaultGPUTextureViewDescriptorOptions provided
+
+foreign import createViewImpl :: GPUTexture -> Effect GPUTextureView
+
+createView
+  :: GPUTexture
+  -> Effect GPUTextureView
+createView = createViewImpl
 
 foreign import destroyImpl :: GPUTexture -> Effect Unit
 

@@ -337,7 +337,7 @@ type GPUBindGroupLayoutDescriptor =
 foreign import createBindGroupLayoutImpl :: GPUDevice -> { | GPUBindGroupLayoutDescriptor } -> Effect GPUBindGroupLayout
 
 createBindGroupLayout
-  ::  GPUDevice
+  :: GPUDevice
   -> { | GPUBindGroupLayoutDescriptor }
   -> Effect GPUBindGroupLayout
 createBindGroupLayout = createBindGroupLayoutImpl
@@ -529,7 +529,7 @@ type GPUPipelineLayoutDescriptor =
   { bindGroupLayouts :: Array GPUBindGroupLayout
   }
 
-foreign import createPipelineLayoutImpl :: GPUDevice -> GPUPipelineLayoutDescriptor  -> Effect GPUPipelineLayout
+foreign import createPipelineLayoutImpl :: GPUDevice -> GPUPipelineLayoutDescriptor -> Effect GPUPipelineLayout
 
 createPipelineLayout
   :: GPUDevice
@@ -543,9 +543,9 @@ type GPUBindGroupDescriptor =
   , entries :: Array GPUBindGroupEntry
   }
 
-foreign import createBindGroupImpl ::  GPUDevice -> GPUBindGroupDescriptor  -> Effect GPUBindGroup 
+foreign import createBindGroupImpl :: GPUDevice -> GPUBindGroupDescriptor -> Effect GPUBindGroup
 
-createBindGroup :: GPUDevice -> GPUBindGroupDescriptor -> Effect GPUBindGroup 
+createBindGroup :: GPUDevice -> GPUBindGroupDescriptor -> Effect GPUBindGroup
 createBindGroup = createBindGroupImpl
 
 -- createShaderModule

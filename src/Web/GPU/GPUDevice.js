@@ -26,3 +26,6 @@ export const createComputePipelineImpl = (device) => (descriptor) => () => devic
 export const createRenderPipelineImpl = (device) => (descriptor) => () => device.createRenderPipeline(descriptor);
 export const createComputePipelineAsyncImpl = (device) => (descriptor) => () => device.createComputePipelineAsync(descriptor);
 export const createRenderPipelineAsyncImpl = (device) => (descriptor) => () => device.createRenderPipelineAsync(descriptor);
+export const createCommandEncoderImpl = (device) => (descriptor) => () => device.createCommandEncoder(descriptor);
+export const createRenderBundleEncoderImpl = (device) => (descriptor) => () => device.createRenderBundleEncoder(descriptor);
+export const createQuerySetImpl = (device) => (descriptor) => () => device.createQuerySet(descriptor);

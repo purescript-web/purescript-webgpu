@@ -6,6 +6,7 @@ module Web.GPU.Device
   , ExternalTextureBindingLayout
   , ExternalTextureDescriptor
   , GPUColorTargetState
+  , RenderBundleEncoder
   , RenderPipelineDescriptor
   , SamplerBindingLayout
   , SamplerDescriptor
@@ -23,9 +24,12 @@ module Web.GPU.Device
   , createBindGroup
   , createBindGroupLayout
   , createBuffer
+  , createCommandEncoder
   , createComputePipeline
   , createComputePipelineAsnyc
   , createPipelineLayout
+  , createQuerySet
+  , createRenderBundleEncoder
   , createRenderPipeline
   , createRenderPipelineAsync
   , createSampler
@@ -65,6 +69,7 @@ import Web.GPU.GPUFrontFace (GPUFrontFace)
 import Web.GPU.GPUIndexFormat (GPUIndexFormat)
 import Web.GPU.GPUMipmapFilterMode (GPUMipmapFilterMode)
 import Web.GPU.GPUPrimitiveTopology (GPUPrimitiveTopology)
+import Web.GPU.GPUQueryType (GPUQueryType)
 import Web.GPU.GPUSamplerBindingType (GPUSamplerBindingType)
 import Web.GPU.GPUShaderStage (GPUShaderStage)
 import Web.GPU.GPUStencilOperation (GPUStencilOperation)
@@ -78,7 +83,7 @@ import Web.GPU.GPUTextureViewDimension (GPUTextureViewDimension)
 import Web.GPU.GPUVertexFormat (GPUVertexFormat)
 import Web.GPU.GPUVertexStepMode (GPUVertexStepMode)
 import Web.GPU.Internal.ConvertibleOptions (class ConvertOption, class ConvertOptionsWithDefaults, convertOptionsWithDefaults)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupDescriptor, GPUBindGroupLayout, GPUBindGroupLayoutDescriptor, GPUBindGroupLayoutEntry, GPUBuffer, GPUBufferBindingLayout, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUExternalTextureBindingLayout, GPUPipelineLayout, GPUPipelineLayoutDescriptor, GPUQueue, GPURenderPipeline, GPUSampler, GPUSamplerBindingLayout, GPUShaderModule, GPUShaderModuleCompilationHint, GPUStorageTextureBindingLayout, GPUTexture, GPUTextureBindingLayout)
+import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupDescriptor, GPUBindGroupLayout, GPUBindGroupLayoutDescriptor, GPUBindGroupLayoutEntry, GPUBuffer, GPUBufferBindingLayout, GPUCommandEncoder, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUExternalTextureBindingLayout, GPUPipelineLayout, GPUPipelineLayoutDescriptor, GPUQuerySet, GPUQueue, GPURenderPipeline, GPUSampler, GPUSamplerBindingLayout, GPUShaderModule, GPUShaderModuleCompilationHint, GPUStorageTextureBindingLayout, GPUTexture, GPUTextureBindingLayout)
 import Web.GPU.Internal.Undefinable (Undefinable, defined, undefined)
 import Web.GPU.Internal.Unsigned (GPUIndex32, GPUIntegerCoordinate, GPUSampleMask, GPUSize32, GPUSize64, GPUStencilValue, UnsignedShort, GPUDepthBias)
 import Web.GPU.PredefinedColorSpace (PredefinedColorSpace)
@@ -1010,3 +1015,58 @@ createRenderPipelineAsync gpuDevice provided = createRenderPipelineAsyncImpl gpu
   where
   all :: { | GPURenderPipelineDescriptor GPUStencilFaceState GPUStencilFaceState }
   all = convertOptionsWithDefaults RenderPipelineDescriptor defaultGPURenderPipelineDescriptorOptions provided
+
+-- createCommandEncoder
+type GPUCommandEncoderDescriptor = {}
+
+foreign import createCommandEncoderImpl :: GPUDevice -> GPUCommandEncoderDescriptor -> Effect GPUCommandEncoder
+
+createCommandEncoder :: GPUDevice -> GPUCommandEncoderDescriptor -> Effect GPUCommandEncoder
+createCommandEncoder = createCommandEncoderImpl
+
+-- createRenderBundleEncoder
+type GPURenderBundleEncoderOptional =
+  ( depthReadOnly :: Undefinable Boolean
+  , stencilReadOnly :: Undefinable Boolean
+  )
+
+type GPURenderBundleEncoder =
+  (| GPURenderBundleEncoderOptional)
+
+defaultGPURenderBundleEncoderOptions :: { | GPURenderBundleEncoderOptional }
+defaultGPURenderBundleEncoderOptions =
+  { depthReadOnly: undefined
+  , stencilReadOnly: undefined
+  }
+
+data RenderBundleEncoder = RenderBundleEncoder
+
+instance ConvertOption RenderBundleEncoder "depthReadOnly" Boolean (Undefinable Boolean) where
+  convertOption _ _ = defined
+
+instance ConvertOption RenderBundleEncoder "stencilReadOnly" Boolean (Undefinable Boolean) where
+  convertOption _ _ = defined
+
+foreign import createRenderBundleEncoderImpl :: GPUDevice -> { | GPURenderBundleEncoder } -> Effect GPUBuffer
+
+createRenderBundleEncoder
+  :: forall provided
+   . ConvertOptionsWithDefaults RenderBundleEncoder { | GPURenderBundleEncoderOptional } { | provided } { | GPURenderBundleEncoder }
+  => GPUDevice
+  -> { | provided }
+  -> Effect GPUBuffer
+createRenderBundleEncoder gpuDevice provided = createRenderBundleEncoderImpl gpuDevice all
+  where
+  all :: { | GPURenderBundleEncoder }
+  all = convertOptionsWithDefaults RenderBundleEncoder defaultGPURenderBundleEncoderOptions provided
+
+-- createQuerySet
+type GPUQuerySetDescriptor =
+  { type :: GPUQueryType
+  , count :: GPUSize32
+  }
+
+foreign import createQuerySetImpl :: GPUDevice -> GPUQuerySetDescriptor -> Effect GPUQuerySet
+
+createQuerySet :: GPUDevice -> GPUQuerySetDescriptor -> Effect GPUQuerySet
+createQuerySet = createQuerySetImpl

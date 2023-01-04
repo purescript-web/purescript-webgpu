@@ -11,12 +11,14 @@ module Web.GPU.Internal.Types
   , GPUBindGroupLayoutEntry
   , GPUBuffer
   , GPUBufferBindingLayout
+  , GPUCommandEncoder
   , GPUComputePipeline
   , GPUDevice
   , GPUExternalTexture
   , GPUExternalTextureBindingLayout
   , GPUPipelineLayout
   , GPUPipelineLayoutDescriptor(..)
+  , GPUQuerySet
   , GPUQueue
   , GPURenderPipeline
   , GPUSampler
@@ -58,3 +60,5 @@ data GPUShaderModuleCompilationHint
 data GPUShaderModule
 data GPUComputePipeline
 data GPURenderPipeline
+data GPUCommandEncoder
+data GPUQuerySet

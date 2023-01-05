@@ -417,7 +417,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
 
         -- 🖌️ Encode drawing commands
         passEncoder <- beginRenderPass commandEncoder renderPassDesc
-        setPipeline passEncoder pipeline
+        -- Set the viewport
         setViewport passEncoder
           0.0
           0.0
@@ -430,6 +430,8 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           0
           canvasWidth
           canvasHeight
+        -- Set the pipeline
+        setPipeline passEncoder pipeline
         setVertexBuffer passEncoder 0 positionBuffer
         setVertexBuffer passEncoder 1 colorBuffer
         setIndexBuffer passEncoder indexBuffer uint16

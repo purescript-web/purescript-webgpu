@@ -1,7 +1,5 @@
 module Web.GPU.GPUTextureViewDescriptor where
 
-
-
 import Data.Newtype (class Newtype)
 import Web.GPU.GPUTextureAspect (GPUTextureAspect)
 import Web.GPU.GPUTextureFormat (GPUTextureFormat)

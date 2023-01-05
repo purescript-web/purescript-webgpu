@@ -6,8 +6,9 @@ module Web.GPU.Internal.Types
   , GPUBindGroupLayout
   , GPUBindGroupLayoutEntry
   , GPUBuffer
+  , GPUBufferDynamicOffset
   , GPUColor
-  , GPUCommandBuffer
+  , GPUCommandBuffer(..)
   , GPUCommandEncoder
   , GPUComputePassEncoder
   , GPUComputePipeline
@@ -21,12 +22,14 @@ module Web.GPU.Internal.Types
   , GPUPipelineLayout
   , GPUQuerySet
   , GPUQueue
+  , GPURenderBundle(..)
   , GPURenderPassEncoder
   , GPURenderPipeline
   , GPUSampleMask
   , GPUSampler
   , GPUShaderModule
   , GPUShaderModuleCompilationHint
+  , GPUSignedOffset32
   , GPUSize32
   , GPUSize64
   , GPUStencilValue
@@ -62,6 +65,7 @@ data GPUColor
 data GPURenderPassEncoder
 data GPUComputePassEncoder
 data GPUCommandBuffer
+data GPURenderBundle
 data GPUOrigin3D
 data GPUExtent3D
 type Long = Int
@@ -75,3 +79,5 @@ type GPUIndex32 = UnsignedLong
 type GPUStencilValue = UnsignedLong
 type GPUSampleMask = UnsignedLong
 type GPUDepthBias = Long
+type GPUBufferDynamicOffset = UnsignedLong
+type GPUSignedOffset32 = Long

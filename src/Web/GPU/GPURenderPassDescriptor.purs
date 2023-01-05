@@ -1,7 +1,5 @@
 module Web.GPU.GPURenderPassDescriptor where
 
-
-
 import Web.GPU.GPURenderPassColorAttachment (GPURenderPassColorAttachment)
 import Web.GPU.GPURenderPassDepthStencilAttachment (GPURenderPassDepthStencilAttachment)
 import Web.GPU.GPURenderPassTimestampWrite (GPURenderPassTimestampWrite)

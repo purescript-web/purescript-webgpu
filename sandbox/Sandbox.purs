@@ -63,7 +63,7 @@ import Web.GPU.GPUVertexState (GPUVertexState)
 import Web.GPU.GPUVertexStepMode as StepMode
 import Web.GPU.HTMLCanvasElement (getContext)
 import Web.GPU.Internal.Bitwise ((.|.))
-import Web.GPU.Internal.RequiredAndOptional (e, (~))
+import Web.GPU.Internal.RequiredAndOptional (x)
 import Web.GPU.Internal.Types (GPUBuffer)
 import Web.GPU.Navigator (gpu)
 import Web.HTML (window)
@@ -121,13 +121,13 @@ main = do
       throwError $ error "WebGPU is not supported"
     Just entry -> pure entry
   launchAff_ do
-    adapter <- (toAffE $ convertPromise <$> requestAdapter entry e) >>=
+    adapter <- (toAffE $ convertPromise <$> requestAdapter entry (x {})) >>=
       case _ of
         Nothing -> liftEffect do
           showErrorMessage
           throwError $ error "WebGPU is not supported"
         Just adapter -> pure adapter
-    device <- (toAffE $ convertPromise <$> requestDevice adapter e) >>=
+    device <- (toAffE $ convertPromise <$> requestDevice adapter (x {})) >>=
       case _ of
         Nothing -> liftEffect do
           showErrorMessage
@@ -144,10 +144,11 @@ main = do
         -> Effect GPUBuffer
       createBufferF arr usage = do
         let
-          desc =
+          desc = x
             { size: ((byteLength (Typed.buffer arr)) + 3) .&. complement 3
             , usage
-            } ~ { mappedAtCreation: true }
+            , mappedAtCreation: true
+            }
         buffer <- createBuffer device desc
         writeArray <- getMappedRange buffer >>= whole
         _ <- setTyped writeArray Nothing arr
@@ -159,8 +160,9 @@ main = do
     -- 🖍️ Shaders
     let
       vsmDesc =
-        { code:
-            """
+        x
+          { code:
+              """
 struct VSOut {
     @builtin(position) Position: vec4<f32>,
     @location(0) color: vec3<f32>,
@@ -175,101 +177,102 @@ fn main(@location(0) inPos: vec3<f32>,
     return vsOut;
 }
 """
-        } ~ {}
+          }
     vertModule <- liftEffect $ createShaderModule device vsmDesc
     let
       fsmDesc =
-        { code:
-            """
+        x
+          { code:
+              """
 @fragment
 fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     return vec4<f32>(inColor, 1.0);
 }
 """
-        } ~ {}
+          }
     fragModule <- liftEffect $ createShaderModule device fsmDesc
 
     -- ⚗️ Graphics Pipeline
 
     -- 🔣 Input Assembly
     let
-      (positionAttribDesc :: GPUVertexAttribute) =
+      (positionAttribDesc :: GPUVertexAttribute) = x
         { shaderLocation: 0
         , -- [[location(0)]]
           offset: 0
         , format: float32x3
-        } ~ {}
+        }
     let
-      (colorAttribDesc :: GPUVertexAttribute) =
+      (colorAttribDesc :: GPUVertexAttribute) = x
         { shaderLocation: 1
         , -- [[location(1)]]
           offset: 0
         , format: float32x3
-        } ~ {}
+        }
     let
-      (positionBufferDesc :: GPUVertexBufferLayout) =
+      (positionBufferDesc :: GPUVertexBufferLayout) = x
         { attributes: [ positionAttribDesc ]
         , arrayStride: 4 * 3
         -- sizeof(float) * 3
-        } ~ { stepMode: StepMode.vertex }
+        , stepMode: StepMode.vertex
+        }
     let
-      (colorBufferDesc :: GPUVertexBufferLayout) =
+      (colorBufferDesc :: GPUVertexBufferLayout) = x
         { attributes: [ colorAttribDesc ]
         , arrayStride: 4 * 3
         -- sizeof(float) * 3
-        } ~ { stepMode: StepMode.vertex }
+        , stepMode: StepMode.vertex
+        }
 
     -- 🌑 Depth
     let
-      (depthStencil :: GPUDepthStencilState) =
+      (depthStencil :: GPUDepthStencilState) = x
         { format: depth24plusStencil8
-        } ~
-          { depthWriteEnabled: true
-          , depthCompare: GPUCompareFunction.less
-          }
+        , depthWriteEnabled: true
+        , depthCompare: GPUCompareFunction.less
+        }
 
     -- 🦄 Uniform Data
-    let pipelineLayoutDesc = { bindGroupLayouts: [] } ~ {}
+    let pipelineLayoutDesc = x { bindGroupLayouts: [] }
     layout <- liftEffect $ createPipelineLayout device pipelineLayoutDesc
 
     -- 🎭 Shader Stages
     let
-      (vertex :: GPUVertexState) =
+      (vertex :: GPUVertexState) = x
         { "module": vertModule
         , entryPoint: "main"
-        } ~ { buffers: [ positionBufferDesc, colorBufferDesc ] }
+        , buffers: [ positionBufferDesc, colorBufferDesc ]
+        }
 
     -- 🌀 Color/Blend State
     let
-      (colorState :: GPUColorTargetState) =
+      (colorState :: GPUColorTargetState) = x
         { format: bgra8unorm
-        } ~ {}
+        }
 
     let
-      (fragment :: GPUFragmentState) =
+      (fragment :: GPUFragmentState) = x
         { "module": fragModule
         , entryPoint: "main"
         , targets: [ colorState ]
-        } ~ {}
+        }
 
     -- 🟨 Rasterization
     let
-      (primitive :: GPUPrimitiveState) =
-        {} ~
-          { frontFace: cw
-          , cullMode: none
-          , topology: triangleList
-          }
+      (primitive :: GPUPrimitiveState) = x
+        { frontFace: cw
+        , cullMode: none
+        , topology: triangleList
+        }
 
     let
-      (pipelineDesc :: GPURenderPipelineDescriptor) =
+      (pipelineDesc :: GPURenderPipelineDescriptor) = x
         { layout
         , vertex
-        } ~
-          { fragment
-          , primitive
-          , depthStencil
-          }
+        , fragment
+        , primitive
+        , depthStencil
+        }
     pipeline <- liftEffect $ createRenderPipeline device pipelineDesc
     { canvasWidth, canvasHeight, context } <- liftEffect do
       d <- window >>= document
@@ -287,56 +290,52 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
       canvasHeight <- height canvas
       pure { context, canvasWidth, canvasHeight }
     let
-      (config :: GPUCanvasConfiguration) =
+      (config :: GPUCanvasConfiguration) = x
         { device
         , format: bgra8unorm
-        } ~
-          { usage:
-              GPUTextureUsage.renderAttachment .|.
-                GPUTextureUsage.copySrc
-          , alphaMode: opaque
-          }
+        , usage:
+            GPUTextureUsage.renderAttachment .|.
+              GPUTextureUsage.copySrc
+        , alphaMode: opaque
+        }
     liftEffect $ configure context config
     let
-      (depthTextureDesc :: GPUTextureDescriptor) =
+      (depthTextureDesc :: GPUTextureDescriptor) = x
         { size: gpuExtent3DWHD canvasWidth canvasHeight 1
         , format: depth24plusStencil8
         , usage: GPUTextureUsage.renderAttachment .|. GPUTextureUsage.copySrc
-        } ~
-          { dimension: GPUTextureDimension.twoD
-          }
+        , dimension: GPUTextureDimension.twoD
+        }
     depthTexture <- liftEffect $ createTexture device depthTextureDesc
     depthTextureView <- liftEffect $ createView depthTexture
     let
       encodeCommands colorTextureView = do
         let
-          (colorAttachment :: GPURenderPassColorAttachment) =
+          (colorAttachment :: GPURenderPassColorAttachment) = x
             { view: colorTextureView
             , loadOp: GPULoadOp.clear
             , storeOp: GPUStoreOp.store
-            } ~
-              { clearValue: gpuColorDict { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }
-              }
+            , clearValue: gpuColorDict { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }
+            }
 
         let
-          (depthAttachment :: GPURenderPassDepthStencilAttachment) =
+          (depthAttachment :: GPURenderPassDepthStencilAttachment) = x
             { view: depthTextureView
-
-            } ~
-              { depthClearValue: 1.0
-              , depthLoadOp: GPULoadOp.clear
-              , depthStoreOp: GPUStoreOp.store
-              , stencilClearValue: 0
-              , stencilLoadOp: GPULoadOp.clear
-              , stencilStoreOp: GPUStoreOp.store
-              }
+            , depthClearValue: 1.0
+            , depthLoadOp: GPULoadOp.clear
+            , depthStoreOp: GPUStoreOp.store
+            , stencilClearValue: 0
+            , stencilLoadOp: GPULoadOp.clear
+            , stencilStoreOp: GPUStoreOp.store
+            }
 
         let
-          (renderPassDesc :: GPURenderPassDescriptor) =
+          (renderPassDesc :: GPURenderPassDescriptor) = x
             { colorAttachments: [ colorAttachment ]
-            } ~ { depthStencilAttachment: depthAttachment }
+            , depthStencilAttachment: depthAttachment
+            }
 
-        commandEncoder <- createCommandEncoder device e
+        commandEncoder <- createCommandEncoder device (x {})
 
         -- 🖌️ Encode drawing commands
         passEncoder <- beginRenderPass commandEncoder renderPassDesc

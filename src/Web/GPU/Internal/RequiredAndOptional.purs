@@ -4,6 +4,7 @@ module Web.GPU.Internal.RequiredAndOptional
   , e
   , o
   , r
+  , x
   , requiredAndOptional
   ) where
 
@@ -32,6 +33,15 @@ r
   => { | required }
   -> nt
 r = unsafeCoerce
+
+x
+  :: forall nt incoming required optional optionalL optionalR
+   . Newtype nt (RequiredAndOptional required optional)
+  => Union required optionalL incoming
+  => Union optionalL optionalR optional
+  => { | incoming }
+  -> nt
+x = unsafeCoerce
 
 o
   :: forall nt optionalL optionalR optional

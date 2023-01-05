@@ -8,6 +8,7 @@ module Web.GPU.Internal.Types
   , GPUBindGroupLayoutEntry
   , GPUBuffer
   , GPUBufferDynamicOffset
+  , GPUCanvasContext
   , GPUColor
   , GPUCommandBuffer
   , GPUCommandEncoder
@@ -20,8 +21,8 @@ module Web.GPU.Internal.Types
   , GPUImageCopyExternalImageSource
   , GPUIndex32
   , GPUIntegerCoordinate
-  , GPUOrigin3D
   , GPUOrigin2D
+  , GPUOrigin3D
   , GPUPipelineLayout
   , GPUQuerySet
   , GPUQueue
@@ -78,6 +79,7 @@ data GPUComputePassEncoder
 data GPUCommandBuffer
 data GPURenderBundle
 data GPUImageCopyExternalImageSource
+data GPUCanvasContext
 data GPUOrigin3D
 data GPUExtent3D
 data GPUOrigin2D

@@ -1,10 +1,10 @@
 # purescript-webgpu
 
-No-frills bindings to the webgpu API.
+No-frills bindings to the WebGPU API.
 
 ## Goals
 
-1. As close to the WebGPU spec as possible.
+1. As close to the [WebGPU spec](https://gpuweb.github.io/gpuweb/) as possible.
 1. Very limited type-level machinery.
 1. Clickable docs.
 1. Small, single-purpose files.

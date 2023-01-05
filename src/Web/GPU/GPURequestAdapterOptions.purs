@@ -6,8 +6,8 @@ import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
 
 newtype GPURequestAdapterOptions =
   GPURequestAdapterOptions
-    ( RequiredAndOptional (powerPreference :: GPUPowerPreference)
-        (forceFallbackAdapter :: Boolean)
+    ( RequiredAndOptional ()
+        (powerPreference :: GPUPowerPreference, forceFallbackAdapter :: Boolean)
     )
 
 derive instance Newtype GPURequestAdapterOptions _

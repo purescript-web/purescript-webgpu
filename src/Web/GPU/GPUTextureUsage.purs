@@ -3,7 +3,11 @@ module Web.GPU.GPUTextureUsage
   , GPUTextureUsageFlags
   , copyDst
   , copySrc
-  ) where
+  , renderAttachment
+  , storageBinding
+  , textureBinding
+  )
+  where
 
 import Data.Int.Bits as Bits
 import Web.GPU.Internal.Bitwise (class Bitwise)

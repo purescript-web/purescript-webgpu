@@ -16,4 +16,4 @@ No-frills bindings to the WebGPU API.
 
 ## For example
 
-[An early test](https://waggish-quartz.surge.sh/).
+[An early test](https://waggish-quartz.surge.sh/). Make sure to use Chrome. If this stops working, it's because my origin trial stopped working. Sorry.

@@ -1,10 +1,11 @@
 module Web.GPU.GPURenderPassColorAttachment where
 
 import Data.Newtype (class Newtype)
+import Web.GPU.GPUColor (GPUColor)
 import Web.GPU.GPULoadOp (GPULoadOp)
 import Web.GPU.GPUStoreOp (GPUStoreOp)
+import Web.GPU.GPUTextureView (GPUTextureView)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUColor, GPUTextureView)
 
 newtype GPURenderPassColorAttachment = GPURenderPassColorAttachment
   ( RequiredAndOptional

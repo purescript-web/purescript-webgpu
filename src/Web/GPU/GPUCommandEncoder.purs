@@ -30,7 +30,8 @@
 -- @inline export insertDebugMarkerImpl arity=2
 -- @inline export insertDebugMarker arity=2
 module Web.GPU.GPUCommandEncoder
-  ( beginComputePass
+  ( GPUCommandEncoder(..)
+  , beginComputePass
   , beginRenderPass
   , clearBuffer
   , clearBufferWithOffset
@@ -46,16 +47,25 @@ module Web.GPU.GPUCommandEncoder
   , pushDebugGroup
   , resolveQuerySet
   , writeTimestamp
-  ) where
+  )
+  where
 
 import Prelude
 
 import Effect (Effect)
+import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.GPUComputePassDescriptor (GPUComputePassDescriptor)
+import Web.GPU.GPUComputePassEncoder (GPUComputePassEncoder)
+import Web.GPU.GPUExtent3D (GPUExtent3D)
 import Web.GPU.GPUImageCopyBuffer (GPUImageCopyBuffer)
 import Web.GPU.GPUImageCopyTexture (GPUImageCopyTexture)
+import Web.GPU.GPUQuerySet (GPUQuerySet)
 import Web.GPU.GPURenderPassDescriptor (GPURenderPassDescriptor)
-import Web.GPU.Internal.Types (GPUBuffer, GPUCommandBuffer, GPUCommandEncoder, GPUComputePassEncoder, GPUExtent3D, GPUQuerySet, GPURenderPassEncoder, GPUSize32, GPUSize64)
+import Web.GPU.GPURenderPassEncoder (GPURenderPassEncoder)
+import Web.GPU.Internal.GPUCommandBuffer (GPUCommandBuffer)
+import Web.GPU.Internal.Types (GPUSize32, GPUSize64)
+
+data GPUCommandEncoder
 
 foreign import beginRenderPassImpl
   :: GPUCommandEncoder

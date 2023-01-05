@@ -4,7 +4,7 @@ module Web.GPU.Navigator (gpu) where
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Web.GPU.Internal.Types (GPU)
+import Web.GPU.GPU (GPU)
 import Web.HTML.Navigator (Navigator)
 
 foreign import gpuImpl

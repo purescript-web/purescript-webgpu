@@ -12,8 +12,9 @@ import Web.GPU.GPUSamplerBindingLayout (GPUSamplerBindingLayout)
 import Web.GPU.GPUShaderStage (GPUShaderStageFlags)
 import Web.GPU.GPUStorageTextureBindingLayout (GPUStorageTextureBindingLayout)
 import Web.GPU.GPUTextureBindingLayout (GPUTextureBindingLayout)
-import Web.GPU.Internal.Types (GPUBindGroupLayoutEntry, GPUIndex32)
+import Web.GPU.Internal.Types (GPUIndex32)
 
+data GPUBindGroupLayoutEntry
 gpuBufferBindingLayout
   :: GPUIndex32
   -> GPUShaderStageFlags

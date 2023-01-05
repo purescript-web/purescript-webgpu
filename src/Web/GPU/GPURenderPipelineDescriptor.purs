@@ -4,10 +4,10 @@ import Data.Newtype (class Newtype)
 import Web.GPU.GPUDepthStencilState (GPUDepthStencilState)
 import Web.GPU.GPUFragmentState (GPUFragmentState)
 import Web.GPU.GPUMultisampleState (GPUMultisampleState)
+import Web.GPU.GPUPipelineLayout (GPUPipelineLayout)
 import Web.GPU.GPUPrimitiveState (GPUPrimitiveState)
 import Web.GPU.GPUVertexState (GPUVertexState)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUPipelineLayout)
 
 newtype GPURenderPipelineDescriptor = GPURenderPipelineDescriptor
   ( RequiredAndOptional (vertex :: GPUVertexState, layout :: GPUPipelineLayout)

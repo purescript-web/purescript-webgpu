@@ -1,8 +1,9 @@
 module Web.GPU.GPUBindGroupDescriptor where
 
 import Data.Newtype (class Newtype)
+import Web.GPU.GPUBindGroupEntry (GPUBindGroupEntry)
+import Web.GPU.GPUBindGroupLayout (GPUBindGroupLayout)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUBindGroupEntry, GPUBindGroupLayout)
 
 newtype GPUBindGroupDescriptor = GPUBindGroupDescriptor
   ( RequiredAndOptional

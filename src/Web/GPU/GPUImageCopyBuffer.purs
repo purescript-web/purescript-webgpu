@@ -1,8 +1,9 @@
 module Web.GPU.GPUImageCopyBuffer where
 
 import Data.Newtype (class Newtype)
+import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUBuffer, GPUSize64, GPUSize32)
+import Web.GPU.Internal.Types (GPUSize64, GPUSize32)
 
 newtype GPUImageCopyBuffer = GPUImageCopyBuffer
   ( RequiredAndOptional

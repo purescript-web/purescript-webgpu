@@ -3,7 +3,7 @@
 -- @inline export getPreferredCanvasFormatImpl arity=1
 -- @inline export getPreferredCanvasFormat arity=1
 module Web.GPU.GPU
-  ( requestAdapter
+  ( GPU,requestAdapter
   , getPreferredCanvasFormat
   ) where
 
@@ -11,9 +11,10 @@ import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Web.GPU.GPURequestAdapterOptions (GPURequestAdapterOptions)
 import Web.GPU.GPUTextureFormat (GPUTextureFormat)
-import Web.GPU.Internal.Types (GPU, GPUAdapter)
 import Web.Promise (Promise)
+import Web.GPU.GPUAdapter(GPUAdapter)
 
+data GPU
 -- requestAdapter
 
 foreign import requestAdapterImpl

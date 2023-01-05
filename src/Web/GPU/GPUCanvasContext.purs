@@ -7,7 +7,8 @@
 -- @inline export getCurrentTextureImpl arity=1
 -- @inline export getCurrentTexture arity=1
 module Web.GPU.GPUCanvasContext
-  ( canvas
+  ( GPUCanvasContext
+  , canvas
   , configure
   , getCurrentTexture
   , unconfigure
@@ -17,8 +18,10 @@ import Prelude
 
 import Effect (Effect)
 import Web.GPU.GPUCanvasConfiguration (GPUCanvasConfiguration)
-import Web.GPU.Internal.Types (GPUCanvasContext, GPUTexture)
+import Web.GPU.GPUTexture (GPUTexture)
 import Web.HTML (HTMLCanvasElement)
+
+data GPUCanvasContext
 
 foreign import canvasImpl :: GPUCanvasContext -> Effect HTMLCanvasElement
 

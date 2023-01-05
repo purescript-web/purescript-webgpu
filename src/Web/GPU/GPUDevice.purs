@@ -38,7 +38,8 @@
 -- @inline export createQuerySet arity=2
 -- @inline export toEventTarget arity=1
 module Web.GPU.GPUDevice
-  ( createBindGroup
+  ( GPUDevice
+  , createBindGroup
   , createBindGroupLayout
   , createBuffer
   , createCommandEncoder
@@ -58,7 +59,8 @@ module Web.GPU.GPUDevice
   , limits
   , queue
   , toEventTarget
-  ) where
+  )
+  where
 
 import Prelude
 
@@ -66,23 +68,37 @@ import Data.Set as Set
 import Effect (Effect)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.Event.Internal.Types (EventTarget)
+import Web.GPU.GPUBindGroup (GPUBindGroup)
 import Web.GPU.GPUBindGroupDescriptor (GPUBindGroupDescriptor)
+import Web.GPU.GPUBindGroupLayout (GPUBindGroupLayout)
 import Web.GPU.GPUBindGroupLayoutDescriptor (GPUBindGroupLayoutDescriptor)
+import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.GPUBufferDescriptor (GPUBufferDescriptor)
+import Web.GPU.GPUCommandEncoder (GPUCommandEncoder)
 import Web.GPU.GPUCommandEncoderDescriptor (GPUCommandEncoderDescriptor)
+import Web.GPU.GPUComputePipeline (GPUComputePipeline)
 import Web.GPU.GPUComputePipelineDescriptor (GPUComputePipelineDescriptor)
+import Web.GPU.GPUExternalTexture (GPUExternalTexture)
 import Web.GPU.GPUExternalTextureDescriptor (GPUExternalTextureDescriptor)
 import Web.GPU.GPUFeatureName (GPUFeatureName)
+import Web.GPU.GPUPipelineLayout (GPUPipelineLayout)
 import Web.GPU.GPUPipelineLayoutDescriptor (GPUPipelineLayoutDescriptor)
+import Web.GPU.GPUQuerySet (GPUQuerySet)
 import Web.GPU.GPUQuerySetDescriptor (GPUQuerySetDescriptor)
+import Web.GPU.GPUQueue (GPUQueue)
 import Web.GPU.GPURenderBundleEncoderDescriptor (GPURenderBundleEncoderDescriptor)
+import Web.GPU.GPURenderPipeline (GPURenderPipeline)
 import Web.GPU.GPURenderPipelineDescriptor (GPURenderPipelineDescriptor)
+import Web.GPU.GPUSampler (GPUSampler)
 import Web.GPU.GPUSamplerDescriptor (GPUSamplerDescriptor)
+import Web.GPU.GPUShaderModule (GPUShaderModule)
 import Web.GPU.GPUShaderModuleDescriptor (GPUShaderModuleDescriptor)
 import Web.GPU.GPUSupportedLimits (GPUSupportedLimits)
+import Web.GPU.GPUTexture (GPUTexture)
 import Web.GPU.GPUTextureDescriptor (GPUTextureDescriptor)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBindGroupLayout, GPUBuffer, GPUCommandEncoder, GPUComputePipeline, GPUDevice, GPUExternalTexture, GPUPipelineLayout, GPUQuerySet, GPUQueue, GPURenderPipeline, GPUSampler, GPUShaderModule, GPUTexture)
 import Web.Promise (Promise)
+
+data GPUDevice
 
 -- features
 foreign import featuresImpl

@@ -21,7 +21,8 @@
 -- @inline export usageImpl arity=1
 -- @inline export usage arity=1
 module Web.GPU.GPUTexture
-  ( createViewWithDescriptor
+  ( GPUTexture
+  , createViewWithDescriptor
   , createView
   , destroy
   , width
@@ -40,8 +41,11 @@ import Effect (Effect)
 import Web.GPU.GPUTextureDimension (GPUTextureDimension)
 import Web.GPU.GPUTextureFormat (GPUTextureFormat)
 import Web.GPU.GPUTextureUsage (GPUTextureUsage)
+import Web.GPU.GPUTextureView (GPUTextureView)
 import Web.GPU.GPUTextureViewDescriptor (GPUTextureViewDescriptor)
-import Web.GPU.Internal.Types (GPUTexture, GPUTextureView, GPUIntegerCoordinate, GPUSize32)
+import Web.GPU.Internal.Types (GPUIntegerCoordinate, GPUSize32)
+
+data GPUTexture
 
 foreign import createViewWithDescriptorImpl
   :: GPUTexture -> GPUTextureViewDescriptor -> Effect GPUTextureView

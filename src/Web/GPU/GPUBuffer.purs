@@ -24,7 +24,23 @@
 -- @inline export unmap arity=1
 -- @inline export destroyImpl arity=1
 -- @inline export destroy arity=1
-module Web.GPU.GPUBuffer where
+module Web.GPU.GPUBuffer
+  ( GPUBuffer
+  , destroy
+  , getMappedRange
+  , getMappedRangeWithOffset
+  , getMappedRangeWithOffsetAndSize
+  , getMappedRangeWithSize
+  , mapAsync
+  , mapAsyncWithOffset
+  , mapAsyncWithOffsetAndSize
+  , mapAsyncWithSize
+  , mapState
+  , size
+  , unmap
+  , usage
+  )
+  where
 
 import Prelude
 
@@ -33,9 +49,10 @@ import Effect (Effect)
 import Web.GPU.GPUBufferMapState (GPUBufferMapState)
 import Web.GPU.GPUBufferUsage (GPUBufferUsage)
 import Web.GPU.GPUMapMode (GPUMapMode)
-import Web.GPU.Internal.Types (GPUBuffer, GPUSize64)
+import Web.GPU.Internal.Types (GPUSize64)
 import Web.Promise (Promise)
 
+data GPUBuffer
 foreign import sizeImpl :: GPUBuffer -> Effect GPUSize64
 
 size :: GPUBuffer -> Effect GPUSize64

@@ -4,8 +4,9 @@
 module Web.GPU.GPUExtent3D where
 
 import Unsafe.Coerce (unsafeCoerce)
-import Web.GPU.Internal.Types (GPUExtent3D, GPUIntegerCoordinate)
+import Web.GPU.Internal.Types (GPUIntegerCoordinate)
 
+data GPUExtent3D
 gpuExtent3DW :: GPUIntegerCoordinate -> GPUExtent3D
 gpuExtent3DW w = unsafeCoerce [ w ]
 

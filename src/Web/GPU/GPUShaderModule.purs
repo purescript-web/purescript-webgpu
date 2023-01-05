@@ -1,7 +1,8 @@
 -- @inline export compilationInfoImpl arity=1
 -- @inline export compilationInfo arity=1
 module Web.GPU.GPUShaderModule
-  ( compilationInfo
+  ( GPUShaderModule
+  , compilationInfo
   , GPUCompilationMessageType
   , error
   , warning
@@ -11,9 +12,10 @@ module Web.GPU.GPUShaderModule
 import Prelude
 
 import Effect (Effect)
-import Web.GPU.Internal.Types (GPUShaderModule, UnsignedLongLong)
+import Web.GPU.Internal.Types (UnsignedLongLong)
 import Web.Promise (Promise)
 
+data GPUShaderModule
 newtype GPUCompilationMessageType = GPUCompilationMessageType String
 
 derive instance Eq GPUCompilationMessageType

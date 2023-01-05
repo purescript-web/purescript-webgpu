@@ -95,7 +95,8 @@
 -- @inline export insertDebugMarkerImpl arity=2
 -- @inline export insertDebugMarker arity=2
 module Web.GPU.GPURenderPassEncoder
-  ( beginOcclusionQuery
+  ( GPURenderPassEncoder
+  , beginOcclusionQuery
   , draw
   , drawIndexed
   , drawIndexedIndirect
@@ -149,8 +150,15 @@ import Prelude
 
 import Data.ArrayBuffer.Types (Uint32Array)
 import Effect (Effect)
+import Web.GPU.GPUBindGroup (GPUBindGroup)
+import Web.GPU.GPUBuffer (GPUBuffer)
+import Web.GPU.GPUColor (GPUColor)
 import Web.GPU.GPUIndexFormat (GPUIndexFormat)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBuffer, GPUColor, GPUIndex32, GPUIntegerCoordinate, GPURenderBundle, GPURenderPassEncoder, GPURenderPipeline, GPUSignedOffset32, GPUSize32, GPUSize64, GPUStencilValue, GPUBufferDynamicOffset)
+import Web.GPU.GPURenderBundle (GPURenderBundle)
+import Web.GPU.GPURenderPipeline (GPURenderPipeline)
+import Web.GPU.Internal.Types (GPUIndex32, GPUIntegerCoordinate, GPUSignedOffset32, GPUSize32, GPUSize64, GPUStencilValue, GPUBufferDynamicOffset)
+
+data GPURenderPassEncoder
 
 foreign import setViewportImpl
   :: GPURenderPassEncoder

@@ -5,7 +5,7 @@ module Web.GPU.HTMLCanvasElement
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Web.GPU.Internal.Types (GPUCanvasContext)
+import Web.GPU.GPUCanvasContext (GPUCanvasContext)
 import Web.HTML (HTMLCanvasElement)
 
 foreign import getContextImpl

@@ -2,7 +2,10 @@
 module Web.GPU.GPUPipelineBase where
 
 import Effect (Effect)
-import Web.GPU.Internal.Types (GPUBindGroupLayout, GPUComputePipeline, GPURenderPipeline, UnsignedLong)
+import Web.GPU.GPUBindGroupLayout (GPUBindGroupLayout)
+import Web.GPU.GPUComputePipeline (GPUComputePipeline)
+import Web.GPU.GPURenderPipeline (GPURenderPipeline)
+import Web.GPU.Internal.Types (UnsignedLong)
 
 foreign import unsafeGetBindGroupLayoutImpl
   :: forall a. a -> UnsignedLong -> Effect GPUBindGroupLayout

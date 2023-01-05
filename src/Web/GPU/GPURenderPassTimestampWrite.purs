@@ -1,9 +1,10 @@
 module Web.GPU.GPURenderPassTimestampWrite where
 
 import Data.Newtype (class Newtype)
+import Web.GPU.GPUQuerySet (GPUQuerySet)
 import Web.GPU.GPURenderPassTimestampLocation (GPURenderPassTimestampLocation)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUQuerySet, GPUSize32)
+import Web.GPU.Internal.Types (GPUSize32)
 
 newtype GPURenderPassTimestampWrite = GPURenderPassTimestampWrite
   ( RequiredAndOptional

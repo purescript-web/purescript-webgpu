@@ -1,11 +1,12 @@
 module Web.GPU.GPUTextureDescriptor where
 
 import Data.Newtype (class Newtype)
+import Web.GPU.GPUExtent3D (GPUExtent3D)
 import Web.GPU.GPUTextureDimension (GPUTextureDimension)
 import Web.GPU.GPUTextureFormat (GPUTextureFormat)
 import Web.GPU.GPUTextureUsage (GPUTextureUsageFlags)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUExtent3D, GPUIntegerCoordinate, GPUSize32)
+import Web.GPU.Internal.Types (GPUIntegerCoordinate, GPUSize32)
 
 newtype GPUTextureDescriptor = GPUTextureDescriptor
   ( RequiredAndOptional

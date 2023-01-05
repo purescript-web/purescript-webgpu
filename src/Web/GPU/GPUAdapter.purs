@@ -9,23 +9,27 @@
 -- @inline export requestAdapterInfoImpl arity=2
 -- @inline export requestAdapterInfo arity=2
 module Web.GPU.GPUAdapter
-  ( GPUAdapterInfo
+  ( GPUAdapter(..)
+  , GPUAdapterInfo
   , features
-  , limits
   , isFallbackAdapter
+  , limits
   , requestAdapterInfo
   , requestDevice
-  ) where
+  )
+  where
 
 import Data.Maybe (Maybe(..))
 import Data.Set as Set
 import Effect (Effect)
 import Web.GPU.GPUDeviceDescriptor (GPUDeviceDescriptor)
 import Web.GPU.GPUFeatureName (GPUFeatureName)
+import Web.GPU.GPUDevice(GPUDevice)
 import Web.GPU.GPUSupportedLimits (GPUSupportedLimits)
-import Web.GPU.Internal.Types (GPUAdapter, GPUDevice)
 import Web.GPU.UnmaskHint (UnmaskHint)
 import Web.Promise (Promise)
+
+data GPUAdapter
 
 -- features
 foreign import featuresImpl

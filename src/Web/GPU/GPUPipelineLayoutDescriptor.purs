@@ -1,8 +1,8 @@
 module Web.GPU.GPUPipelineLayoutDescriptor where
 
 import Data.Newtype (class Newtype)
+import Web.GPU.GPUBindGroupLayout (GPUBindGroupLayout)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUBindGroupLayout)
 
 newtype GPUPipelineLayoutDescriptor = GPUPipelineLayoutDescriptor
   ( RequiredAndOptional (bindGroupLayouts :: Array GPUBindGroupLayout)

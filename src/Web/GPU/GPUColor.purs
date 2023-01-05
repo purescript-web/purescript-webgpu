@@ -1,12 +1,12 @@
 -- @inline export gpuColorRGBA arity=4
 module Web.GPU.GPUColor
-  ( gpuColorDict
+  ( GPUColor,gpuColorDict
   , gpuColorRGBA
   ) where
 
 import Unsafe.Coerce (unsafeCoerce)
-import Web.GPU.Internal.Types (GPUColor)
 
+data GPUColor
 gpuColorRGBA :: Number -> Number -> Number -> Number -> GPUColor
 gpuColorRGBA r g b a = unsafeCoerce [ r, g, b, a ]
 

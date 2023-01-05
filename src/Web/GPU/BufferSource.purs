@@ -13,8 +13,8 @@ module Web.GPU.BufferSource where
 
 import Data.ArrayBuffer.Types (ArrayBuffer, DataView, Float32Array, Float64Array, Int16Array, Int32Array, Int8Array, Uint16Array, Uint32Array, Uint8Array, Uint8ClampedArray)
 import Unsafe.Coerce (unsafeCoerce)
-import Web.GPU.Internal.Types (BufferSource)
 
+data BufferSource
 fromArrayBuffer :: ArrayBuffer -> BufferSource
 fromArrayBuffer = unsafeCoerce
 

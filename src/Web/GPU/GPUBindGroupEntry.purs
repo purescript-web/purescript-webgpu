@@ -2,17 +2,23 @@ module Web.GPU.GPUBindGroupEntry where
 
 import Data.Newtype (class Newtype)
 import Unsafe.Coerce (unsafeCoerce)
+import Web.GPU.GPUBuffer (GPUBuffer)
+import Web.GPU.GPUExternalTexture (GPUExternalTexture)
+import Web.GPU.GPUSampler (GPUSampler)
+import Web.GPU.GPUTextureView (GPUTextureView)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
-import Web.GPU.Internal.Types (GPUBindGroupEntry, GPUBuffer, GPUExternalTexture, GPUIndex32, GPUSampler, GPUTextureView, GPUSize64)
+import Web.GPU.Internal.Types (GPUIndex32, GPUSize64)
 
-class GPUBindGroupEntry e where
+data GPUBindGroupEntry
+
+class AsGPUBindGroupEntry e where
   gpuBindGroupEntry :: GPUIndex32 -> e -> GPUBindGroupEntry
 
-instance GPUBindGroupEntry GPUSampler where
+instance AsGPUBindGroupEntry GPUSampler where
   gpuBindGroupEntry binding resource = unsafeCoerce
     { binding, resource: unsafeCoerce resource }
 
-instance GPUBindGroupEntry GPUTextureView where
+instance AsGPUBindGroupEntry GPUTextureView where
   gpuBindGroupEntry binding resource = unsafeCoerce
     { binding, resource: unsafeCoerce resource }
 
@@ -23,10 +29,10 @@ newtype GPUBufferBinding = GPUBufferBinding
 
 derive instance Newtype GPUBufferBinding _
 
-instance GPUBindGroupEntry GPUBufferBinding where
+instance AsGPUBindGroupEntry GPUBufferBinding where
   gpuBindGroupEntry binding resource = unsafeCoerce
     { binding, resource: unsafeCoerce resource }
 
-instance GPUBindGroupEntry GPUExternalTexture where
+instance AsGPUBindGroupEntry GPUExternalTexture where
   gpuBindGroupEntry binding resource = unsafeCoerce
     { binding, resource: unsafeCoerce resource }

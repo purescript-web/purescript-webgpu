@@ -14,7 +14,8 @@
 -- @inline export copyExternalImageToTextureImpl arity=4
 -- @inline export copyExternalImageToTexture arity=4
 module Web.GPU.GPUQueue
-  ( copyExternalImageToTexture
+  ( GPUQueue
+  , copyExternalImageToTexture
   , onSubmittedWorkDone
   , submit
   , writeBuffer
@@ -27,12 +28,18 @@ module Web.GPU.GPUQueue
 import Prelude
 
 import Effect (Effect)
+import Web.GPU.BufferSource (BufferSource)
+import Web.GPU.GPUBuffer (GPUBuffer)
+import Web.GPU.GPUExtent3D (GPUExtent3D)
 import Web.GPU.GPUImageCopyExternalImage (GPUImageCopyExternalImage)
 import Web.GPU.GPUImageCopyTexture (GPUImageCopyTexture)
 import Web.GPU.GPUImageCopyTextureTagged (GPUImageCopyTextureTagged)
 import Web.GPU.GPUImageDataLayout (GPUImageDataLayout)
-import Web.GPU.Internal.Types (BufferSource, GPUBuffer, GPUCommandBuffer, GPUExtent3D, GPUQueue, GPUSize64)
+import Web.GPU.Internal.GPUCommandBuffer (GPUCommandBuffer)
+import Web.GPU.Internal.Types (GPUSize64)
 import Web.Promise (Promise)
+
+data GPUQueue
 
 foreign import submitImpl :: GPUQueue -> Array GPUCommandBuffer -> Effect Unit
 

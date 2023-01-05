@@ -80,7 +80,7 @@
 -- @inline export insertDebugMarkerImpl arity=2
 -- @inline export insertDebugMarker arity=2
 module Web.GPU.GPURenderBundleEncoder
-  ( draw
+  (GPURenderBundleEncoder,draw
   , drawIndexed
   , drawIndexedIndirect
   , drawIndexedWithBaseVertex
@@ -127,10 +127,15 @@ import Prelude
 
 import Data.ArrayBuffer.Types (Uint32Array)
 import Effect (Effect)
+import Web.GPU.GPUBindGroup (GPUBindGroup)
+import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.GPUIndexFormat (GPUIndexFormat)
+import Web.GPU.GPURenderBundle (GPURenderBundle)
 import Web.GPU.GPURenderBundleDescriptor (GPURenderBundleDescriptor)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBuffer, GPUBufferDynamicOffset, GPUIndex32, GPURenderBundle, GPURenderBundleEncoder, GPURenderPipeline, GPUSignedOffset32, GPUSize32, GPUSize64)
+import Web.GPU.GPURenderPipeline (GPURenderPipeline)
+import Web.GPU.Internal.Types (GPUBufferDynamicOffset, GPUIndex32, GPUSignedOffset32, GPUSize32, GPUSize64)
 
+data GPURenderBundleEncoder
 foreign import finishImpl
   :: GPURenderBundleEncoder
   -> GPURenderBundleDescriptor

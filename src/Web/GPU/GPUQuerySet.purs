@@ -5,7 +5,8 @@
 -- @inline export countImpl arity=1
 -- @inline export count arity=1
 module Web.GPU.GPUQuerySet
-  ( count
+  ( GPUQuerySet
+  , count
   , destroy
   , type'
   ) where
@@ -14,7 +15,9 @@ import Prelude
 
 import Effect (Effect)
 import Web.GPU.GPUQueryType (GPUQueryType)
-import Web.GPU.Internal.Types (GPUQuerySet, GPUSize32)
+import Web.GPU.Internal.Types (GPUSize32)
+
+data GPUQuerySet
 
 foreign import destroyImpl :: GPUQuerySet -> Effect Unit
 

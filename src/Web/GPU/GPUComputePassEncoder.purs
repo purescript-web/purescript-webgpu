@@ -22,7 +22,8 @@
 -- @inline export insertDebugMarkerImpl arity=2
 -- @inline export insertDebugMarker arity=2
 module Web.GPU.GPUComputePassEncoder
-  ( dispatchWorkgroups
+  ( GPUComputePassEncoder(..)
+  , dispatchWorkgroups
   , dispatchWorkgroupsIndirect
   , dispatchWorkgroupsX
   , dispatchWorkgroupsXY
@@ -35,13 +36,19 @@ module Web.GPU.GPUComputePassEncoder
   , setBindGroupWithDyanmicOffsetBounds
   , setBindGroupWithDynamicOffsets
   , setPipeline
-  ) where
+  )
+  where
 
 import Prelude
 
 import Data.ArrayBuffer.Types (Uint32Array)
 import Effect (Effect)
-import Web.GPU.Internal.Types (GPUBindGroup, GPUBuffer, GPUComputePassEncoder, GPUComputePipeline, GPUIndex32, GPUSize32, GPUSize64, GPUBufferDynamicOffset)
+import Web.GPU.GPUBindGroup (GPUBindGroup)
+import Web.GPU.GPUBuffer (GPUBuffer)
+import Web.GPU.GPUComputePipeline (GPUComputePipeline)
+import Web.GPU.Internal.Types (GPUIndex32, GPUSize32, GPUSize64, GPUBufferDynamicOffset)
+
+data GPUComputePassEncoder
 
 foreign import setPipelineImpl
   :: GPUComputePassEncoder -> GPUComputePipeline -> Effect Unit

@@ -6,10 +6,13 @@ module Web.GPU.GPUOrigin3D
   , gpuOrigin3DXY
   , gpuOrigin3DXYZ
   , gpuOrigin3DDict
+  , GPUOrigin3D
   ) where
 
 import Unsafe.Coerce (unsafeCoerce)
-import Web.GPU.Internal.Types (GPUOrigin3D, GPUIntegerCoordinate)
+import Web.GPU.Internal.Types (GPUIntegerCoordinate)
+
+data GPUOrigin3D
 
 gpuOrigin3DX :: GPUIntegerCoordinate -> GPUOrigin3D
 gpuOrigin3DX x = unsafeCoerce [ x ]

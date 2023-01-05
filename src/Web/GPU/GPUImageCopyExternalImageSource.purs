@@ -5,9 +5,10 @@
 module Web.GPU.GPUImageCopyExternalImageSource where
 
 import Unsafe.Coerce (unsafeCoerce)
-import Web.GPU.Internal.Types (GPUImageCopyExternalImageSource, ImageBitmap, OffscreenCanvas)
+import Web.GPU.Internal.Types (ImageBitmap, OffscreenCanvas)
 import Web.HTML (HTMLCanvasElement, HTMLVideoElement)
 
+data GPUImageCopyExternalImageSource
 fromImageBitmap :: ImageBitmap -> GPUImageCopyExternalImageSource
 fromImageBitmap = unsafeCoerce
 

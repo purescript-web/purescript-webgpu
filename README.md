@@ -13,3 +13,7 @@ No-frills bindings to the WebGPU API.
 ## Non-goals
 
 1. Fancy abstractions.
+
+## For example
+
+[An early test](https://waggish-quartz.surge.sh/).

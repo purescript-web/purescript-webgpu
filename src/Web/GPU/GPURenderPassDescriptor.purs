@@ -1,5 +1,6 @@
 module Web.GPU.GPURenderPassDescriptor where
 
+import Data.Newtype (class Newtype)
 import Web.GPU.GPURenderPassColorAttachment (GPURenderPassColorAttachment)
 import Web.GPU.GPURenderPassDepthStencilAttachment (GPURenderPassDepthStencilAttachment)
 import Web.GPU.GPURenderPassTimestampWrite (GPURenderPassTimestampWrite)
@@ -17,3 +18,5 @@ newtype GPURenderPassDescriptor = GPURenderPassDescriptor
       , label :: String
       )
   )
+
+derive instance Newtype GPURenderPassDescriptor _

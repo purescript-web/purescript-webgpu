@@ -1,5 +1,6 @@
 module Web.GPU.GPUBlendComponent where
 
+import Data.Newtype (class Newtype)
 import Web.GPU.GPUBlendFactor (GPUBlendFactor)
 import Web.GPU.GPUBlendOperation (GPUBlendOperation)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
@@ -11,3 +12,5 @@ newtype GPUBlendComponent = GPUBlendComponent
       , dstFactor :: GPUBlendFactor
       )
   )
+
+derive instance Newtype GPUBlendComponent _

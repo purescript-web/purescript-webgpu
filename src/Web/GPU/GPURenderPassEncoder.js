@@ -49,7 +49,7 @@ export const setIndexBufferWithSizeImpl =
   (gpuIndexFormat$2) =>
   (gpuSize64$3) =>
   () =>
-    gpuRenderPassEncoder.setIndexBufferWithSize(
+    gpuRenderPassEncoder.setIndexBuffer(
       gpuBuffer$1,
       gpuIndexFormat$2,
       gpuSize64$3
@@ -60,9 +60,10 @@ export const setIndexBufferWithOffsetImpl =
   (gpuIndexFormat$2) =>
   (gpuSize64$3) =>
   () =>
-    gpuRenderPassEncoder.setIndexBufferWithOffset(
+    gpuRenderPassEncoder.setIndexBuffer(
       gpuBuffer$1,
       gpuIndexFormat$2,
+      undefined,
       gpuSize64$3
     );
 export const setIndexBufferWithOffsetAndSizeImpl =
@@ -72,7 +73,7 @@ export const setIndexBufferWithOffsetAndSizeImpl =
   (gpuSize64$3) =>
   (gpuSize64$4) =>
   () =>
-    gpuRenderPassEncoder.setIndexBufferWithOffsetAndSize(
+    gpuRenderPassEncoder.setIndexBuffer(
       gpuBuffer$1,
       gpuIndexFormat$2,
       gpuSize64$3,
@@ -87,7 +88,7 @@ export const setVertexBufferWithOffsetImpl =
   (gpuBuffer$2) =>
   (gpuSize64$3) =>
   () =>
-    gpuRenderPassEncoder.setVertexBufferWithOffset(
+    gpuRenderPassEncoder.setVertexBuffer(
       gpuIndex32$1,
       gpuBuffer$2,
       gpuSize64$3
@@ -98,9 +99,10 @@ export const setVertexBufferWithSizeImpl =
   (gpuBuffer$2) =>
   (gpuSize64$3) =>
   () =>
-    gpuRenderPassEncoder.setVertexBufferWithSize(
+    gpuRenderPassEncoder.setVertexBuffer(
       gpuIndex32$1,
       gpuBuffer$2,
+      undefined,
       gpuSize64$3
     );
 export const setVertexBufferWithOffsetAndSizeImpl =
@@ -110,12 +112,13 @@ export const setVertexBufferWithOffsetAndSizeImpl =
   (gpuSize64$3) =>
   (gpuSize64$4) =>
   () =>
-    gpuRenderPassEncoder.setVertexBufferWithOffsetAndSize(
+    gpuRenderPassEncoder.setVertexBuffer(
       gpuIndex32$1,
       gpuBuffer$2,
       gpuSize64$3,
       gpuSize64$4
     );
+//
 export const drawImpl = (gpuRenderPassEncoder) => (gpuSize32$1) => () =>
   gpuRenderPassEncoder.draw(gpuSize32$1);
 export const drawWithInstanceCountImpl =
@@ -143,7 +146,7 @@ export const drawWithInstanceCountAndFirstInstance =
       gpuSize32$2,
       gpuSize32$3
     );
-export const drawWithFirstVertexAndFirstInstance =
+export const drawWithFirstVertexAndFirstInstanceImpl =
   (gpuRenderPassEncoder) =>
   (gpuSize32$1) =>
   (gpuSize32$2) =>
@@ -167,6 +170,7 @@ export const drawWithInstanceCountAndFirstVertexAndFirstInstanceImpl =
       gpuSize32$3,
       gpuSize32$4
     );
+//
 export const drawIndexedImpl = (gpuRenderPassEncoder) => (gpuSize32$1) => () =>
   gpuRenderPassEncoder.drawIndexed(gpuSize32$1);
 export const drawIndexedWithInstanceCountImpl =
@@ -181,9 +185,9 @@ export const drawIndexedWithBaseVertexImpl =
       gpuSize32$1,
       gpuSignedOffset32$2
     );
-export const drawInstancedWithFirstInstanceImpl =
+export const drawIndexedWithFirstInstanceImpl =
   (gpuRenderPassEncoder) => (gpuSize32$1) => (gpuSize32$2) => () =>
-    gpuRenderPassEncoder.drawInstancedWithFirstInstance(
+    gpuRenderPassEncoder.drawIndexedWithFirstInstance(
       gpuSize32$1,
       gpuSize32$2
     );
@@ -300,6 +304,7 @@ export const drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInsta
         gpuSignedOffset32$3,
         gpuSize32$4
       );
+//
 export const drawIndirectImpl =
   (gpuRenderPassEncoder) => (gpuBuffer$1) => (gpuSize64$2) => () =>
     gpuRenderPassEncoder.drawIndirect(gpuBuffer$1, gpuSize64$2);
@@ -320,7 +325,7 @@ export const setBindGroupWithDynamicOffsetsImpl =
       gpuBindGroup$2,
       arraygpuBufferDynamicOffset$3
     );
-export const setBindGroupWithDyanmicOffsetBounds =
+export const setBindGroupWithDyanmicOffsetBoundsImpl =
   (gpuRenderPassEncoder) =>
   (gpuIndex32$1) =>
   (gpuBindGroup$2) =>

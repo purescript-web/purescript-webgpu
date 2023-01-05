@@ -1,5 +1,6 @@
 module Web.GPU.Internal.Types
-  ( GPU
+  ( BufferSource
+  , GPU
   , GPUAdapter
   , GPUBindGroup
   , GPUBindGroupEntry
@@ -8,7 +9,7 @@ module Web.GPU.Internal.Types
   , GPUBuffer
   , GPUBufferDynamicOffset
   , GPUColor
-  , GPUCommandBuffer(..)
+  , GPUCommandBuffer
   , GPUCommandEncoder
   , GPUComputePassEncoder
   , GPUComputePipeline
@@ -16,13 +17,16 @@ module Web.GPU.Internal.Types
   , GPUDevice
   , GPUExtent3D
   , GPUExternalTexture
+  , GPUImageCopyExternalImageSource
   , GPUIndex32
   , GPUIntegerCoordinate
   , GPUOrigin3D
+  , GPUOrigin2D
   , GPUPipelineLayout
   , GPUQuerySet
   , GPUQueue
-  , GPURenderBundle(..)
+  , GPURenderBundle
+  , GPURenderBundleEncoder
   , GPURenderPassEncoder
   , GPURenderPipeline
   , GPUSampleMask
@@ -35,12 +39,18 @@ module Web.GPU.Internal.Types
   , GPUStencilValue
   , GPUTexture
   , GPUTextureView
+  , ImageBitmap
   , Long
+  , OffscreenCanvas
   , UnsignedLong
   , UnsignedLongLong
   , UnsignedShort
   ) where
 
+-- todo: add this to the PS ecosystem
+data ImageBitmap
+-- todo: add this to the PS ecosystem
+data OffscreenCanvas
 data GPU
 data GPUAdapter
 data GPUDevice
@@ -63,11 +73,15 @@ data GPUCommandEncoder
 data GPUQuerySet
 data GPUColor
 data GPURenderPassEncoder
+data GPURenderBundleEncoder
 data GPUComputePassEncoder
 data GPUCommandBuffer
 data GPURenderBundle
+data GPUImageCopyExternalImageSource
 data GPUOrigin3D
 data GPUExtent3D
+data GPUOrigin2D
+data BufferSource
 type Long = Int
 type UnsignedShort = Int
 type UnsignedLong = Int

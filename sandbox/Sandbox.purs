@@ -9,14 +9,14 @@ import Data.ArrayBuffer.ArrayBuffer (byteLength)
 import Data.ArrayBuffer.Typed (class TypedArray, fromArray, setTyped, whole)
 import Data.ArrayBuffer.Typed as Typed
 import Data.ArrayBuffer.Types (ArrayView, Float32Array, Uint16Array)
-import Data.Float32 (fromNumber')
+import Data.Float32 (Float32)
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
 import Data.Int.Bits (complement, (.&.))
 import Data.JSDate (getTime, now)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Number (pi, sin)
-import Data.UInt (fromInt)
+import Data.UInt (UInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
 import Effect.Class (liftEffect)
@@ -78,6 +78,12 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, navigator, requestAnimationFrame)
 import Web.Promise as Web.Promise
 
+hackyFloatConv :: Array Number -> Array Float32
+hackyFloatConv = unsafeCoerce
+
+hackyIntConv :: Array Int -> Array UInt
+hackyIntConv = unsafeCoerce
+
 convertPromise :: Web.Promise.Promise ~> Control.Promise.Promise
 convertPromise = unsafeCoerce
 
@@ -91,7 +97,7 @@ showErrorMessage = do
 
 main :: Effect Unit
 main = do
-  positions :: Float32Array <- fromArray $ map fromNumber'
+  positions :: Float32Array <- fromArray $ hackyFloatConv
     [ 1.0
     , -1.0
     , 0.0
@@ -104,7 +110,7 @@ main = do
     ]
 
   -- 🎨 Color Vertex Buffer Data
-  colors :: Float32Array <- fromArray $ map fromNumber'
+  colors :: Float32Array <- fromArray $ hackyFloatConv
     [ 1.0
     , 0.0
     , 0.0
@@ -120,7 +126,7 @@ main = do
     ]
   let
     makeUniformData yScale = do
-      uniformData :: Float32Array <- fromArray $ map fromNumber'
+      uniformData :: Float32Array <- fromArray $ hackyFloatConv
         [
           -- ♟️ ModelViewProjection Matrix (Identity)
           1.0
@@ -155,7 +161,7 @@ main = do
       pure uniformData
   uniformData <- makeUniformData 1.0
   -- 📇 Index Buffer Data
-  indices :: Uint16Array <- fromArray $ map fromInt [ 0, 1, 2 ]
+  indices :: Uint16Array <- fromArray $ hackyIntConv [ 0, 1, 2 ]
   -- 🏭 Entry to WebGPU
   entry <- window >>= navigator >>= gpu >>= case _ of
     Nothing -> do

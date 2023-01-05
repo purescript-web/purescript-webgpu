@@ -17,4 +17,3 @@ beginning = GPUComputePassTimestampLocation "beginning"
 
 end :: GPUComputePassTimestampLocation
 end = GPUComputePassTimestampLocation "end"
-

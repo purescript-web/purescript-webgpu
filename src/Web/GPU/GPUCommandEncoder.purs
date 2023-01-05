@@ -1,3 +1,34 @@
+-- @inline export beginRenderPassImpl arity=2
+-- @inline export beginRenderPass arity=2
+-- @inline export beginComputePassImpl arity=2
+-- @inline export beginComputePass arity=2
+-- @inline export copyBufferToBufferImpl arity=6
+-- @inline export copyBufferToBuffer arity=6
+-- @inline export copyBufferToTextureImpl arity=4
+-- @inline export copyTextureToBufferImpl arity=4
+-- @inline export copyTextureToBuffer arity=4
+-- @inline export copyTextureToTextureImpl arity=4
+-- @inline export copyTextureToTexture arity=4
+-- @inline export clearBufferImpl arity=2
+-- @inline export clearBuffer arity=2
+-- @inline export clearBufferWithOffsetImpl arity=3
+-- @inline export clearBufferWithOffset arity=3
+-- @inline export clearBufferWithSizeImpl arity=3
+-- @inline export clearBufferWithSize arity=3
+-- @inline export clearBufferWithOffsetAndSizeImpl arity=4
+-- @inline export clearBufferWithOffsetAndSize arity=4
+-- @inline export writeTimestampImpl arity=3
+-- @inline export writeTimestamp arity=3
+-- @inline export resolveQuerySetImpl arity=6
+-- @inline export resolveQuerySet arity=6
+-- @inline export finishImpl arity=1
+-- @inline export finish arity=1
+-- @inline export pushDebugGroupImpl arity=2
+-- @inline export pushDebugGroup arity=2
+-- @inline export popDebugGroupImpl arity=1
+-- @inline export popDebugGroup arity=1
+-- @inline export insertDebugMarkerImpl arity=2
+-- @inline export insertDebugMarker arity=2
 module Web.GPU.GPUCommandEncoder
   ( beginComputePass
   , beginRenderPass

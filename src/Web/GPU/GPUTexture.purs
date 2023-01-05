@@ -1,3 +1,25 @@
+-- @inline export createViewWithDescriptorImpl arity=2
+-- @inline export createViewWithDescriptor arity=2
+-- @inline export createViewImpl arity=1
+-- @inline export createView arity=2
+-- @inline export destroyImpl arity=1
+-- @inline export destroy arity=1
+-- @inline export widthImpl arity=1
+-- @inline export width arity=1
+-- @inline export heightImpl arity=1
+-- @inline export height arity=1
+-- @inline export depthOrArrayLayersImpl arity=1
+-- @inline export depthOrArrayLayers arity=1
+-- @inline export mipLevelCountImpl arity=1
+-- @inline export mipLevelCount arity=1
+-- @inline export sampleCountImpl arity=1
+-- @inline export sampleCount arity=1
+-- @inline export dimensionImpl arity=1
+-- @inline export dimension arity=1
+-- @inline export formatImpl arity=1
+-- @inline export format arity=1
+-- @inline export usageImpl arity=1
+-- @inline export usage arity=1
 module Web.GPU.GPUTexture
   ( createViewWithDescriptor
   , createView

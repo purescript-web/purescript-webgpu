@@ -1,3 +1,42 @@
+-- @inline export featuresImpl arity=2
+-- @inline export features arity=2
+-- @inline export limitsImpl arity=1
+-- @inline export limits arity=1
+-- @inline export queueImpl arity=1
+-- @inline export queue arity=1
+-- @inline export destroyImpl arity=1
+-- @inline export destroy arity=1
+-- @inline export createBufferImpl arity=2
+-- @inline export createBuffer arity=2
+-- @inline export createTextureImpl arity=2
+-- @inline export createTexture arity=2
+-- @inline export createSamplerImpl arity=2
+-- @inline export createSampler arity=2
+-- @inline export importExternalTextureImpl arity=2
+-- @inline export importExternalTexture arity=2
+-- @inline export createBindGroupLayoutImpl arity=2
+-- @inline export createBindGroupLayout arity=2
+-- @inline export createPipelineLayoutImpl arity=2
+-- @inline export createPipelineLayout arity=2
+-- @inline export createBindGroupImpl arity=2
+-- @inline export createBindGroup arity=2
+-- @inline export createShaderModuleImpl arity=2
+-- @inline export createShaderModule arity=2
+-- @inline export createComputePipelineImpl arity=2
+-- @inline export createComputePipeline arity=2
+-- @inline export createRenderPipelineImpl arity=2
+-- @inline export createRenderPipeline arity=2
+-- @inline export createComputePipelineAsyncImpl arity=2
+-- @inline export createComputePipelineAsnyc arity=2
+-- @inline export createRenderPipelineAsyncImpl arity=2
+-- @inline export createRenderPipelineAsync arity=2
+-- @inline export createCommandEncoderImpl arity=2
+-- @inline export createCommandEncoder arity=2
+-- @inline export createRenderBundleEncoderImpl arity=2
+-- @inline export createRenderBundleEncoder arity=2
+-- @inline export createQuerySetImpl arity=2
+-- @inline export createQuerySet arity=2
+-- @inline export toEventTarget arity=1
 module Web.GPU.Device
   ( createBindGroup
   , createBindGroupLayout

@@ -1,3 +1,6 @@
+-- @inline export gpuExtent3DW arity=1
+-- @inline export gpuExtent3DWH arity=2
+-- @inline export gpuExtent3DWHD arity=3
 module Web.GPU.GPUExtent3D where
 
 import Unsafe.Coerce (unsafeCoerce)

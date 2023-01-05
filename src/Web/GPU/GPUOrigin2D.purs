@@ -1,3 +1,5 @@
+-- @inline export gpuOrigin2DX arity=1
+-- @inline export gpuOrigin2DXY arity=2
 module Web.GPU.GPUOrigin2D
   ( gpuOrigin2DX
   , gpuOrigin2DXY

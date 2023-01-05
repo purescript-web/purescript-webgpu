@@ -1,3 +1,6 @@
+-- @inline export gpuOrigin3DX arity=1
+-- @inline export gpuOrigin3DXY arity=2
+-- @inline export gpuOrigin3DXYZ arity=3
 module Web.GPU.GPUOrigin3D
   ( gpuOrigin3DX
   , gpuOrigin3DXY

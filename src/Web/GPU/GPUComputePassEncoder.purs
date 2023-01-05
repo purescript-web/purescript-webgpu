@@ -1,3 +1,26 @@
+-- @inline export setPipelineImpl arity=2
+-- @inline export dispatchWorkgroupsImpl arity=2
+-- @inline export dispatchWorkgroupsXImpl arity=2
+-- @inline export dispatchWorkgroupsXYImpl arity=3
+-- @inline export dispatchWorkgroupsXY arity=3
+-- @inline export dispatchWorkgroupsXYZImpl arity=4
+-- @inline export dispatchWorkgroupsXYZ arity=4
+-- @inline export dispatchWorkgroupsIndirectImpl arity=3
+-- @inline export dispatchWorkgroupsIndirect arity=3
+-- @inline export endImpl arity=1
+-- @inline export end arity=1
+-- @inline export setBindGroupImpl arity=3
+-- @inline export setBindGroup arity=3
+-- @inline export setBindGroupWithDynamicOffsetsImpl arity=4
+-- @inline export setBindGroupWithDynamicOffsets arity=4
+-- @inline export setBindGroupWithDyanmicOffsetBoundsImpl arity=6
+-- @inline export setBindGroupWithDyanmicOffsetBounds arity=6
+-- @inline export pushDebugGroupImpl arity=2
+-- @inline export pushDebugGroup arity=2
+-- @inline export popDebugGroupImpl arity=1
+-- @inline export popDebugGroup arity=1
+-- @inline export insertDebugMarkerImpl arity=2
+-- @inline export insertDebugMarker arity=2
 module Web.GPU.GPUComputePassEncoder
   ( dispatchWorkgroups
   , dispatchWorkgroupsIndirect

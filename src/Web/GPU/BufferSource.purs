@@ -1,3 +1,14 @@
+-- @inline export fromArrayBuffer arity=1
+-- @inline export fromInt8Array arity=1
+-- @inline export fromInt16Array arity=1
+-- @inline export fromInt32Array arity=1
+-- @inline export fromUint8Array arity=1
+-- @inline export fromUint16Array arity=1
+-- @inline export fromUint32Array arity=1
+-- @inline export fromUint8ClampedArray arity=1
+-- @inline export fromFloat32Array arity=1
+-- @inline export fromFloat64Array arity=1
+-- @inline export fromDataView arity=1
 module Web.GPU.BufferSource where
 
 import Data.ArrayBuffer.Types (ArrayBuffer, DataView, Float32Array, Float64Array, Int16Array, Int32Array, Int8Array, Uint16Array, Uint32Array, Uint8Array, Uint8ClampedArray)

@@ -1,3 +1,9 @@
+-- @inline export destroyImpl arity=1
+-- @inline export destroy arity=1
+-- @inline export typeImpl arity=1
+-- @inline export type' arity=1
+-- @inline export countImpl arity=1
+-- @inline export count arity=1
 module Web.GPU.GPUQuerySet
   ( count
   , destroy

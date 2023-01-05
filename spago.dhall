@@ -21,7 +21,6 @@ to generate this file without the comments in this block.
   , "newtype"
   , "ordered-collections"
   , "prelude"
-  , "record"
   , "unsafe-coerce"
   , "web-events"
   , "web-html"

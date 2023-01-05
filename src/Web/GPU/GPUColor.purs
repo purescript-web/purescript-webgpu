@@ -1,3 +1,4 @@
+-- @inline export gpuColorRGBA arity=4
 module Web.GPU.GPUColor
   ( gpuColorDict
   , gpuColorRGBA

@@ -1,3 +1,13 @@
+-- @inline export featuresImpl arity=2
+-- @inline export features arity=2
+-- @inline export limitsImpl arity=1
+-- @inline export limits arity=1
+-- @inline export isFallbackAdapterImpl arity=1
+-- @inline export isFallbackAdapter arity=1
+-- @inline export requestDeviceImpl arity=1
+-- @inline export requestDevice arity=1
+-- @inline export requestAdapterInfoImpl arity=2
+-- @inline export requestAdapterInfo arity=2
 module Web.GPU.GPUAdapter
   ( GPUAdapterInfo
   , features

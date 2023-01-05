@@ -1,3 +1,29 @@
+-- @inline export sizeImpl arity=1
+-- @inline export size arity=1
+-- @inline export usageImpl arity=1
+-- @inline export usage arity=1
+-- @inline export mapStateImpl arity=1
+-- @inline export mapState arity=1
+-- @inline export mapAsyncImpl arity=2
+-- @inline export mapAsync arity=2
+-- @inline export mapAsyncWithOffsetImpl arity=3
+-- @inline export mapAsyncWithOffset arity=3
+-- @inline export mapAsyncWithSizeImpl arity=3
+-- @inline export mapAsyncWithSize arity=3
+-- @inline export mapAsyncWithOffsetAndSizeImpl arity=4
+-- @inline export mapAsyncWithOffsetAndSize arity=4
+-- @inline export getMappedRangeImpl arity=1
+-- @inline export getMappedRange arity=1
+-- @inline export getMappedRangeWithOffsetImpl arity=2
+-- @inline export getMappedRangeWithOffset arity=2
+-- @inline export getMappedRangeWithSizeImpl arity=2
+-- @inline export getMappedRangeWithSize arity=2
+-- @inline export getMappedRangeWithOffsetAndSizeImpl arity=3
+-- @inline export getMappedRangeWithOffsetAndSize arity=3
+-- @inline export unmapImpl arity=1
+-- @inline export unmap arity=1
+-- @inline export destroyImpl arity=1
+-- @inline export destroy arity=1
 module Web.GPU.GPUBuffer where
 
 import Prelude

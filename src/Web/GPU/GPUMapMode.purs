@@ -15,4 +15,3 @@ foreign import write :: GPUMapMode
 
 instance Bitwise GPUMapMode where
   or (GPUMapMode a) (GPUMapMode b) = GPUMapMode (a `Bits.or` b)
-

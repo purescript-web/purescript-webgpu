@@ -1,3 +1,5 @@
+-- @inline export compilationInfoImpl arity=1
+-- @inline export compilationInfo arity=1
 module Web.GPU.GPUShaderModule
   ( compilationInfo
   , GPUCompilationMessageType

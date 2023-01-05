@@ -13,7 +13,9 @@ import Data.Float32 (fromNumber')
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
 import Data.Int.Bits (complement, (.&.))
+import Data.JSDate (getTime, now)
 import Data.Maybe (Maybe(..), maybe)
+import Data.Number (pi, sin)
 import Data.UInt (fromInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
@@ -21,9 +23,13 @@ import Effect.Class (liftEffect)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Element (setAttribute)
 import Web.DOM.NonElementParentNode (getElementById)
+import Web.GPU.BufferSource (fromFloat32Array)
 import Web.GPU.GPU (requestAdapter)
 import Web.GPU.GPUAdapter (requestDevice)
+import Web.GPU.GPUBindGroupEntry (GPUBufferBinding, gpuBindGroupEntry)
+import Web.GPU.GPUBindGroupLayoutEntry (gpuBindGroupLayoutEntry)
 import Web.GPU.GPUBuffer (GPUBuffer, getMappedRange, unmap)
+import Web.GPU.GPUBufferBindingLayout (GPUBufferBindingLayout)
 import Web.GPU.GPUBufferUsage (GPUBufferUsageFlags)
 import Web.GPU.GPUBufferUsage as GPUBufferUsage
 import Web.GPU.GPUCanvasAlphaMode (opaque)
@@ -35,7 +41,7 @@ import Web.GPU.GPUCommandEncoder (beginRenderPass, finish)
 import Web.GPU.GPUCompareFunction as GPUCompareFunction
 import Web.GPU.GPUCullMode (none)
 import Web.GPU.GPUDepthStencilState (GPUDepthStencilState)
-import Web.GPU.GPUDevice (createBuffer, createCommandEncoder, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
+import Web.GPU.GPUDevice (createBuffer, createBindGroupLayout, createBindGroup, createCommandEncoder, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
 import Web.GPU.GPUDevice as GPUDevice
 import Web.GPU.GPUExtent3D (gpuExtent3DWHD)
 import Web.GPU.GPUFragmentState (GPUFragmentState)
@@ -44,12 +50,13 @@ import Web.GPU.GPUIndexFormat (uint16)
 import Web.GPU.GPULoadOp as GPULoadOp
 import Web.GPU.GPUPrimitiveState (GPUPrimitiveState)
 import Web.GPU.GPUPrimitiveTopology (triangleList)
-import Web.GPU.GPUQueue (submit)
+import Web.GPU.GPUQueue (submit, writeBuffer)
 import Web.GPU.GPURenderPassColorAttachment (GPURenderPassColorAttachment)
 import Web.GPU.GPURenderPassDepthStencilAttachment (GPURenderPassDepthStencilAttachment)
 import Web.GPU.GPURenderPassDescriptor (GPURenderPassDescriptor)
-import Web.GPU.GPURenderPassEncoder (drawIndexedWithInstanceCount, end, setIndexBuffer, setPipeline, setScissorRect, setVertexBuffer, setViewport)
+import Web.GPU.GPURenderPassEncoder (drawIndexedWithInstanceCount, end, setBindGroup, setIndexBuffer, setPipeline, setScissorRect, setVertexBuffer, setViewport)
 import Web.GPU.GPURenderPipelineDescriptor (GPURenderPipelineDescriptor)
+import Web.GPU.GPUShaderStage as GPUShaderStage
 import Web.GPU.GPUStoreOp as GPUStoreOp
 import Web.GPU.GPUTexture (createView)
 import Web.GPU.GPUTextureDescriptor (GPUTextureDescriptor)
@@ -111,6 +118,42 @@ main = do
     , 1.0
     -- 🔵
     ]
+  let
+    makeUniformData yScale = do
+      uniformData :: Float32Array <- fromArray $ map fromNumber'
+        [
+          -- ♟️ ModelViewProjection Matrix (Identity)
+          1.0
+        , 0.0
+        , 0.0
+        , 0.0
+        , 0.0
+        , 1.0 * yScale
+        , 0.0
+        , 0.0
+        , 0.0
+        , 0.0
+        , 1.0
+        , 0.0
+        , 0.0
+        , 0.0
+        , 0.0
+        , 1.0
+        ,
+          -- 🔴 Primary Color
+          0.9
+        , 0.1
+        , 0.3
+        , 1.0
+        ,
+          -- 🟣 Accent Color
+          0.8
+        , 0.2
+        , 0.8
+        , 1.0
+        ]
+      pure uniformData
+  uniformData <- makeUniformData 1.0
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ map fromInt [ 0, 1, 2 ]
   -- 🏭 Entry to WebGPU
@@ -156,22 +199,36 @@ main = do
     positionBuffer <- liftEffect $ createBufferF positions GPUBufferUsage.vertex
     colorBuffer <- liftEffect $ createBufferF colors GPUBufferUsage.vertex
     indexBuffer <- liftEffect $ createBufferF indices GPUBufferUsage.index
+    -- ✋ Declare buffer handles
+
+    uniformBuffer <- liftEffect $ createBufferF uniformData
+      (GPUBufferUsage.uniform .|. GPUBufferUsage.copyDst)
+
     -- 🖍️ Shaders
     let
       vsmDesc =
         x
           { code:
               """
+struct UBO {
+  modelViewProj: mat4x4<f32>,
+  primaryColor: vec4<f32>,
+  accentColor: vec4<f32>
+};
+
 struct VSOut {
     @builtin(position) Position: vec4<f32>,
     @location(0) color: vec3<f32>,
 };
 
+@group(0) @binding(0)
+var<uniform> uniforms: UBO;
+
 @vertex
 fn main(@location(0) inPos: vec3<f32>,
         @location(1) inColor: vec3<f32>) -> VSOut {
     var vsOut: VSOut;
-    vsOut.Position = vec4<f32>(inPos, 1.0);
+    vsOut.Position = uniforms.modelViewProj * vec4<f32>(inPos, 1.0);
     vsOut.color = inColor;
     return vsOut;
 }
@@ -231,8 +288,24 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         , depthCompare: GPUCompareFunction.less
         }
 
+    uniformBindGroupLayout <- liftEffect $ createBindGroupLayout device $ x
+      { entries:
+          [ gpuBindGroupLayoutEntry 0 GPUShaderStage.vertex
+              (x {} :: GPUBufferBindingLayout)
+          ]
+      }
+
+    -- 🗄️ Bind Group
+    -- ✍ This would be used when *encoding commands*
+    uniformBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: uniformBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: uniformBuffer } :: GPUBufferBinding)
+          ]
+      }
     -- 🦄 Uniform Data
-    let pipelineLayoutDesc = x { bindGroupLayouts: [] }
+    let pipelineLayoutDesc = x { bindGroupLayouts: [ uniformBindGroupLayout ] }
     layout <- liftEffect $ createPipelineLayout device pipelineLayoutDesc
 
     -- 🎭 Shader Stages
@@ -354,6 +427,11 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         setVertexBuffer passEncoder 0 positionBuffer
         setVertexBuffer passEncoder 1 colorBuffer
         setIndexBuffer passEncoder indexBuffer uint16
+        tn <- getTime <$> now
+        let y = sin (tn * 0.001 * pi) * 0.4 + 0.6
+        newBuffer <- makeUniformData y
+        writeBuffer queue uniformBuffer 0 (fromFloat32Array newBuffer)
+        setBindGroup passEncoder 0 uniformBindGroup
         drawIndexedWithInstanceCount passEncoder 3 1
         end passEncoder
         toSubmit <- finish commandEncoder

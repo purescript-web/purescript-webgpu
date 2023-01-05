@@ -15,42 +15,27 @@ import Web.GPU.GPUTextureBindingLayout (GPUTextureBindingLayout)
 import Web.GPU.Internal.Types (GPUIndex32)
 
 data GPUBindGroupLayoutEntry
-gpuBufferBindingLayout
-  :: GPUIndex32
-  -> GPUShaderStageFlags
-  -> GPUBufferBindingLayout
-  -> GPUBindGroupLayoutEntry
-gpuBufferBindingLayout binding visibility buffer = unsafeCoerce
-  { binding, visibility, buffer }
 
-gpuSamplerBindingLayout
-  :: GPUIndex32
-  -> GPUShaderStageFlags
-  -> GPUSamplerBindingLayout
-  -> GPUBindGroupLayoutEntry
-gpuSamplerBindingLayout binding visibility sampler = unsafeCoerce
-  { binding, visibility, sampler }
+class AsGPUBindGroupLayoutEntry e where
+  gpuBindGroupLayoutEntry
+    :: GPUIndex32 -> GPUShaderStageFlags -> e -> GPUBindGroupLayoutEntry
 
-gpuTextureBindingLayout
-  :: GPUIndex32
-  -> GPUShaderStageFlags
-  -> GPUTextureBindingLayout
-  -> GPUBindGroupLayoutEntry
-gpuTextureBindingLayout binding visibility texture = unsafeCoerce
-  { binding, visibility, texture }
+instance AsGPUBindGroupLayoutEntry GPUBufferBindingLayout where
+  gpuBindGroupLayoutEntry binding visibility buffer = unsafeCoerce
+    { binding, visibility, buffer }
 
-gpuStorageTextureBindingLayout
-  :: GPUIndex32
-  -> GPUShaderStageFlags
-  -> GPUStorageTextureBindingLayout
-  -> GPUBindGroupLayoutEntry
-gpuStorageTextureBindingLayout binding visibility storageTexture = unsafeCoerce
-  { binding, visibility, storageTexture }
+instance AsGPUBindGroupLayoutEntry GPUSamplerBindingLayout where
+  gpuBindGroupLayoutEntry binding visibility sampler = unsafeCoerce
+    { binding, visibility, sampler }
 
-gpuExternalTextureBindingLayout
-  :: GPUIndex32
-  -> GPUShaderStageFlags
-  -> GPUExternalTextureBindingLayout
-  -> GPUBindGroupLayoutEntry
-gpuExternalTextureBindingLayout binding visibility externalTexture =
-  unsafeCoerce { binding, visibility, externalTexture }
+instance AsGPUBindGroupLayoutEntry GPUTextureBindingLayout where
+  gpuBindGroupLayoutEntry binding visibility texture = unsafeCoerce
+    { binding, visibility, texture }
+
+instance AsGPUBindGroupLayoutEntry GPUStorageTextureBindingLayout where
+  gpuBindGroupLayoutEntry binding visibility storageTexture = unsafeCoerce
+    { binding, visibility, storageTexture }
+
+instance AsGPUBindGroupLayoutEntry GPUExternalTextureBindingLayout where
+  gpuBindGroupLayoutEntry binding visibility externalTexture =
+    unsafeCoerce { binding, visibility, externalTexture }

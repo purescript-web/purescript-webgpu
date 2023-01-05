@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "sandbox": "spago -x sandbox.dhall build && vite build sandbox/",
-    "format": "purs-tidy format-in-place \"src/**/*.purs\" && prettier --write \"src/**/*.js\""
+    "format": "purs-tidy format-in-place \"src/**/*.purs sandbox/**/*.purs\" && prettier --write \"src/**/*.js\""
   },
   "keywords": [],
   "author": "",

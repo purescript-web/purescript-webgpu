@@ -11,7 +11,7 @@ fromInt8Array :: Int8Array -> BufferSource
 fromInt8Array = unsafeCoerce
 
 fromInt16Array :: Int16Array -> BufferSource
-fromInt16Array = unsafeCoerce   
+fromInt16Array = unsafeCoerce
 
 fromInt32Array :: Int32Array -> BufferSource
 fromInt32Array = unsafeCoerce
@@ -20,7 +20,7 @@ fromUint8Array :: Uint8Array -> BufferSource
 fromUint8Array = unsafeCoerce
 
 fromUint16Array :: Uint16Array -> BufferSource
-fromUint16Array = unsafeCoerce  
+fromUint16Array = unsafeCoerce
 
 fromUint32Array :: Uint32Array -> BufferSource
 fromUint32Array = unsafeCoerce

@@ -9,6 +9,7 @@ module Web.GPU.GPURenderPassEncoder
   , drawIndexedWithFirstIndexAndBaseVertex
   , drawIndexedWithFirstIndexAndBaseVertexAndFirstInstance
   , drawIndexedWithFirstIndexAndFirstInstance
+  , drawIndexedWithFirstInstance
   , drawIndexedWithInstanceCount
   , drawIndexedWithInstanceCountAndBaseVertex
   , drawIndexedWithInstanceCountAndFirstIndex
@@ -17,10 +18,11 @@ module Web.GPU.GPURenderPassEncoder
   , drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance
   , drawIndexedWithInstanceCountAndFirstInstance
   , drawIndirect
-  , drawIndexedWithFirstInstance
+  , drawWithFirstInstance
+  , drawWithFirstVertex
   , drawWithFirstVertexAndFirstInstance
   , drawWithInstanceCount
-  , drawWithInstanceCountAndFirstInst
+  , drawWithInstanceCountAndFirstInstance
   , drawWithInstanceCountAndFirstVertex
   , drawWithInstanceCountAndFirstVertexAndFirstInstance
   , end
@@ -45,8 +47,7 @@ module Web.GPU.GPURenderPassEncoder
   , setVertexBufferWithOffsetAndSize
   , setVertexBufferWithSize
   , setViewport
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -237,6 +238,20 @@ drawWithInstanceCount
   :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
 drawWithInstanceCount = drawWithInstanceCountImpl
 
+foreign import drawWithFirstVertexImpl
+  :: GPURenderPassEncoder -> GPUSize32 -> Effect Unit
+
+drawWithFirstVertex
+  :: GPURenderPassEncoder -> GPUSize32 -> Effect Unit
+drawWithFirstVertex = drawWithFirstVertexImpl
+
+foreign import drawWithFirstInstanceImpl
+  :: GPURenderPassEncoder -> GPUSize32 -> Effect Unit
+
+drawWithFirstInstance
+  :: GPURenderPassEncoder -> GPUSize32 -> Effect Unit
+drawWithFirstInstance = drawWithFirstInstanceImpl
+
 foreign import drawWithInstanceCountAndFirstVertexImpl
   :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
 
@@ -244,12 +259,13 @@ drawWithInstanceCountAndFirstVertex
   :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
 drawWithInstanceCountAndFirstVertex = drawWithInstanceCountAndFirstVertexImpl
 
-foreign import drawWithInstanceCountAndFirstInstance
+foreign import drawWithInstanceCountAndFirstInstanceImpl
   :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
 
-drawWithInstanceCountAndFirstInst
+drawWithInstanceCountAndFirstInstance
   :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
-drawWithInstanceCountAndFirstInst = drawWithInstanceCountAndFirstInstance
+drawWithInstanceCountAndFirstInstance =
+  drawWithInstanceCountAndFirstInstanceImpl
 
 foreign import drawWithFirstVertexAndFirstInstanceImpl
   :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
@@ -386,11 +402,13 @@ foreign import drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexImpl
   :: GPURenderPassEncoder
   -> GPUSize32
   -> GPUSize32
+  -> GPUSize32
   -> GPUSignedOffset32
   -> Effect Unit
 
 drawIndexedWithInstanceCountAndFirstIndexAndBaseVertex
   :: GPURenderPassEncoder
+  -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> GPUSignedOffset32
@@ -399,15 +417,26 @@ drawIndexedWithInstanceCountAndFirstIndexAndBaseVertex =
   drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexImpl
 
 foreign import drawIndexedWithInstanceCountAndFirstIndexAndFirstInstanceImpl
-  :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
+  :: GPURenderPassEncoder
+  -> GPUSize32
+  -> GPUSize32
+  -> GPUSize32
+  -> GPUSize32
+  -> Effect Unit
 
 drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance
-  :: GPURenderPassEncoder -> GPUSize32 -> GPUSize32 -> GPUSize32 -> Effect Unit
+  :: GPURenderPassEncoder
+  -> GPUSize32
+  -> GPUSize32
+  -> GPUSize32
+  -> GPUSize32
+  -> Effect Unit
 drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance =
   drawIndexedWithInstanceCountAndFirstIndexAndFirstInstanceImpl
 
 foreign import drawIndexedWithFirstIndexAndBaseVertexAndFirstInstanceImpl
   :: GPURenderPassEncoder
+  -> GPUSize32
   -> GPUSize32
   -> GPUSignedOffset32
   -> GPUSize32
@@ -415,6 +444,7 @@ foreign import drawIndexedWithFirstIndexAndBaseVertexAndFirstInstanceImpl
 
 drawIndexedWithFirstIndexAndBaseVertexAndFirstInstance
   :: GPURenderPassEncoder
+  -> GPUSize32
   -> GPUSize32
   -> GPUSignedOffset32
   -> GPUSize32
@@ -426,12 +456,14 @@ foreign import drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstIns
   :: GPURenderPassEncoder
   -> GPUSize32
   -> GPUSize32
+  -> GPUSize32
   -> GPUSignedOffset32
   -> GPUSize32
   -> Effect Unit
 
 drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstance
   :: GPURenderPassEncoder
+  -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> GPUSignedOffset32

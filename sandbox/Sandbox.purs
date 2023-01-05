@@ -21,8 +21,8 @@ import Effect.Class (liftEffect)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Element (setAttribute)
 import Web.DOM.NonElementParentNode (getElementById)
-import Web.GPU.Device (createBuffer, createCommandEncoder, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
-import Web.GPU.Device as GPUDevice
+import Web.GPU.GPUDevice (createBuffer, createCommandEncoder, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
+import Web.GPU.GPUDevice as GPUDevice
 import Web.GPU.GPU (requestAdapter)
 import Web.GPU.GPUAdapter (requestDevice)
 import Web.GPU.GPUBuffer (getMappedRange, unmap)

@@ -37,7 +37,7 @@
 -- @inline export createQuerySetImpl arity=2
 -- @inline export createQuerySet arity=2
 -- @inline export toEventTarget arity=1
-module Web.GPU.Device
+module Web.GPU.GPUDevice
   ( createBindGroup
   , createBindGroupLayout
   , createBuffer

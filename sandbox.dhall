@@ -1,7 +1,5 @@
-let conf = ./spago.dhall
+let conf = ./sandbox-dev.dhall
 
 in      conf
-    //  { sources = conf.sources # [ "sandbox/**/*.purs" ]
-        , dependencies = conf.dependencies # [ "aff", "aff-promise", "arraybuffer", "control", "float32", "foldable-traversable", "uint", "web-dom" ]
-        , backend = "purs-backend-es build"
+    //  { backend = "purs-backend-es build"
         }

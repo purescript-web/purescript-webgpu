@@ -20,6 +20,8 @@ import Data.UInt (UInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
 import Effect.Class (liftEffect)
+import GLMatrix.Mat4 as Mat4
+import GLMatrix.Vec3 as Vec3
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Element (setAttribute)
 import Web.DOM.NonElementParentNode (getElementById)
@@ -39,7 +41,7 @@ import Web.GPU.GPUColor (gpuColorDict)
 import Web.GPU.GPUColorTargetState (GPUColorTargetState)
 import Web.GPU.GPUCommandEncoder (beginRenderPass, finish)
 import Web.GPU.GPUCompareFunction as GPUCompareFunction
-import Web.GPU.GPUCullMode (none)
+import Web.GPU.GPUCullMode as GPUCullMode
 import Web.GPU.GPUDepthStencilState (GPUDepthStencilState)
 import Web.GPU.GPUDevice (createBuffer, createBindGroupLayout, createBindGroup, createCommandEncoder, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
 import Web.GPU.GPUDevice as GPUDevice
@@ -61,7 +63,7 @@ import Web.GPU.GPUStoreOp as GPUStoreOp
 import Web.GPU.GPUTexture (createView)
 import Web.GPU.GPUTextureDescriptor (GPUTextureDescriptor)
 import Web.GPU.GPUTextureDimension as GPUTextureDimension
-import Web.GPU.GPUTextureFormat (bgra8unorm, depth24plusStencil8)
+import Web.GPU.GPUTextureFormat as GPUTextureFormat
 import Web.GPU.GPUTextureUsage as GPUTextureUsage
 import Web.GPU.GPUVertexAttribute (GPUVertexAttribute)
 import Web.GPU.GPUVertexBufferLayout (GPUVertexBufferLayout)
@@ -99,69 +101,133 @@ main :: Effect Unit
 main = do
   positions :: Float32Array <- fromArray $ hackyFloatConv
     [ 1.0
-    , -1.0
-    , 0.0
-    , -1.0
-    , -1.0
-    , 0.0
-    , 0.0
     , 1.0
-    , 0.0
+    , 1.0
+    --
+    , 1.0
+    , 1.0
+    , -1.0
+    --
+    , 1.0
+    , -1.0
+    , 1.0
+    --
+    , -1.0
+    , 1.0
+    , 1.0
+    --
+    , -1.0
+    , -1.0
+    , 1.0
+    --
+    , -1.0
+    , 1.0
+    , -1.0
+    --
+    , 1.0
+    , -1.0
+    , -1.0
+    --
+    , -1.0
+    , -1.0
+    , -1.0
     ]
 
   -- 🎨 Color Vertex Buffer Data
   colors :: Float32Array <- fromArray $ hackyFloatConv
-    [ 1.0
-    , 0.0
-    , 0.0
-    , -- 🔴
-      0.0
-    , 1.0
-    , 0.0
-    , -- 🟢
-      0.0
-    , 0.0
-    , 1.0
-    -- 🔵
-    ]
+    -- [ 0.94, 0.97, 1.0
+    -- , --
+    --   0.82, 0.41, 0.11
+    -- , --
+    --   1.0, 0.75, 0.79
+    -- , --
+    --   0.25, 0.41, 0.88
+    -- , --
+    --   0.98, 0.5, 0.44
+    -- , --
+    --   0.96,0.87, 0.7
+    -- , --
+    --   0.96,0.96,0.96
+    -- , --
+    --   1.0, 0.89, 0.7
+    -- ]
+    [0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0]
   let
-    makeUniformData yScale = do
-      uniformData :: Float32Array <- fromArray $ hackyFloatConv
-        [
-          -- ♟️ ModelViewProjection Matrix (Identity)
-          1.0
-        , 0.0
-        , 0.0
-        , 0.0
-        , 0.0
-        , 1.0 * yScale
-        , 0.0
-        , 0.0
-        , 0.0
-        , 0.0
-        , 1.0
-        , 0.0
-        , 0.0
-        , 0.0
-        , 0.0
-        , 1.0
-        ,
-          -- 🔴 Primary Color
-          0.9
-        , 0.1
-        , 0.3
-        , 1.0
-        ,
-          -- 🟣 Accent Color
-          0.8
-        , 0.2
-        , 0.8
-        , 1.0
-        ]
+    makeUniformData t = do
+      -- ♟️ ModelViewProjection Matrix (Identity)
+      let
+        -- Mat4.scale Mat4.identity (Vec3.fromValues 1.0 yScale 1.0)
+        mvp = Mat4.numbers $ flip Mat4.rotateX t $ flip Mat4.rotateZ t $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) $ Mat4.identity
+      uniformData :: Float32Array <- fromArray $
+        hackyFloatConv
+          mvp <> hackyFloatConv
+          [
+            -- 🔴 Primary Color
+            0.9
+          , 0.1
+          , 0.3
+          , 1.0
+          ,
+            -- 🟣 Accent Color
+            0.8
+          , 0.2
+          , 0.8
+          , 1.0
+          ]
       pure uniformData
-  uniformData <- makeUniformData 1.0
+  uniformData <- makeUniformData 0.0
   -- 📇 Index Buffer Data
-  indices :: Uint16Array <- fromArray $ hackyIntConv [ 0, 1, 2 ]
+  indices :: Uint16Array <- fromArray $ hackyIntConv
+    [
+      --
+      0
+    , 1
+    , 2
+    ----
+    , 1
+    , 6
+    , 2
+    --
+    , 2
+    , 7
+    , 6
+    ----
+    , 4
+    , 7
+    , 2
+    --
+    , 5
+    , 7
+    , 4
+    ----
+    , 5
+    , 3
+    , 4
+    --
+    , 5
+    , 3
+    , 1
+    ----
+    , 1
+    , 3
+    , 0
+    --
+    , 5
+    , 7
+    , 1
+    ----
+    , 1
+    , 7
+    , 6
+    --
+    , 3
+    , 0
+    , 4
+    ----
+    , 4
+    , 0
+    , 2
+    ]
   -- 🏭 Entry to WebGPU
   entry <- window >>= navigator >>= gpu >>= case _ of
     Nothing -> do
@@ -289,7 +355,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     -- 🌑 Depth
     let
       (depthStencil :: GPUDepthStencilState) = x
-        { format: depth24plusStencil8
+        { format: GPUTextureFormat.depth24plus -- Stencil8
         , depthWriteEnabled: true
         , depthCompare: GPUCompareFunction.less
         }
@@ -325,7 +391,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     -- 🌀 Color/Blend State
     let
       (colorState :: GPUColorTargetState) = x
-        { format: bgra8unorm
+        { format: GPUTextureFormat.bgra8unorm
         }
 
     let
@@ -339,7 +405,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     let
       (primitive :: GPUPrimitiveState) = x
         { frontFace: cw
-        , cullMode: none
+        , cullMode: GPUCullMode.none
         , topology: triangleList
         }
 
@@ -370,7 +436,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     let
       (config :: GPUCanvasConfiguration) = x
         { device
-        , format: bgra8unorm
+        , format: GPUTextureFormat.bgra8unorm
         , usage:
             GPUTextureUsage.renderAttachment .|.
               GPUTextureUsage.copySrc
@@ -380,9 +446,9 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     let
       (depthTextureDesc :: GPUTextureDescriptor) = x
         { size: gpuExtent3DWHD canvasWidth canvasHeight 1
-        , format: depth24plusStencil8
-        , usage: GPUTextureUsage.renderAttachment .|. GPUTextureUsage.copySrc
-        , dimension: GPUTextureDimension.twoD
+        , format: GPUTextureFormat.depth24plus
+        , usage: GPUTextureUsage.renderAttachment -- .|. GPUTextureUsage.copySrc
+        --, dimension: GPUTextureDimension.twoD
         }
     depthTexture <- liftEffect $ createTexture device depthTextureDesc
     depthTextureView <- liftEffect $ createView depthTexture
@@ -402,9 +468,9 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
             , depthClearValue: 1.0
             , depthLoadOp: GPULoadOp.clear
             , depthStoreOp: GPUStoreOp.store
-            , stencilClearValue: 0
-            , stencilLoadOp: GPULoadOp.clear
-            , stencilStoreOp: GPUStoreOp.store
+            -- , stencilClearValue: 0
+            --, stencilLoadOp: GPULoadOp.clear
+            --, stencilStoreOp: GPUStoreOp.store
             }
 
         let
@@ -436,11 +502,10 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         setVertexBuffer passEncoder 1 colorBuffer
         setIndexBuffer passEncoder indexBuffer uint16
         tn <- getTime <$> now
-        let y = sin (tn * 0.001 * pi) * 0.4 + 0.6
-        newBuffer <- makeUniformData y
+        newBuffer <- makeUniformData (tn * 0.001)
         writeBuffer queue uniformBuffer 0 (fromFloat32Array newBuffer)
         setBindGroup passEncoder 0 uniformBindGroup
-        drawIndexedWithInstanceCount passEncoder 3 1
+        drawIndexedWithInstanceCount passEncoder 36 1
         end passEncoder
         toSubmit <- finish commandEncoder
         submit queue [ toSubmit ]

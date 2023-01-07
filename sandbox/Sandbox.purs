@@ -15,7 +15,8 @@ import Data.Int (toNumber)
 import Data.Int.Bits (complement, (.&.))
 import Data.JSDate (getTime, now)
 import Data.Maybe (Maybe(..), maybe)
-import Data.Number (pi, sin)
+import Data.Number (pi)
+import Data.Number as Math
 import Data.UInt (UInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
@@ -62,7 +63,7 @@ import Web.GPU.GPUShaderStage as GPUShaderStage
 import Web.GPU.GPUStoreOp as GPUStoreOp
 import Web.GPU.GPUTexture (createView)
 import Web.GPU.GPUTextureDescriptor (GPUTextureDescriptor)
-import Web.GPU.GPUTextureDimension as GPUTextureDimension
+
 import Web.GPU.GPUTextureFormat as GPUTextureFormat
 import Web.GPU.GPUTextureUsage as GPUTextureUsage
 import Web.GPU.GPUVertexAttribute (GPUVertexAttribute)
@@ -135,29 +136,74 @@ main = do
 
   -- 🎨 Color Vertex Buffer Data
   colors :: Float32Array <- fromArray $ hackyFloatConv
-    -- [ 0.94, 0.97, 1.0
-    -- , --
-    --   0.82, 0.41, 0.11
-    -- , --
-    --   1.0, 0.75, 0.79
-    -- , --
-    --   0.25, 0.41, 0.88
-    -- , --
-    --   0.98, 0.5, 0.44
-    -- , --
-    --   0.96,0.87, 0.7
-    -- , --
-    --   0.96,0.96,0.96
-    -- , --
-    --   1.0, 0.89, 0.7
-    -- ]
-    [0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0]
+    [ 0.94
+    , 0.97
+    , 1.0
+    , --
+      0.82
+    , 0.41
+    , 0.11
+    , --
+      1.0
+    , 0.75
+    , 0.79
+    , --
+      0.25
+    , 0.41
+    , 0.88
+    , --
+      0.98
+    , 0.5
+    , 0.44
+    , --
+      0.96
+    , 0.87
+    , 0.7
+    , --
+      0.96
+    , 0.96
+    , 0.96
+    , --
+      1.0
+    , 0.89
+    , 0.7
+    ]
+  -- [0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0]
   let
     makeUniformData t = do
       -- ♟️ ModelViewProjection Matrix (Identity)
       let
         -- Mat4.scale Mat4.identity (Vec3.fromValues 1.0 yScale 1.0)
-        mvp = Mat4.numbers $ flip Mat4.rotateX t $ flip Mat4.rotateZ t $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) $ Mat4.identity
+        -- mvp = Mat4.numbers $ flip Mat4.rotateZ t $ flip Mat4.rotateX (t * 0.5) $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) $ Mat4.identity
+        -- mvp = Mat4.numbers $ (Mat4.ortho (-1.0) 1.0 (-1.0) 1.0 0.1 100.0) `Mat4.multiply` ( flip Mat4.scale (Vec3.fromValues 0.5 0.5 0.5) $ Mat4.rotate  Mat4.identity (t*0.5) (Vec3.fromValues 1.0 1.0 1.0) )
+        -- mvp = Mat4.numbers $ flip Mat4.rotateY (t * 0.5) $ flip Mat4.rotateX (t * 0.5) $ flip Mat4.translate (Vec3.fromValues 0.0 0.0 2.0) $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) $ Mat4.identity
+        fovy = pi / 2.0
+        aspect = 1.0
+        f = 1.0 / Math.tan (fovy / 2.0)
+        near = 0.1
+        far = 10.0
+        nf = 1.0 / (near - far)
+        perspectivez0 = Mat4.fromValues (f / aspect) 0.0 0.0 0.0 0.0 f 0.0 0.0
+          0.0
+          0.0
+          (far * nf)
+          (-1.0)
+          0.0
+          0.0
+          (far * near * nf)
+          0.0
+        mvp = Mat4.numbers
+          ( perspectivez0 `Mat4.multiply`
+              ( flip Mat4.rotateZ (t * 0.5) $
+                  ( flip Mat4.rotateY (t * 0.5)
+                      $ flip Mat4.rotateX (t * 0.5)
+                      $ flip Mat4.translate (Vec3.fromValues 0.0 0.0 (-5.0))
+                      $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25)
+                      $ Mat4.identity
+                  )
+              )
+          )
+      -- (Mat4.ortho (-1.0) (1.0) (-1.0) (1.0) (0.0) (100.0))
       uniformData :: Float32Array <- fromArray $
         hackyFloatConv
           mvp <> hackyFloatConv
@@ -181,28 +227,28 @@ main = do
     [
       --
       0
-    , 1
     , 2
+    , 1
     ----
     , 1
-    , 6
     , 2
+    , 6
     --
-    , 2
-    , 7
     , 6
+    , 2
+    , 7
     ----
-    , 4
     , 7
     , 2
+    , 4
     --
     , 5
     , 7
     , 4
     ----
     , 5
+    , 4
     , 3
-    , 4
     --
     , 5
     , 3
@@ -213,19 +259,19 @@ main = do
     , 0
     --
     , 5
-    , 7
     , 1
+    , 7
     ----
     , 1
-    , 7
     , 6
+    , 7
     --
     , 3
-    , 0
     , 4
+    , 0
     ----
-    , 4
     , 0
+    , 4
     , 2
     ]
   -- 🏭 Entry to WebGPU

@@ -264,6 +264,8 @@ main = do
   rotateZResultData :: Float32Array <- freshIdentityMatrix
   rotateXData :: Float32Array <- freshIdentityMatrix
   rotateXResultData :: Float32Array <- freshIdentityMatrix
+  rotateYData :: Float32Array <- freshIdentityMatrix
+  rotateYResultData :: Float32Array <- freshIdentityMatrix
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
@@ -375,6 +377,10 @@ main = do
       (GPUBufferUsage.storage )
     rotateXResultBuffer <- liftEffect $ createBufferF rotateXResultData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    rotateYBuffer <- liftEffect $ createBufferF rotateYData
+      (GPUBufferUsage.storage )
+    rotateYResultBuffer <- liftEffect $ createBufferF rotateYResultData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     -- 🖍️ Shaders
     let
       resetDesc = x
@@ -437,7 +443,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
   var o = (x << 1) + y;
-  return sin(((time / 2.0) * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
+  return sin(((time / 4.0) * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
 }
 
 @compute @workgroup_size(2,2)
@@ -450,10 +456,36 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   // 0,1 is sin(a)   1 0
   // 1,0 is -sin(a)  2 2
   // 1,1 is cos(a)   3 1 
-  resultMatrix[global_id.x][global_id.y] = xyt2trig(global_id.x, global_id.y, time);
+  resultMatrix[global_id.y][global_id.x] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
     rotateZModule <- liftEffect $ createShaderModule device rotateZDesc
+    let
+      rotateYDesc = x
+        { code:
+            """
+@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@group(1) @binding(0) var<storage, read> time : f32;
+fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
+  const pi = 3.14159;
+  var o = (x << 1) + y;
+  return sin(((time / 4.0) * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
+}
+
+@compute @workgroup_size(2,2)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+  // Guard against out-of-bounds work group sizes
+  if (global_id.x >= 2u || global_id.y >= 2u) {
+    return; 
+  }
+  // 0,0 is cos(a)   0 1
+  // 0,1 is sin(a)   1 0
+  // 1,0 is -sin(a)  2 2
+  // 1,1 is cos(a)   3 1 
+  resultMatrix[global_id.y * 2][global_id.x * 2] = xyt2trig(global_id.x, global_id.y, time);
+}"""
+        }
+    rotateYModule <- liftEffect $ createShaderModule device rotateYDesc
     let
       rotateXDesc = x
         { code:
@@ -463,7 +495,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
   var o = (x << 1) + y;
-  return sin(((time / 8.0) * pi) + (f32((o + 1) % 3) * (pi / 2.0)));
+  return sin(((time / 4.0) * pi) + (f32((o + 1) % 3) * (pi / 2.0)));
 }
 
 @compute @workgroup_size(2,2)
@@ -476,7 +508,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   // 1,2 is -sin(a)  1 2
   // 2,1 is sin(a)   2 0
   // 2,2 is cos(a)   3 1 
-  resultMatrix[global_id.x + 1][global_id.y + 1] = xyt2trig(global_id.x, global_id.y, time);
+  resultMatrix[global_id.y + 1][global_id.x + 1] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
     rotateXModule <- liftEffect $ createShaderModule device rotateXDesc
@@ -682,6 +714,24 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
               (x { buffer: rotateXResultBuffer } :: GPUBufferBinding)
           ]
       }
+    rotateYComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: simpleIOComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: rotateYBuffer } :: GPUBufferBinding)
+          ]
+      }
+    rotateYResultIOComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: matrixMultiplicationComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: rotateYBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 1
+              (x { buffer: rotateXResultBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 2
+              (x { buffer: rotateYResultBuffer } :: GPUBufferBinding)
+          ]
+      }
     timeComputeBindGroup <- liftEffect $ createBindGroup device $ x
       { layout: timeBindGroupLayout
       , entries:
@@ -718,6 +768,10 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         }
       (rotateZState :: GPUProgrammableStage) = x
         { "module": rotateZModule
+        , entryPoint: "main"
+        }
+      (rotateYState :: GPUProgrammableStage) = x
+        { "module": rotateYModule
         , entryPoint: "main"
         }
       (rotateXState :: GPUProgrammableStage) = x
@@ -778,6 +832,10 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     rotateZPipeline <- liftEffect $ createComputePipeline device $ x
       { layout: ioPlusTComputeLayout
       , compute: rotateZState
+      }
+    rotateYPipeline <- liftEffect $ createComputePipeline device $ x
+      { layout: ioPlusTComputeLayout
+      , compute: rotateYState
       }
     rotateXPipeline <- liftEffect $ createComputePipeline device $ x
       { layout: ioPlusTComputeLayout
@@ -892,6 +950,24 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         GPUComputePassEncoder.dispatchWorkgroupsXY rotateXMulPassEncoder 4 4
         GPUComputePassEncoder.end rotateXMulPassEncoder
         ---------------------
+        rotateYPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline rotateYPassEncoder
+          rotateYPipeline
+        GPUComputePassEncoder.setBindGroup rotateYPassEncoder 0
+          rotateYComputeBindGroup
+        GPUComputePassEncoder.setBindGroup rotateYPassEncoder 1
+          timeComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY rotateYPassEncoder 2 2
+        GPUComputePassEncoder.end rotateYPassEncoder
+        ---------------------
+        rotateYMulPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline rotateYMulPassEncoder
+          matrixMultiplicationPipeline
+        GPUComputePassEncoder.setBindGroup rotateYMulPassEncoder 0
+          rotateYResultIOComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY rotateYMulPassEncoder 4 4
+        GPUComputePassEncoder.end rotateYMulPassEncoder
+        ---------------------
         -- xTransTestPassEncoder <- beginComputePass commandEncoder (x {})
         -- GPUComputePassEncoder.setPipeline xTransTestPassEncoder
         --   xTransTestPipeline
@@ -900,7 +976,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         -- GPUComputePassEncoder.dispatchWorkgroupsX xTransTestPassEncoder 1
         -- GPUComputePassEncoder.end xTransTestPassEncoder
         --
-        copyBufferToBuffer commandEncoder rotateXResultBuffer 0 uniformBuffer 0
+        copyBufferToBuffer commandEncoder rotateYResultBuffer 0 uniformBuffer 0
           (4 * 16)
         -- 🖌️ Encode drawing commands
         let

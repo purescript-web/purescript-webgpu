@@ -33,6 +33,7 @@ import Web.GPU.GPUBindGroupEntry (GPUBufferBinding, gpuBindGroupEntry)
 import Web.GPU.GPUBindGroupLayoutEntry (gpuBindGroupLayoutEntry)
 import Web.GPU.GPUBuffer (GPUBuffer, getMappedRange, unmap)
 import Web.GPU.GPUBufferBindingLayout (GPUBufferBindingLayout)
+import Web.GPU.GPUBufferBindingType as GPUBufferBindingType
 import Web.GPU.GPUBufferUsage (GPUBufferUsageFlags)
 import Web.GPU.GPUBufferUsage as GPUBufferUsage
 import Web.GPU.GPUCanvasAlphaMode (opaque)
@@ -40,11 +41,12 @@ import Web.GPU.GPUCanvasConfiguration (GPUCanvasConfiguration)
 import Web.GPU.GPUCanvasContext (configure, getCurrentTexture)
 import Web.GPU.GPUColor (gpuColorDict)
 import Web.GPU.GPUColorTargetState (GPUColorTargetState)
-import Web.GPU.GPUCommandEncoder (beginRenderPass, finish)
+import Web.GPU.GPUCommandEncoder (beginComputePass, beginRenderPass, copyBufferToBuffer, finish)
 import Web.GPU.GPUCompareFunction as GPUCompareFunction
+import Web.GPU.GPUComputePassEncoder as GPUComputePassEncoder
 import Web.GPU.GPUCullMode as GPUCullMode
 import Web.GPU.GPUDepthStencilState (GPUDepthStencilState)
-import Web.GPU.GPUDevice (createBuffer, createBindGroupLayout, createBindGroup, createCommandEncoder, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
+import Web.GPU.GPUDevice (createBindGroup, createBindGroupLayout, createBuffer, createCommandEncoder, createComputePipeline, createPipelineLayout, createRenderPipeline, createShaderModule, createTexture)
 import Web.GPU.GPUDevice as GPUDevice
 import Web.GPU.GPUExtent3D (gpuExtent3DWHD)
 import Web.GPU.GPUFragmentState (GPUFragmentState)
@@ -53,6 +55,7 @@ import Web.GPU.GPUIndexFormat (uint16)
 import Web.GPU.GPULoadOp as GPULoadOp
 import Web.GPU.GPUPrimitiveState (GPUPrimitiveState)
 import Web.GPU.GPUPrimitiveTopology (triangleList)
+import Web.GPU.GPUProgrammableStage (GPUProgrammableStage)
 import Web.GPU.GPUQueue (submit, writeBuffer)
 import Web.GPU.GPURenderPassColorAttachment (GPURenderPassColorAttachment)
 import Web.GPU.GPURenderPassDepthStencilAttachment (GPURenderPassDepthStencilAttachment)
@@ -63,7 +66,6 @@ import Web.GPU.GPUShaderStage as GPUShaderStage
 import Web.GPU.GPUStoreOp as GPUStoreOp
 import Web.GPU.GPUTexture (createView)
 import Web.GPU.GPUTextureDescriptor (GPUTextureDescriptor)
-
 import Web.GPU.GPUTextureFormat as GPUTextureFormat
 import Web.GPU.GPUTextureUsage as GPUTextureUsage
 import Web.GPU.GPUVertexAttribute (GPUVertexAttribute)
@@ -98,8 +100,29 @@ showErrorMessage = do
   getElementById "error" (toNonElementParentNode d) >>= traverse_
     (setAttribute "style" "display:auto;")
 
+freshIdentityMatrix :: forall t20. TypedArray t20 Float32 => Effect (ArrayView t20)
+freshIdentityMatrix = fromArray $ hackyFloatConv
+  [ 1.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 1.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 1.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 1.0
+  ]
+
 main :: Effect Unit
 main = do
+  startsAt <- getTime <$> now
   positions :: Float32Array <- fromArray $ hackyFloatConv
     [ 1.0
     , 1.0
@@ -188,7 +211,7 @@ main = do
           0.0
           (far * near * nf)
           0.0
-        mvp = Mat4.numbers
+        mvp' = Mat4.numbers
           ( perspectivez0 `Mat4.multiply`
               ( flip Mat4.rotateZ (t * 0.5) $
                   ( flip Mat4.rotateY (t * 0.5)
@@ -199,11 +222,28 @@ main = do
                   )
               )
           )
+        mvp = Mat4.numbers $ flip Mat4.translate (Vec3.fromValues 0.0 0.0 0.0) $
+          flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) Mat4.identity
       -- (Mat4.ortho (-1.0) (1.0) (-1.0) (1.0) (0.0) (100.0))
       uniformData :: Float32Array <- fromArray $
         hackyFloatConv
-          mvp <> hackyFloatConv
-          [
+          [ 1.0
+          , 0.0
+          , 0.0
+          , 0.0
+          , 0.0
+          , 1.0
+          , 0.0
+          , 0.0
+          , 0.0
+          , 0.0
+          , 1.0
+          , 0.0
+          , 0.0
+          , 0.0
+          , 0.0
+          , 1.0
+          ,
             -- 🔴 Primary Color
             0.9
           , 0.1
@@ -218,6 +258,10 @@ main = do
           ]
       pure uniformData
   uniformData <- makeUniformData 0.0
+  scaleData :: Float32Array <- freshIdentityMatrix
+  timeData :: Float32Array <- fromArray $ hackyFloatConv [ 0.0 ]
+  rotateZData :: Float32Array <- freshIdentityMatrix
+  rotateZResultData :: Float32Array <- freshIdentityMatrix
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
@@ -317,8 +361,116 @@ main = do
 
     uniformBuffer <- liftEffect $ createBufferF uniformData
       (GPUBufferUsage.uniform .|. GPUBufferUsage.copyDst)
-
+    timeBuffer <- liftEffect $ createBufferF timeData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copyDst)
+    scaleBuffer <- liftEffect $ createBufferF scaleData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    rotateZBuffer <- liftEffect $ createBufferF rotateZData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    rotateZResultBuffer <- liftEffect $ createBufferF rotateZResultData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     -- 🖍️ Shaders
+    let
+      resetDesc = x
+        { code:
+            """
+@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+
+@compute @workgroup_size(4,4)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+  // Guard against out-of-bounds work group sizes
+  if (global_id.x >= 4u || global_id.y >= 4u) {
+    return;
+  }
+
+  resultMatrix[global_id.x][global_id.y] = select(0.0, 1.0, global_id.x == global_id.y);
+}"""
+        }
+    resetModule <- liftEffect $ createShaderModule device resetDesc
+    let
+      initialScaleDesc = x
+        { code:
+            """
+@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+
+@compute @workgroup_size(4)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+  // Guard against out-of-bounds work group sizes
+  if (global_id.x >= 3u) {
+    return;
+  }
+
+  resultMatrix[global_id.x][global_id.x] = resultMatrix[global_id.x][global_id.x] * 0.25;
+}"""
+        }
+    initialScaleModule <- liftEffect $ createShaderModule device
+      initialScaleDesc
+    let
+      xTransTestDesc = x
+        { code:
+            """
+@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+
+@compute @workgroup_size(1)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+  // Guard against out-of-bounds work group sizes
+  if (global_id.x >= 1u) {
+    return; 
+  }
+
+  resultMatrix[3][0] = resultMatrix[3][0] + 0.3;
+}"""
+        }
+    xTransTestModule <- liftEffect $ createShaderModule device xTransTestDesc
+    let
+      rotateZDesc = x
+        { code:
+            """
+@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@group(1) @binding(0) var<storage, read> time : f32;
+fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
+  const pi = 3.14159;
+  var o = (x << 1) + y;
+  return sin(((time / 2.0) * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
+}
+
+@compute @workgroup_size(2,2)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+  // Guard against out-of-bounds work group sizes
+  if (global_id.x >= 2u || global_id.y >= 2u) {
+    return; 
+  }
+  // 0,0 is cos(a)   0 1
+  // 0,1 is sin(a)   1 0
+  // 1,0 is -sin(a)  2 2
+  // 1,1 is cos(a)   3 1 
+  resultMatrix[global_id.x][global_id.y] = xyt2trig(global_id.x, global_id.y, time);
+}"""
+        }
+    rotateZModule <- liftEffect $ createShaderModule device rotateZDesc
+    let
+      matrixMultiplicationDesc = x
+        { code:
+            """
+@group(0) @binding(0) var<storage, read> matrixL : mat4x4<f32>;
+@group(0) @binding(1) var<storage, read> matrixR : mat4x4<f32>;
+@group(0) @binding(2) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@compute @workgroup_size(4,4)
+fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+  // Guard against out-of-bounds work group sizes
+  if (global_id.x >= 4u || global_id.y >= 4u) {
+    return; 
+  }
+  var result = 0.0;
+  for (var i = 0u; i < 4u; i = i + 1u) {
+    result = result + (matrixL[global_id.x][i] * matrixR[i][global_id.y]);
+  }
+
+  resultMatrix[global_id.x][global_id.y] = result;
+}"""
+        }
+    matrixMultiplicationModule <- liftEffect $ createShaderModule device
+      matrixMultiplicationDesc
     let
       vsmDesc =
         x
@@ -401,14 +553,51 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         , depthWriteEnabled: true
         , depthCompare: GPUCompareFunction.less
         }
-
+    -- 🗺️ bind group layouts
     uniformBindGroupLayout <- liftEffect $ createBindGroupLayout device $ x
       { entries:
           [ gpuBindGroupLayoutEntry 0 GPUShaderStage.vertex
-              (x {} :: GPUBufferBindingLayout)
+              ( x { type: GPUBufferBindingType.uniform }
+                  :: GPUBufferBindingLayout
+              )
           ]
       }
-
+    simpleIOComputeBindGroupLayout <- liftEffect $ createBindGroupLayout device
+      $ x
+          { entries:
+              [ gpuBindGroupLayoutEntry 0 GPUShaderStage.compute
+                  ( x { type: GPUBufferBindingType.storage }
+                      :: GPUBufferBindingLayout
+                  )
+              ]
+          }
+    matrixMultiplicationComputeBindGroupLayout <- liftEffect
+      $ createBindGroupLayout device
+      $ x
+          { entries:
+              [ gpuBindGroupLayoutEntry 0 GPUShaderStage.compute
+                  ( x { type: GPUBufferBindingType.readOnlyStorage }
+                      :: GPUBufferBindingLayout
+                  )
+              , gpuBindGroupLayoutEntry 1 GPUShaderStage.compute
+                  ( x { type: GPUBufferBindingType.readOnlyStorage }
+                      :: GPUBufferBindingLayout
+                  )
+              , gpuBindGroupLayoutEntry 2 GPUShaderStage.compute
+                  ( x { type: GPUBufferBindingType.storage }
+                      :: GPUBufferBindingLayout
+                  )
+              ]
+          }
+    timeBindGroupLayout <- liftEffect $ createBindGroupLayout device
+      $ x
+          { entries:
+              [ gpuBindGroupLayoutEntry 0 GPUShaderStage.compute
+                  ( x { type: GPUBufferBindingType.readOnlyStorage }
+                      :: GPUBufferBindingLayout
+                  )
+              ]
+          }
     -- 🗄️ Bind Group
     -- ✍ This would be used when *encoding commands*
     uniformBindGroup <- liftEffect $ createBindGroup device $ x
@@ -418,12 +607,73 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
               (x { buffer: uniformBuffer } :: GPUBufferBinding)
           ]
       }
-    -- 🦄 Uniform Data
-    let pipelineLayoutDesc = x { bindGroupLayouts: [ uniformBindGroupLayout ] }
-    layout <- liftEffect $ createPipelineLayout device pipelineLayoutDesc
-
+    scaleBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: simpleIOComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: scaleBuffer } :: GPUBufferBinding)
+          ]
+      }
+    rotateZComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: simpleIOComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: rotateZBuffer } :: GPUBufferBinding)
+          ]
+      }
+    rotateZResultIOComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: matrixMultiplicationComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: rotateZBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 1
+              (x { buffer: scaleBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 2
+              (x { buffer: rotateZResultBuffer } :: GPUBufferBinding)
+          ]
+      }
+    timeComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: timeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: timeBuffer } :: GPUBufferBinding)
+          ]
+      }
+    -- 🦄 Bind group layouts
+    renderLayout <- liftEffect $ createPipelineLayout device $ x
+      { bindGroupLayouts: [ uniformBindGroupLayout ] }
+    simpleIOComputeLayout <- liftEffect $ createPipelineLayout device $ x
+      { bindGroupLayouts: [ simpleIOComputeBindGroupLayout ] }
+    ioPlusTComputeLayout <- liftEffect $ createPipelineLayout device $ x
+      { bindGroupLayouts:
+          [ simpleIOComputeBindGroupLayout, timeBindGroupLayout ]
+      }
+    matrixMultiplicationLayout <- liftEffect $ createPipelineLayout device $ x
+      { bindGroupLayouts:
+          [ matrixMultiplicationComputeBindGroupLayout ]
+      }
     -- 🎭 Shader Stages
     let
+      (resetState :: GPUProgrammableStage) = x
+        { "module": resetModule
+        , entryPoint: "main"
+        }
+      (initialScaleState :: GPUProgrammableStage) = x
+        { "module": initialScaleModule
+        , entryPoint: "main"
+        }
+      (xTransTestState :: GPUProgrammableStage) = x
+        { "module": xTransTestModule
+        , entryPoint: "main"
+        }
+      (rotateZState :: GPUProgrammableStage) = x
+        { "module": rotateZModule
+        , entryPoint: "main"
+        }
+      (matrixMultiplicationState :: GPUProgrammableStage) = x
+        { "module": matrixMultiplicationModule
+        , entryPoint: "main"
+        }
       (vertex :: GPUVertexState) = x
         { "module": vertModule
         , entryPoint: "main"
@@ -453,13 +703,34 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
 
     let
       (pipelineDesc :: GPURenderPipelineDescriptor) = x
-        { layout
+        { layout: renderLayout
         , vertex
         , fragment
         , primitive
         , depthStencil
         }
-    pipeline <- liftEffect $ createRenderPipeline device pipelineDesc
+    resetPipeline <- liftEffect $ createComputePipeline device $ x
+      { layout: simpleIOComputeLayout
+      , compute: resetState
+      }
+    initialScalePipeline <- liftEffect $ createComputePipeline device $ x
+      { layout: simpleIOComputeLayout
+      , compute: initialScaleState
+      }
+    xTransTestPipeline <- liftEffect $ createComputePipeline device $ x
+      { layout: simpleIOComputeLayout
+      , compute: xTransTestState
+      }
+    rotateZPipeline <- liftEffect $ createComputePipeline device $ x
+      { layout: ioPlusTComputeLayout
+      , compute: rotateZState
+      }
+    matrixMultiplicationPipeline <- liftEffect $ createComputePipeline device $
+      x
+        { layout: matrixMultiplicationLayout
+        , compute: matrixMultiplicationState
+        }
+    renderPipeline <- liftEffect $ createRenderPipeline device pipelineDesc
     { canvasWidth, canvasHeight, context } <- liftEffect do
       d <- window >>= document
       canvas <-
@@ -510,20 +781,57 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
             , depthClearValue: 1.0
             , depthLoadOp: GPULoadOp.clear
             , depthStoreOp: GPUStoreOp.store
-            -- , stencilClearValue: 0
-            --, stencilLoadOp: GPULoadOp.clear
-            --, stencilStoreOp: GPUStoreOp.store
             }
 
+        commandEncoder <- createCommandEncoder device (x {})
+
+        -- 💻 Encode compute commands
+        scalePassEncoder <- beginComputePass commandEncoder (x {})
+        tn <- getTime <$> now
+        timeNowData :: Float32Array <- fromArray $ hackyFloatConv
+          [ ((tn - startsAt) / 1000.0) ]
+
+        writeBuffer queue timeBuffer 0 (fromFloat32Array timeNowData)
+        GPUComputePassEncoder.setPipeline scalePassEncoder initialScalePipeline
+        GPUComputePassEncoder.setBindGroup scalePassEncoder 0
+          scaleBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsX scalePassEncoder 4
+        GPUComputePassEncoder.end scalePassEncoder
+        ---------------------
+        rotateZPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline rotateZPassEncoder
+          rotateZPipeline
+        GPUComputePassEncoder.setBindGroup rotateZPassEncoder 0
+          rotateZComputeBindGroup
+        GPUComputePassEncoder.setBindGroup rotateZPassEncoder 1
+          timeComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY rotateZPassEncoder 2 2
+        GPUComputePassEncoder.end rotateZPassEncoder
+        ---------------------
+        rotateZMulPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline rotateZMulPassEncoder
+          matrixMultiplicationPipeline
+        GPUComputePassEncoder.setBindGroup rotateZMulPassEncoder 0
+          rotateZResultIOComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY rotateZMulPassEncoder 2 2
+        GPUComputePassEncoder.end rotateZMulPassEncoder
+        ---------------------
+        -- xTransTestPassEncoder <- beginComputePass commandEncoder (x {})
+        -- GPUComputePassEncoder.setPipeline xTransTestPassEncoder
+        --   xTransTestPipeline
+        -- GPUComputePassEncoder.setBindGroup xTransTestPassEncoder 0
+        --   simpleIOComputeBindGroup
+        -- GPUComputePassEncoder.dispatchWorkgroupsX xTransTestPassEncoder 1
+        -- GPUComputePassEncoder.end xTransTestPassEncoder
+        --
+        copyBufferToBuffer commandEncoder rotateZResultBuffer 0 uniformBuffer 0
+          (4 * 16)
+        -- 🖌️ Encode drawing commands
         let
           (renderPassDesc :: GPURenderPassDescriptor) = x
             { colorAttachments: [ colorAttachment ]
             , depthStencilAttachment: depthAttachment
             }
-
-        commandEncoder <- createCommandEncoder device (x {})
-
-        -- 🖌️ Encode drawing commands
         passEncoder <- beginRenderPass commandEncoder renderPassDesc
         -- Set the viewport
         setViewport passEncoder
@@ -539,16 +847,26 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           canvasWidth
           canvasHeight
         -- Set the pipeline
-        setPipeline passEncoder pipeline
+        setPipeline passEncoder renderPipeline
         setVertexBuffer passEncoder 0 positionBuffer
         setVertexBuffer passEncoder 1 colorBuffer
         setIndexBuffer passEncoder indexBuffer uint16
-        tn <- getTime <$> now
-        newBuffer <- makeUniformData (tn * 0.001)
-        writeBuffer queue uniformBuffer 0 (fromFloat32Array newBuffer)
         setBindGroup passEncoder 0 uniformBindGroup
         drawIndexedWithInstanceCount passEncoder 36 1
         end passEncoder
+        -- 💻 Encode compute commands for resetting buffer
+        resetPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline resetPassEncoder resetPipeline
+        -- reset the main storage
+        GPUComputePassEncoder.setBindGroup resetPassEncoder 0
+          scaleBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY resetPassEncoder 4 4
+        -- reset the multiplier
+        GPUComputePassEncoder.setBindGroup resetPassEncoder 0
+          rotateZComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY resetPassEncoder 4 4
+        GPUComputePassEncoder.end resetPassEncoder
+        -- 🙌 finish commandEncoder
         toSubmit <- finish commandEncoder
         submit queue [ toSubmit ]
     let

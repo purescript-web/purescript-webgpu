@@ -79,10 +79,10 @@ beginRenderPass = beginRenderPassImpl
 foreign import beginComputePassImpl
   :: GPUCommandEncoder
   -> GPUComputePassDescriptor
-  -> GPUComputePassEncoder
+  -> Effect GPUComputePassEncoder
 
 beginComputePass
-  :: GPUCommandEncoder -> GPUComputePassDescriptor -> GPUComputePassEncoder
+  :: GPUCommandEncoder -> GPUComputePassDescriptor -> Effect GPUComputePassEncoder
 beginComputePass = beginComputePassImpl
 
 foreign import copyBufferToBufferImpl

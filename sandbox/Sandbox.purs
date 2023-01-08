@@ -173,10 +173,6 @@ main = do
     makeUniformData t = do
       -- ♟️ ModelViewProjection Matrix (Identity)
       let
-        -- Mat4.scale Mat4.identity (Vec3.fromValues 1.0 yScale 1.0)
-        -- mvp = Mat4.numbers $ flip Mat4.rotateZ t $ flip Mat4.rotateX (t * 0.5) $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) $ Mat4.identity
-        -- mvp = Mat4.numbers $ (Mat4.ortho (-1.0) 1.0 (-1.0) 1.0 0.1 100.0) `Mat4.multiply` ( flip Mat4.scale (Vec3.fromValues 0.5 0.5 0.5) $ Mat4.rotate  Mat4.identity (t*0.5) (Vec3.fromValues 1.0 1.0 1.0) )
-        -- mvp = Mat4.numbers $ flip Mat4.rotateY (t * 0.5) $ flip Mat4.rotateX (t * 0.5) $ flip Mat4.translate (Vec3.fromValues 0.0 0.0 2.0) $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) $ Mat4.identity
         fovy = pi / 2.0
         aspect = 1.0
         f = 1.0 / Math.tan (fovy / 2.0)

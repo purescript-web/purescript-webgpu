@@ -8,7 +8,7 @@ import Control.Promise as Control.Promise
 import Data.ArrayBuffer.ArrayBuffer (byteLength)
 import Data.ArrayBuffer.Typed (class TypedArray, fromArray, setTyped, whole)
 import Data.ArrayBuffer.Typed as Typed
-import Data.ArrayBuffer.Types (ArrayView, Float32Array, Uint16Array)
+import Data.ArrayBuffer.Types (ArrayView, Uint16Array, Float32Array)
 import Data.Float32 (Float32)
 import Data.Foldable (traverse_)
 import Data.Int (toNumber)
@@ -21,8 +21,6 @@ import Data.UInt (UInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
 import Effect.Class (liftEffect)
-import GLMatrix.Mat4 as Mat4
-import GLMatrix.Vec3 as Vec3
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Element (setAttribute)
 import Web.DOM.NonElementParentNode (getElementById)
@@ -100,9 +98,7 @@ showErrorMessage = do
   getElementById "error" (toNonElementParentNode d) >>= traverse_
     (setAttribute "style" "display:auto;")
 
-foreign import uggggggh :: Float32Array -> Float32Array
-
-freshIdentityMatrix :: forall t20. TypedArray t20 Float32 => Effect (ArrayView t20)
+freshIdentityMatrix :: Effect Float32Array
 freshIdentityMatrix = fromArray $ hackyFloatConv
   [ 1.0
   , 0.0
@@ -122,25 +118,60 @@ freshIdentityMatrix = fromArray $ hackyFloatConv
   , 1.0
   ]
 
-freshTranslateMatrix :: forall t20. TypedArray t20 Float32 => Number -> Number -> Number -> Effect (ArrayView t20)
+freshTranslateMatrix
+  :: Number
+  -> Number
+  -> Number
+  -> Effect Float32Array
 freshTranslateMatrix x y z = fromArray $ hackyFloatConv
+  -- column major! transpose at the bottom
   [ 1.0
   , 0.0
   , 0.0
+  , 0.0
+  , 0.0
+  , 1.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 1.0
+  , 0.0
   , x
-  , 0.0
-  , 1.0
-  , 0.0
   , y
-  , 0.0
-  , 0.0
-  , 1.0
   , z
-  , 0.0
-  , 0.0
-  , 0.0
   , 1.0
   ]
+
+getPerspectiveMatrix ∷ Effect Float32Array
+getPerspectiveMatrix = do
+  let
+    fovy = pi / 2.0
+    aspect = 1.0
+    f = 1.0 / Math.tan (fovy / 2.0)
+    near = 0.1
+    far = 10.0
+    nf = 1.0 / (near - far)
+  -- column major! transpose at the bottom
+  perspectiveData :: Float32Array <- fromArray $ hackyFloatConv
+    [ f / aspect
+    , 0.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , f
+    , 0.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , far * nf
+    , (-1.0)
+    , 0.0
+    , 0.0
+    , far * near * nf
+    , 0.0
+    ]
+  pure perspectiveData
 
 main :: Effect Unit
 main = do
@@ -214,72 +245,36 @@ main = do
     , 0.7
     ]
   -- [0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0,0.4,0.5,0.4,1.0,1.0,1.0]
-  let
-    makeUniformData t = do
-      -- ♟️ ModelViewProjection Matrix (Identity)
-      let
-        fovy = pi / 2.0
-        aspect = 1.0
-        f = 1.0 / Math.tan (fovy / 2.0)
-        near = 0.1
-        far = 10.0
-        nf = 1.0 / (near - far)
-        perspectivez0 = Mat4.fromValues (f / aspect) 0.0 0.0 0.0 0.0 f 0.0 0.0
-          0.0
-          0.0
-          (far * nf)
-          (-1.0)
-          0.0
-          0.0
-          (far * near * nf)
-          0.0
-        mvp' = Mat4.numbers
-          ( perspectivez0 `Mat4.multiply`
-              ( flip Mat4.rotateZ (t * 0.5) $
-                  ( flip Mat4.rotateY (t * 0.5)
-                      $ flip Mat4.rotateX (t * 0.5)
-                      $ flip Mat4.translate (Vec3.fromValues 0.0 0.0 (-5.0))
-                      $ flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25)
-                      $ Mat4.identity
-                  )
-              )
-          )
-        mvp = Mat4.numbers $ flip Mat4.translate (Vec3.fromValues 0.0 0.0 0.0) $
-          flip Mat4.scale (Vec3.fromValues 0.25 0.25 0.25) Mat4.identity
-      -- (Mat4.ortho (-1.0) (1.0) (-1.0) (1.0) (0.0) (100.0))
-      uniformData :: Float32Array <- fromArray $
-        hackyFloatConv
-          [ 1.0
-          , 0.0
-          , 0.0
-          , 0.0
-          , 0.0
-          , 1.0
-          , 0.0
-          , 0.0
-          , 0.0
-          , 0.0
-          , 1.0
-          , 0.0
-          , 0.0
-          , 0.0
-          , 0.0
-          , 1.0
-          ,
-            -- 🔴 Primary Color
-            0.9
-          , 0.1
-          , 0.3
-          , 1.0
-          ,
-            -- 🟣 Accent Color
-            0.8
-          , 0.2
-          , 0.8
-          , 1.0
-          ]
-      pure uniformData
-  uniformData <- makeUniformData 0.0
+  uniformData :: Float32Array <- fromArray $ hackyFloatConv
+    [ 1.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , 1.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , 1.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , 0.0
+    , 1.0
+    ,
+      -- 🔴 Primary Color
+      0.9
+    , 0.1
+    , 0.3
+    , 1.0
+    ,
+      -- 🟣 Accent Color
+      0.8
+    , 0.2
+    , 0.8
+    , 1.0
+    ]
   scaleData :: Float32Array <- freshIdentityMatrix
   timeData :: Float32Array <- fromArray $ hackyFloatConv [ 0.0 ]
   rotateZData :: Float32Array <- freshIdentityMatrix
@@ -288,25 +283,12 @@ main = do
   rotateXResultData :: Float32Array <- freshIdentityMatrix
   rotateYData :: Float32Array <- freshIdentityMatrix
   rotateYResultData :: Float32Array <- freshIdentityMatrix
-  translateZData :: Float32Array <- map identity $  freshTranslateMatrix 0.0 0.0 (-5.0)
+  translateZData :: Float32Array <- map identity $ freshTranslateMatrix 0.0 0.0
+    (-1.5)
   translateZResultData :: Float32Array <- freshIdentityMatrix
-  let
-    fovy = pi / 2.0
-    aspect = 1.0
-    f = 1.0 / Math.tan (fovy / 2.0)
-    near = 0.1
-    far = 10.0
-    nf = 1.0 / (near - far)
-  perspectiveData :: Float32Array <- map identity $ fromArray $ hackyFloatConv [f / aspect, 0.0, 0.0, 0.0, 0.0, f, 0.0, 0.0,
-      0.0,
-      0.0,
-      far * nf,
-      (-1.0),
-      0.0,
-      0.0,
-      far * near * nf,
-      0.0]
+  perspectiveData :: Float32Array <- getPerspectiveMatrix
   perspectiveResultData :: Float32Array <- freshIdentityMatrix
+  introspectionData :: Float32Array <- freshIdentityMatrix
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
@@ -403,33 +385,34 @@ main = do
     colorBuffer <- liftEffect $ createBufferF colors GPUBufferUsage.vertex
     indexBuffer <- liftEffect $ createBufferF indices GPUBufferUsage.index
     -- ✋ Declare buffer handles
-
     uniformBuffer <- liftEffect $ createBufferF uniformData
       (GPUBufferUsage.uniform .|. GPUBufferUsage.copyDst)
     timeBuffer <- liftEffect $ createBufferF timeData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copyDst)
     scaleBuffer <- liftEffect $ createBufferF scaleData
-      (GPUBufferUsage.storage )
+      (GPUBufferUsage.storage)
     rotateZBuffer <- liftEffect $ createBufferF rotateZData
-      (GPUBufferUsage.storage )
+      (GPUBufferUsage.storage)
     rotateZResultBuffer <- liftEffect $ createBufferF rotateZResultData
       (GPUBufferUsage.storage)
     rotateXBuffer <- liftEffect $ createBufferF rotateXData
-      (GPUBufferUsage.storage )
+      (GPUBufferUsage.storage)
     rotateXResultBuffer <- liftEffect $ createBufferF rotateXResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      (GPUBufferUsage.storage)
     rotateYBuffer <- liftEffect $ createBufferF rotateYData
-      (GPUBufferUsage.storage )
+      (GPUBufferUsage.storage)
     rotateYResultBuffer <- liftEffect $ createBufferF rotateYResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      (GPUBufferUsage.storage)
     translateZBuffer <- liftEffect $ createBufferF translateZData
       (GPUBufferUsage.storage)
     translateZResultBuffer <- liftEffect $ createBufferF translateZResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      (GPUBufferUsage.storage)
     perspectiveBuffer <- liftEffect $ createBufferF perspectiveData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      (GPUBufferUsage.storage)
     perspectiveResultBuffer <- liftEffect $ createBufferF perspectiveResultData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    introspectionBuffer <- liftEffect $ createBufferF introspectionData
+      (GPUBufferUsage.copyDst .|. GPUBufferUsage.mapRead)
     -- 🖍️ Shaders
     let
       resetDesc = x
@@ -467,23 +450,6 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
     initialScaleModule <- liftEffect $ createShaderModule device
       initialScaleDesc
     let
-      xTransTestDesc = x
-        { code:
-            """
-@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
-
-@compute @workgroup_size(1)
-fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  // Guard against out-of-bounds work group sizes
-  if (global_id.x >= 1u) {
-    return; 
-  }
-
-  resultMatrix[3][0] = resultMatrix[3][0] + 0.3;
-}"""
-        }
-    xTransTestModule <- liftEffect $ createShaderModule device xTransTestDesc
-    let
       rotateZDesc = x
         { code:
             """
@@ -492,7 +458,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
   var o = (x << 1) + y;
-  return sin(((time / 4.0) * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
+  return sin((time * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
 }
 
 @compute @workgroup_size(2,2)
@@ -501,11 +467,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   if (global_id.x >= 2u || global_id.y >= 2u) {
     return; 
   }
-  // 0,0 is cos(a)   0 1
-  // 0,1 is sin(a)   1 0
-  // 1,0 is -sin(a)  2 2
-  // 1,1 is cos(a)   3 1 
-  resultMatrix[global_id.y][global_id.x] = xyt2trig(global_id.x, global_id.y, time);
+  resultMatrix[global_id.x][global_id.y] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
     rotateZModule <- liftEffect $ createShaderModule device rotateZDesc
@@ -518,7 +480,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
   var o = (x << 1) + y;
-  return sin(((time / 4.0) * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
+  return sin((time * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
 }
 
 @compute @workgroup_size(2,2)
@@ -527,11 +489,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   if (global_id.x >= 2u || global_id.y >= 2u) {
     return; 
   }
-  // 0,0 is cos(a)   0 1
-  // 0,1 is sin(a)   1 0
-  // 1,0 is -sin(a)  2 2
-  // 1,1 is cos(a)   3 1 
-  resultMatrix[global_id.y * 2][global_id.x * 2] = xyt2trig(global_id.x, global_id.y, time);
+  resultMatrix[global_id.x * 2][global_id.y * 2] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
     rotateYModule <- liftEffect $ createShaderModule device rotateYDesc
@@ -544,7 +502,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
   var o = (x << 1) + y;
-  return sin(((time / 4.0) * pi) + (f32((o + 1) % 3) * (pi / 2.0)));
+  return sin((time * pi) + (f32((o + 1) % 3) * (pi / 2.0)));
 }
 
 @compute @workgroup_size(2,2)
@@ -553,11 +511,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   if (global_id.x >= 2u || global_id.y >= 2u) {
     return; 
   }
-  // 1,1 is cos(a)   0 1
-  // 1,2 is -sin(a)  1 2
-  // 2,1 is sin(a)   2 0
-  // 2,2 is cos(a)   3 1 
-  resultMatrix[global_id.y + 1][global_id.x + 1] = xyt2trig(global_id.x, global_id.y, time);
+  resultMatrix[global_id.x + 1][global_id.y + 1] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
     rotateXModule <- liftEffect $ createShaderModule device rotateXDesc
@@ -576,11 +530,11 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   }
   var result = 0.0;
   for (var i = 0u; i < 4u; i = i + 1u) {
-    result = result + (matrixL[global_id.x][i] * matrixR[i][global_id.y]);
+    result = result + (matrixL[i][global_id.y] * matrixR[global_id.x][i]);
   }
 
   resultMatrix[global_id.x][global_id.y] = result;
-}"""
+}""" 
         }
     matrixMultiplicationModule <- liftEffect $ createShaderModule device
       matrixMultiplicationDesc
@@ -781,28 +735,30 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
               (x { buffer: rotateYResultBuffer } :: GPUBufferBinding)
           ]
       }
-    translateZResultIOComputeBindGroup <- liftEffect $ createBindGroup device $ x
-      { layout: matrixMultiplicationComputeBindGroupLayout
-      , entries:
-          [ gpuBindGroupEntry 0
-              (x { buffer: translateZBuffer } :: GPUBufferBinding)
-          , gpuBindGroupEntry 1
-              (x { buffer: rotateYResultBuffer } :: GPUBufferBinding)
-          , gpuBindGroupEntry 2
-              (x { buffer: translateZResultBuffer } :: GPUBufferBinding)
-          ]
-      }
-    perspectiveResultIOComputeBindGroup <- liftEffect $ createBindGroup device $ x
-      { layout: matrixMultiplicationComputeBindGroupLayout
-      , entries:
-          [ gpuBindGroupEntry 0
-              (x { buffer: perspectiveBuffer } :: GPUBufferBinding)
-          , gpuBindGroupEntry 1
-              (x { buffer: translateZResultBuffer } :: GPUBufferBinding)
-          , gpuBindGroupEntry 2
-              (x { buffer: perspectiveResultBuffer } :: GPUBufferBinding)
-          ]
-      }
+    translateZResultIOComputeBindGroup <- liftEffect $ createBindGroup device $
+      x
+        { layout: matrixMultiplicationComputeBindGroupLayout
+        , entries:
+            [ gpuBindGroupEntry 0
+                (x { buffer: translateZBuffer } :: GPUBufferBinding)
+            , gpuBindGroupEntry 1
+                (x { buffer: rotateYResultBuffer } :: GPUBufferBinding)
+            , gpuBindGroupEntry 2
+                (x { buffer: translateZResultBuffer } :: GPUBufferBinding)
+            ]
+        }
+    perspectiveResultIOComputeBindGroup <- liftEffect $ createBindGroup device $
+      x
+        { layout: matrixMultiplicationComputeBindGroupLayout
+        , entries:
+            [ gpuBindGroupEntry 0
+                (x { buffer: perspectiveBuffer } :: GPUBufferBinding)
+            , gpuBindGroupEntry 1
+                (x { buffer: translateZResultBuffer } :: GPUBufferBinding)
+            , gpuBindGroupEntry 2
+                (x { buffer: perspectiveResultBuffer } :: GPUBufferBinding)
+            ]
+        }
     timeComputeBindGroup <- liftEffect $ createBindGroup device $ x
       { layout: timeBindGroupLayout
       , entries:
@@ -831,10 +787,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         }
       (initialScaleState :: GPUProgrammableStage) = x
         { "module": initialScaleModule
-        , entryPoint: "main"
-        }
-      (xTransTestState :: GPUProgrammableStage) = x
-        { "module": xTransTestModule
         , entryPoint: "main"
         }
       (rotateZState :: GPUProgrammableStage) = x
@@ -895,10 +847,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
     initialScalePipeline <- liftEffect $ createComputePipeline device $ x
       { layout: simpleIOComputeLayout
       , compute: initialScaleState
-      }
-    xTransTestPipeline <- liftEffect $ createComputePipeline device $ x
-      { layout: simpleIOComputeLayout
-      , compute: xTransTestState
       }
     rotateZPipeline <- liftEffect $ createComputePipeline device $ x
       { layout: ioPlusTComputeLayout
@@ -974,9 +922,9 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
 
         -- 💻 Encode compute commands
         scalePassEncoder <- beginComputePass commandEncoder (x {})
-        tn <- getTime <$> now
+        tn <- (getTime >>> (_ - startsAt) >>> (_ * 0.001)) <$> now
         timeNowData :: Float32Array <- fromArray $ hackyFloatConv
-          [ ((tn - startsAt) / 1000.0) ]
+          [ (tn / 2.0) ]
 
         writeBuffer queue timeBuffer 0 (fromFloat32Array timeNowData)
         GPUComputePassEncoder.setPipeline scalePassEncoder initialScalePipeline
@@ -1055,16 +1003,13 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         GPUComputePassEncoder.dispatchWorkgroupsXY perspectiveMulPassEncoder 4 4
         GPUComputePassEncoder.end perspectiveMulPassEncoder
 
-
-        -- xTransTestPassEncoder <- beginComputePass commandEncoder (x {})
-        -- GPUComputePassEncoder.setPipeline xTransTestPassEncoder
-        --   xTransTestPipeline
-        -- GPUComputePassEncoder.setBindGroup xTransTestPassEncoder 0
-        --   simpleIOComputeBindGroup
-        -- GPUComputePassEncoder.dispatchWorkgroupsX xTransTestPassEncoder 1
-        -- GPUComputePassEncoder.end xTransTestPassEncoder
-        --
-        copyBufferToBuffer commandEncoder perspectiveResultBuffer 0 uniformBuffer 0
+        copyBufferToBuffer commandEncoder perspectiveResultBuffer 0
+          uniformBuffer
+          0
+          (4 * 16)
+        copyBufferToBuffer commandEncoder perspectiveResultBuffer 0
+          introspectionBuffer
+          0
           (4 * 16)
         -- 🖌️ Encode drawing commands
         let
@@ -1105,6 +1050,10 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         -- 🙌 finish commandEncoder
         toSubmit <- finish commandEncoder
         submit queue [ toSubmit ]
+    -- launchAff_ do
+    --   toAffE $ convertPromise <$> mapAsync introspectionBuffer GPUMapMode.read
+    --   arr <- liftEffect (getMappedRange introspectionBuffer >>= (whole :: _ -> Effect (Float32Array)) >>= toArray)
+    --   liftEffect $ logShow arr
     let
       render = unit # fix \f _ -> do
         -- ⏭ Acquire next image from context

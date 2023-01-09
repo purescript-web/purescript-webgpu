@@ -288,7 +288,6 @@ main = do
   translateZResultData :: Float32Array <- freshIdentityMatrix
   perspectiveData :: Float32Array <- getPerspectiveMatrix
   perspectiveResultData :: Float32Array <- freshIdentityMatrix
-  introspectionData :: Float32Array <- freshIdentityMatrix
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
@@ -411,8 +410,6 @@ main = do
       (GPUBufferUsage.storage)
     perspectiveResultBuffer <- liftEffect $ createBufferF perspectiveResultData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
-    introspectionBuffer <- liftEffect $ createBufferF introspectionData
-      (GPUBufferUsage.copyDst .|. GPUBufferUsage.mapRead)
     -- 🖍️ Shaders
     let
       resetDesc = x
@@ -1007,10 +1004,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           uniformBuffer
           0
           (4 * 16)
-        copyBufferToBuffer commandEncoder perspectiveResultBuffer 0
-          introspectionBuffer
-          0
-          (4 * 16)
         -- 🖌️ Encode drawing commands
         let
           (renderPassDesc :: GPURenderPassDescriptor) = x
@@ -1050,10 +1043,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         -- 🙌 finish commandEncoder
         toSubmit <- finish commandEncoder
         submit queue [ toSubmit ]
-    -- launchAff_ do
-    --   toAffE $ convertPromise <$> mapAsync introspectionBuffer GPUMapMode.read
-    --   arr <- liftEffect (getMappedRange introspectionBuffer >>= (whole :: _ -> Effect (Float32Array)) >>= toArray)
-    --   liftEffect $ logShow arr
     let
       render = unit # fix \f _ -> do
         -- ⏭ Acquire next image from context

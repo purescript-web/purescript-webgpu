@@ -419,11 +419,6 @@ main = do
 
 @compute @workgroup_size(4,4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  // Guard against out-of-bounds work group sizes
-  if (global_id.x >= 4u || global_id.y >= 4u) {
-    return;
-  }
-
   resultMatrix[global_id.x][global_id.y] = select(0.0, 1.0, global_id.x == global_id.y);
 }"""
         }
@@ -437,6 +432,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 @compute @workgroup_size(4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   // Guard against out-of-bounds work group sizes
+  // We use a power of 2 above but we only need 3
   if (global_id.x >= 3u) {
     return;
   }
@@ -460,10 +456,6 @@ fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
 
 @compute @workgroup_size(2,2)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  // Guard against out-of-bounds work group sizes
-  if (global_id.x >= 2u || global_id.y >= 2u) {
-    return; 
-  }
   resultMatrix[global_id.x][global_id.y] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
@@ -482,10 +474,6 @@ fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
 
 @compute @workgroup_size(2,2)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  // Guard against out-of-bounds work group sizes
-  if (global_id.x >= 2u || global_id.y >= 2u) {
-    return; 
-  }
   resultMatrix[global_id.x * 2][global_id.y * 2] = xyt2trig(global_id.x, global_id.y, time);
 }"""
         }
@@ -521,10 +509,6 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 @group(0) @binding(2) var<storage, read_write> resultMatrix : mat4x4<f32>;
 @compute @workgroup_size(4,4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  // Guard against out-of-bounds work group sizes
-  if (global_id.x >= 4u || global_id.y >= 4u) {
-    return; 
-  }
   var result = 0.0;
   for (var i = 0u; i < 4u; i = i + 1u) {
     result = result + (matrixL[i][global_id.y] * matrixR[global_id.x][i]);

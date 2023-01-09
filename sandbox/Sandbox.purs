@@ -100,6 +100,8 @@ showErrorMessage = do
   getElementById "error" (toNonElementParentNode d) >>= traverse_
     (setAttribute "style" "display:auto;")
 
+foreign import uggggggh :: Float32Array -> Float32Array
+
 freshIdentityMatrix :: forall t20. TypedArray t20 Float32 => Effect (ArrayView t20)
 freshIdentityMatrix = fromArray $ hackyFloatConv
   [ 1.0
@@ -114,6 +116,26 @@ freshIdentityMatrix = fromArray $ hackyFloatConv
   , 0.0
   , 1.0
   , 0.0
+  , 0.0
+  , 0.0
+  , 0.0
+  , 1.0
+  ]
+
+freshTranslateMatrix :: forall t20. TypedArray t20 Float32 => Number -> Number -> Number -> Effect (ArrayView t20)
+freshTranslateMatrix x y z = fromArray $ hackyFloatConv
+  [ 1.0
+  , 0.0
+  , 0.0
+  , x
+  , 0.0
+  , 1.0
+  , 0.0
+  , y
+  , 0.0
+  , 0.0
+  , 1.0
+  , z
   , 0.0
   , 0.0
   , 0.0
@@ -266,6 +288,25 @@ main = do
   rotateXResultData :: Float32Array <- freshIdentityMatrix
   rotateYData :: Float32Array <- freshIdentityMatrix
   rotateYResultData :: Float32Array <- freshIdentityMatrix
+  translateZData :: Float32Array <- map identity $  freshTranslateMatrix 0.0 0.0 (-5.0)
+  translateZResultData :: Float32Array <- freshIdentityMatrix
+  let
+    fovy = pi / 2.0
+    aspect = 1.0
+    f = 1.0 / Math.tan (fovy / 2.0)
+    near = 0.1
+    far = 10.0
+    nf = 1.0 / (near - far)
+  perspectiveData :: Float32Array <- map identity $ fromArray $ hackyFloatConv [f / aspect, 0.0, 0.0, 0.0, 0.0, f, 0.0, 0.0,
+      0.0,
+      0.0,
+      far * nf,
+      (-1.0),
+      0.0,
+      0.0,
+      far * near * nf,
+      0.0]
+  perspectiveResultData :: Float32Array <- freshIdentityMatrix
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
@@ -380,6 +421,14 @@ main = do
     rotateYBuffer <- liftEffect $ createBufferF rotateYData
       (GPUBufferUsage.storage )
     rotateYResultBuffer <- liftEffect $ createBufferF rotateYResultData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    translateZBuffer <- liftEffect $ createBufferF translateZData
+      (GPUBufferUsage.storage)
+    translateZResultBuffer <- liftEffect $ createBufferF translateZResultData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    perspectiveBuffer <- liftEffect $ createBufferF perspectiveData
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    perspectiveResultBuffer <- liftEffect $ createBufferF perspectiveResultData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     -- 🖍️ Shaders
     let
@@ -732,6 +781,28 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
               (x { buffer: rotateYResultBuffer } :: GPUBufferBinding)
           ]
       }
+    translateZResultIOComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: matrixMultiplicationComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: translateZBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 1
+              (x { buffer: rotateYResultBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 2
+              (x { buffer: translateZResultBuffer } :: GPUBufferBinding)
+          ]
+      }
+    perspectiveResultIOComputeBindGroup <- liftEffect $ createBindGroup device $ x
+      { layout: matrixMultiplicationComputeBindGroupLayout
+      , entries:
+          [ gpuBindGroupEntry 0
+              (x { buffer: perspectiveBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 1
+              (x { buffer: translateZResultBuffer } :: GPUBufferBinding)
+          , gpuBindGroupEntry 2
+              (x { buffer: perspectiveResultBuffer } :: GPUBufferBinding)
+          ]
+      }
     timeComputeBindGroup <- liftEffect $ createBindGroup device $ x
       { layout: timeBindGroupLayout
       , entries:
@@ -968,6 +1039,23 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         GPUComputePassEncoder.dispatchWorkgroupsXY rotateYMulPassEncoder 4 4
         GPUComputePassEncoder.end rotateYMulPassEncoder
         ---------------------
+        translateZMulPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline translateZMulPassEncoder
+          matrixMultiplicationPipeline
+        GPUComputePassEncoder.setBindGroup translateZMulPassEncoder 0
+          translateZResultIOComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY translateZMulPassEncoder 4 4
+        GPUComputePassEncoder.end translateZMulPassEncoder
+        ---------------------
+        perspectiveMulPassEncoder <- beginComputePass commandEncoder (x {})
+        GPUComputePassEncoder.setPipeline perspectiveMulPassEncoder
+          matrixMultiplicationPipeline
+        GPUComputePassEncoder.setBindGroup perspectiveMulPassEncoder 0
+          perspectiveResultIOComputeBindGroup
+        GPUComputePassEncoder.dispatchWorkgroupsXY perspectiveMulPassEncoder 4 4
+        GPUComputePassEncoder.end perspectiveMulPassEncoder
+
+
         -- xTransTestPassEncoder <- beginComputePass commandEncoder (x {})
         -- GPUComputePassEncoder.setPipeline xTransTestPassEncoder
         --   xTransTestPipeline
@@ -976,7 +1064,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         -- GPUComputePassEncoder.dispatchWorkgroupsX xTransTestPassEncoder 1
         -- GPUComputePassEncoder.end xTransTestPassEncoder
         --
-        copyBufferToBuffer commandEncoder rotateYResultBuffer 0 uniformBuffer 0
+        copyBufferToBuffer commandEncoder perspectiveResultBuffer 0 uniformBuffer 0
           (4 * 16)
         -- 🖌️ Encode drawing commands
         let

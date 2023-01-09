@@ -21,6 +21,7 @@ import Data.UInt (UInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
 import Effect.Class (liftEffect)
+
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Element (setAttribute)
 import Web.DOM.NonElementParentNode (getElementById)
@@ -51,6 +52,7 @@ import Web.GPU.GPUFragmentState (GPUFragmentState)
 import Web.GPU.GPUFrontFace (cw)
 import Web.GPU.GPUIndexFormat (uint16)
 import Web.GPU.GPULoadOp as GPULoadOp
+
 import Web.GPU.GPUPrimitiveState (GPUPrimitiveState)
 import Web.GPU.GPUPrimitiveTopology (triangleList)
 import Web.GPU.GPUProgrammableStage (GPUProgrammableStage)
@@ -288,6 +290,8 @@ main = do
   translateZResultData :: Float32Array <- freshIdentityMatrix
   perspectiveData :: Float32Array <- getPerspectiveMatrix
   perspectiveResultData :: Float32Array <- freshIdentityMatrix
+  -- msdelta
+  hackyData :: Float32Array <- freshIdentityMatrix
   -- 📇 Index Buffer Data
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
@@ -389,45 +393,36 @@ main = do
     timeBuffer <- liftEffect $ createBufferF timeData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copyDst)
     scaleBuffer <- liftEffect $ createBufferF scaleData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     rotateZBuffer <- liftEffect $ createBufferF rotateZData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     rotateZResultBuffer <- liftEffect $ createBufferF rotateZResultData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     rotateXBuffer <- liftEffect $ createBufferF rotateXData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     rotateXResultBuffer <- liftEffect $ createBufferF rotateXResultData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     rotateYBuffer <- liftEffect $ createBufferF rotateYData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     rotateYResultBuffer <- liftEffect $ createBufferF rotateYResultData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     translateZBuffer <- liftEffect $ createBufferF translateZData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     translateZResultBuffer <- liftEffect $ createBufferF translateZResultData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     perspectiveBuffer <- liftEffect $ createBufferF perspectiveData
-      (GPUBufferUsage.storage)
+      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
     perspectiveResultBuffer <- liftEffect $ createBufferF perspectiveResultData
       (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+    -- msdelta
+    hackyBuffer <- liftEffect $ createBufferF hackyData
+      (GPUBufferUsage.copyDst .|. GPUBufferUsage.mapRead)
     -- 🖍️ Shaders
-    let
-      resetDesc = x
-        { code:
-            """
-@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
-
-@compute @workgroup_size(4,4)
-fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  resultMatrix[global_id.x][global_id.y] = select(0.0, 1.0, global_id.x == global_id.y);
-}"""
-        }
-    resetModule <- liftEffect $ createShaderModule device resetDesc
     let
       initialScaleDesc = x
         { code:
             """
-@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@group(0) @binding(0) var<storage, read_write> resultMatrix : array<f32>;
 
 @compute @workgroup_size(4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
@@ -437,7 +432,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
     return;
   }
 
-  resultMatrix[global_id.x][global_id.x] = resultMatrix[global_id.x][global_id.x] * 0.25;
+  resultMatrix[global_id.x*4 + global_id.x] = 0.25;
 }"""
         }
     initialScaleModule <- liftEffect $ createShaderModule device
@@ -446,7 +441,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
       rotateZDesc = x
         { code:
             """
-@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@group(0) @binding(0) var<storage, read_write> resultMatrix : array<f32>;
 @group(1) @binding(0) var<storage, read> time : f32;
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
@@ -454,9 +449,11 @@ fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   return sin((time * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
 }
 
-@compute @workgroup_size(2,2)
+@compute @workgroup_size(4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  resultMatrix[global_id.x][global_id.y] = xyt2trig(global_id.x, global_id.y, time);
+  var ixx = global_id.x / 2;
+  var ixy = global_id.x % 2;
+  resultMatrix[ixx*4 + ixy] = xyt2trig(ixx, ixy, time);
 }"""
         }
     rotateZModule <- liftEffect $ createShaderModule device rotateZDesc
@@ -464,7 +461,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
       rotateYDesc = x
         { code:
             """
-@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@group(0) @binding(0) var<storage, read_write> resultMatrix : array<f32>;
 @group(1) @binding(0) var<storage, read> time : f32;
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   const pi = 3.14159;
@@ -472,9 +469,12 @@ fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
   return sin((time * pi) + (f32(2 - ((o + 1) % 3)) * (pi / 2.0)));
 }
 
-@compute @workgroup_size(2,2)
+@compute @workgroup_size(4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
-  resultMatrix[global_id.x * 2][global_id.y * 2] = xyt2trig(global_id.x, global_id.y, time);
+  var ixx = global_id.x / 2;
+  var ixy = global_id.x % 2;
+
+  resultMatrix[(ixx*8) + (ixy*2)] = xyt2trig(ixx, ixy, time);
 }"""
         }
     rotateYModule <- liftEffect $ createShaderModule device rotateYDesc
@@ -482,21 +482,21 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
       rotateXDesc = x
         { code:
             """
-@group(0) @binding(0) var<storage, read_write> resultMatrix : mat4x4<f32>;
+@group(0) @binding(0) var<storage, read_write> resultMatrix : array<f32>;
 @group(1) @binding(0) var<storage, read> time : f32;
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
-  const pi = 3.14159;
+  const pi = 3.14159; 
   var o = (x << 1) + y;
   return sin((time * pi) + (f32((o + 1) % 3) * (pi / 2.0)));
 }
 
-@compute @workgroup_size(2,2)
+@compute @workgroup_size(4)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   // Guard against out-of-bounds work group sizes
-  if (global_id.x >= 2u || global_id.y >= 2u) {
-    return; 
-  }
-  resultMatrix[global_id.x + 1][global_id.y + 1] = xyt2trig(global_id.x, global_id.y, time);
+  var ixx = global_id.x / 2;
+  var ixy = global_id.x % 2;
+
+  resultMatrix[1 + ((ixx + 1)*4) + ixy] = xyt2trig(ixx, ixy, time);
 }"""
         }
     rotateXModule <- liftEffect $ createShaderModule device rotateXDesc
@@ -504,17 +504,19 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
       matrixMultiplicationDesc = x
         { code:
             """
-@group(0) @binding(0) var<storage, read> matrixL : mat4x4<f32>;
-@group(0) @binding(1) var<storage, read> matrixR : mat4x4<f32>;
-@group(0) @binding(2) var<storage, read_write> resultMatrix : mat4x4<f32>;
-@compute @workgroup_size(4,4)
+@group(0) @binding(0) var<storage, read> matrixL : array<f32>;
+@group(0) @binding(1) var<storage, read> matrixR : array<f32>;
+@group(0) @binding(2) var<storage, read_write> resultMatrix : array<f32>;
+@compute @workgroup_size(16)
 fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   var result = 0.0;
+  var ixx = global_id.x / 4;
+  var ixy = global_id.x % 4;
   for (var i = 0u; i < 4u; i = i + 1u) {
-    result = result + (matrixL[i][global_id.y] * matrixR[global_id.x][i]);
+    result = result + (matrixL[(i * 4 )+ ixy] * matrixR[(ixx * 4) + i]);
   }
 
-  resultMatrix[global_id.x][global_id.y] = result;
+  resultMatrix[ixx*4 + ixy] = result;
 }""" 
         }
     matrixMultiplicationModule <- liftEffect $ createShaderModule device
@@ -762,10 +764,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
       }
     -- 🎭 Shader Stages
     let
-      (resetState :: GPUProgrammableStage) = x
-        { "module": resetModule
-        , entryPoint: "main"
-        }
       (initialScaleState :: GPUProgrammableStage) = x
         { "module": initialScaleModule
         , entryPoint: "main"
@@ -821,10 +819,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         , primitive
         , depthStencil
         }
-    resetPipeline <- liftEffect $ createComputePipeline device $ x
-      { layout: simpleIOComputeLayout
-      , compute: resetState
-      }
     initialScalePipeline <- liftEffect $ createComputePipeline device $ x
       { layout: simpleIOComputeLayout
       , compute: initialScaleState
@@ -1016,17 +1010,20 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         setBindGroup passEncoder 0 uniformBindGroup
         drawIndexedWithInstanceCount passEncoder 36 1
         end passEncoder
-        -- 💻 Encode compute commands for resetting buffer
-        resetPassEncoder <- beginComputePass commandEncoder (x {})
-        GPUComputePassEncoder.setPipeline resetPassEncoder resetPipeline
-        -- reset the main storage
-        GPUComputePassEncoder.setBindGroup resetPassEncoder 0
-          scaleBindGroup
-        GPUComputePassEncoder.dispatchWorkgroups resetPassEncoder 1
-        GPUComputePassEncoder.end resetPassEncoder
+        --------
+        copyBufferToBuffer commandEncoder rotateXBuffer 0
+          hackyBuffer
+          0 
+          (4 * 16)
         -- 🙌 finish commandEncoder
         toSubmit <- finish commandEncoder
         submit queue [ toSubmit ]
+        -- launchAff_ do
+        --   toAffE $ convertPromise <$> mapAsync hackyBuffer  GPUMapMode.read
+        --   liftEffect do
+        --     mr <- getMappedRange hackyBuffer
+        --     arr <- (whole mr :: Effect Float32Array) >>= toArray
+        --     logShow arr
     let
       render = unit # fix \f _ -> do
         -- ⏭ Acquire next image from context
@@ -1037,6 +1034,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         encodeCommands colorTextureView
 
         -- ➿ Refresh canvas
+        -- msdelta
         window >>= void <<< requestAnimationFrame (f unit)
 
     liftEffect render

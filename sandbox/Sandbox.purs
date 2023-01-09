@@ -930,7 +930,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         GPUComputePassEncoder.setPipeline scalePassEncoder initialScalePipeline
         GPUComputePassEncoder.setBindGroup scalePassEncoder 0
           scaleBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsX scalePassEncoder 4
+        GPUComputePassEncoder.dispatchWorkgroups scalePassEncoder 1
         GPUComputePassEncoder.end scalePassEncoder
         ---------------------
         rotateZPassEncoder <- beginComputePass commandEncoder (x {})
@@ -940,7 +940,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           rotateZComputeBindGroup
         GPUComputePassEncoder.setBindGroup rotateZPassEncoder 1
           timeComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY rotateZPassEncoder 2 2
+        GPUComputePassEncoder.dispatchWorkgroups rotateZPassEncoder 1
         GPUComputePassEncoder.end rotateZPassEncoder
         ---------------------
         rotateZMulPassEncoder <- beginComputePass commandEncoder (x {})
@@ -948,7 +948,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           matrixMultiplicationPipeline
         GPUComputePassEncoder.setBindGroup rotateZMulPassEncoder 0
           rotateZResultIOComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY rotateZMulPassEncoder 4 4
+        GPUComputePassEncoder.dispatchWorkgroups rotateZMulPassEncoder 1
         GPUComputePassEncoder.end rotateZMulPassEncoder
         ---------------------
         rotateXPassEncoder <- beginComputePass commandEncoder (x {})
@@ -958,7 +958,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           rotateXComputeBindGroup
         GPUComputePassEncoder.setBindGroup rotateXPassEncoder 1
           timeComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY rotateXPassEncoder 2 2
+        GPUComputePassEncoder.dispatchWorkgroups rotateXPassEncoder 1
         GPUComputePassEncoder.end rotateXPassEncoder
         ---------------------
         rotateXMulPassEncoder <- beginComputePass commandEncoder (x {})
@@ -966,7 +966,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           matrixMultiplicationPipeline
         GPUComputePassEncoder.setBindGroup rotateXMulPassEncoder 0
           rotateXResultIOComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY rotateXMulPassEncoder 4 4
+        GPUComputePassEncoder.dispatchWorkgroups rotateXMulPassEncoder 1
         GPUComputePassEncoder.end rotateXMulPassEncoder
         ---------------------
         rotateYPassEncoder <- beginComputePass commandEncoder (x {})
@@ -976,7 +976,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           rotateYComputeBindGroup
         GPUComputePassEncoder.setBindGroup rotateYPassEncoder 1
           timeComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY rotateYPassEncoder 2 2
+        GPUComputePassEncoder.dispatchWorkgroups rotateYPassEncoder 1
         GPUComputePassEncoder.end rotateYPassEncoder
         ---------------------
         rotateYMulPassEncoder <- beginComputePass commandEncoder (x {})
@@ -984,7 +984,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           matrixMultiplicationPipeline
         GPUComputePassEncoder.setBindGroup rotateYMulPassEncoder 0
           rotateYResultIOComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY rotateYMulPassEncoder 4 4
+        GPUComputePassEncoder.dispatchWorkgroups rotateYMulPassEncoder 1
         GPUComputePassEncoder.end rotateYMulPassEncoder
         ---------------------
         translateZMulPassEncoder <- beginComputePass commandEncoder (x {})
@@ -992,7 +992,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           matrixMultiplicationPipeline
         GPUComputePassEncoder.setBindGroup translateZMulPassEncoder 0
           translateZResultIOComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY translateZMulPassEncoder 4 4
+        GPUComputePassEncoder.dispatchWorkgroups translateZMulPassEncoder 1
         GPUComputePassEncoder.end translateZMulPassEncoder
         ---------------------
         perspectiveMulPassEncoder <- beginComputePass commandEncoder (x {})
@@ -1000,7 +1000,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
           matrixMultiplicationPipeline
         GPUComputePassEncoder.setBindGroup perspectiveMulPassEncoder 0
           perspectiveResultIOComputeBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY perspectiveMulPassEncoder 4 4
+        GPUComputePassEncoder.dispatchWorkgroups perspectiveMulPassEncoder 1
         GPUComputePassEncoder.end perspectiveMulPassEncoder
 
         copyBufferToBuffer commandEncoder perspectiveResultBuffer 0
@@ -1045,7 +1045,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         -- reset the main storage
         GPUComputePassEncoder.setBindGroup resetPassEncoder 0
           scaleBindGroup
-        GPUComputePassEncoder.dispatchWorkgroupsXY resetPassEncoder 4 4
+        GPUComputePassEncoder.dispatchWorkgroups resetPassEncoder 1
         GPUComputePassEncoder.end resetPassEncoder
         -- 🙌 finish commandEncoder
         toSubmit <- finish commandEncoder

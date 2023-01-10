@@ -3,10 +3,12 @@ module Sandbox where
 import Prelude
 
 import Control.Lazy (fix)
+import Control.Monad.ST.Class (liftST)
 import Control.Promise (toAffE)
 import Control.Promise as Control.Promise
+import Data.Array.ST as STArray
 import Data.ArrayBuffer.ArrayBuffer (byteLength)
-import Data.ArrayBuffer.Typed (class TypedArray, fromArray, setTyped, whole)
+import Data.ArrayBuffer.Typed (class TypedArray, fromArray, setTyped, toArray, whole)
 import Data.ArrayBuffer.Typed as Typed
 import Data.ArrayBuffer.Types (ArrayView, Uint16Array, Float32Array)
 import Data.Float32 (Float32)
@@ -14,23 +16,26 @@ import Data.Foldable (traverse_)
 import Data.Int (toNumber)
 import Data.Int.Bits (complement, (.&.))
 import Data.JSDate (getTime, now)
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.Number (pi)
 import Data.Number as Math
+import Data.Number.Format (precision, toStringWith)
 import Data.UInt (UInt)
 import Effect (Effect)
 import Effect.Aff (error, launchAff_, throwError)
 import Effect.Class (liftEffect)
 
+import Effect.Ref as Ref
 import Unsafe.Coerce (unsafeCoerce)
-import Web.DOM.Element (setAttribute)
+import Web.DOM.Element (setAttribute, toNode)
+import Web.DOM.Node (setTextContent)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.GPU.BufferSource (fromFloat32Array)
 import Web.GPU.GPU (requestAdapter)
 import Web.GPU.GPUAdapter (requestDevice)
 import Web.GPU.GPUBindGroupEntry (GPUBufferBinding, gpuBindGroupEntry)
 import Web.GPU.GPUBindGroupLayoutEntry (gpuBindGroupLayoutEntry)
-import Web.GPU.GPUBuffer (GPUBuffer, getMappedRange, unmap)
+import Web.GPU.GPUBuffer (GPUBuffer, getMappedRange, mapAsync, unmap)
 import Web.GPU.GPUBufferBindingLayout (GPUBufferBindingLayout)
 import Web.GPU.GPUBufferBindingType as GPUBufferBindingType
 import Web.GPU.GPUBufferUsage (GPUBufferUsageFlags)
@@ -52,7 +57,7 @@ import Web.GPU.GPUFragmentState (GPUFragmentState)
 import Web.GPU.GPUFrontFace (cw)
 import Web.GPU.GPUIndexFormat (uint16)
 import Web.GPU.GPULoadOp as GPULoadOp
-
+import Web.GPU.GPUMapMode as GPUMapMode
 import Web.GPU.GPUPrimitiveState (GPUPrimitiveState)
 import Web.GPU.GPUPrimitiveTopology (triangleList)
 import Web.GPU.GPUProgrammableStage (GPUProgrammableStage)
@@ -83,6 +88,17 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, navigator, requestAnimationFrame)
 import Web.Promise as Web.Promise
 
+averager :: forall a. EuclideanRing a => Effect (a -> Effect a)
+averager = do
+  ct <- Ref.new zero
+  val <- Ref.new zero
+  pure \v -> do
+    ct' <- Ref.read ct
+    val' <- Ref.read val
+    Ref.write (ct' + one) ct
+    Ref.write (val' + v) val
+    pure $ val' / ct'
+
 hackyFloatConv :: Array Number -> Array Float32
 hackyFloatConv = unsafeCoerce
 
@@ -98,7 +114,7 @@ showErrorMessage :: Effect Unit
 showErrorMessage = do
   d <- window >>= document
   getElementById "error" (toNonElementParentNode d) >>= traverse_
-    (setAttribute "style" "display:auto;")
+    (setAttribute "style" "display:auto; color: white;")
 
 freshIdentityMatrix :: Effect Float32Array
 freshIdentityMatrix = fromArray $ hackyFloatConv
@@ -177,7 +193,16 @@ getPerspectiveMatrix = do
 
 main :: Effect Unit
 main = do
+  timeDeltaAverager <- averager
+  frameDeltaAverager <- averager
   startsAt <- getTime <$> now
+  doc <- window >>= document
+  renderStats <-
+    ( getElementById "render-stats"
+        (toNonElementParentNode doc)
+    ) >>= maybe
+      (showErrorMessage *> throwError (error "could not find render-stats div"))
+      pure
   positions :: Float32Array <- fromArray $ hackyFloatConv
     [ 1.0
     , 1.0
@@ -277,22 +302,28 @@ main = do
     , 0.8
     , 1.0
     ]
-  scaleData :: Float32Array <- freshIdentityMatrix
-  timeData :: Float32Array <- fromArray $ hackyFloatConv [ 0.0 ]
-  rotateZData :: Float32Array <- freshIdentityMatrix
-  rotateZResultData :: Float32Array <- freshIdentityMatrix
-  rotateXData :: Float32Array <- freshIdentityMatrix
-  rotateXResultData :: Float32Array <- freshIdentityMatrix
-  rotateYData :: Float32Array <- freshIdentityMatrix
-  rotateYResultData :: Float32Array <- freshIdentityMatrix
+  imx <- freshIdentityMatrix
+  currentFrame <- Ref.new 0
+  let
+    scaleData = imx
+  -- timestamp, currentFrame
+  timeData :: Float32Array <- fromArray $ hackyFloatConv [ 0.0, 0.0 ]
+  let
+    rotateZData = imx
+    rotateZResultData = imx
+    rotateXData = imx
+    rotateXResultData = imx
+    rotateYData = imx
+    rotateYResultData = imx
   translateZData :: Float32Array <- map identity $ freshTranslateMatrix 0.0 0.0
     (-1.5)
-  translateZResultData :: Float32Array <- freshIdentityMatrix
+  let
+    translateZResultData = imx
   perspectiveData :: Float32Array <- getPerspectiveMatrix
-  perspectiveResultData :: Float32Array <- freshIdentityMatrix
-  -- msdelta
-  hackyData :: Float32Array <- freshIdentityMatrix
+  let
+    perspectiveResultData = imx
   -- 📇 Index Buffer Data
+  outputBuffers <- liftST $ STArray.new
   indices :: Uint16Array <- fromArray $ hackyIntConv
     [
       --
@@ -388,35 +419,36 @@ main = do
     colorBuffer <- liftEffect $ createBufferF colors GPUBufferUsage.vertex
     indexBuffer <- liftEffect $ createBufferF indices GPUBufferUsage.index
     -- ✋ Declare buffer handles
+    let standardStorageFlag = GPUBufferUsage.storage
+    let finalStorageFlag = GPUBufferUsage.storage .|. GPUBufferUsage.copySrc
     uniformBuffer <- liftEffect $ createBufferF uniformData
       (GPUBufferUsage.uniform .|. GPUBufferUsage.copyDst)
     timeBuffer <- liftEffect $ createBufferF timeData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copyDst)
+      ( GPUBufferUsage.storage .|. GPUBufferUsage.copyDst .|.
+          GPUBufferUsage.copySrc
+      )
     scaleBuffer <- liftEffect $ createBufferF scaleData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     rotateZBuffer <- liftEffect $ createBufferF rotateZData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     rotateZResultBuffer <- liftEffect $ createBufferF rotateZResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     rotateXBuffer <- liftEffect $ createBufferF rotateXData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     rotateXResultBuffer <- liftEffect $ createBufferF rotateXResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     rotateYBuffer <- liftEffect $ createBufferF rotateYData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     rotateYResultBuffer <- liftEffect $ createBufferF rotateYResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     translateZBuffer <- liftEffect $ createBufferF translateZData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     translateZResultBuffer <- liftEffect $ createBufferF translateZResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     perspectiveBuffer <- liftEffect $ createBufferF perspectiveData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
+      standardStorageFlag
     perspectiveResultBuffer <- liftEffect $ createBufferF perspectiveResultData
-      (GPUBufferUsage.storage .|. GPUBufferUsage.copySrc)
-    -- msdelta
-    hackyBuffer <- liftEffect $ createBufferF hackyData
-      (GPUBufferUsage.copyDst .|. GPUBufferUsage.mapRead)
+      finalStorageFlag
     -- 🖍️ Shaders
     let
       initialScaleDesc = x
@@ -517,7 +549,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
   }
 
   resultMatrix[ixx*4 + ixy] = result;
-}""" 
+}"""
         }
     matrixMultiplicationModule <- liftEffect $ createShaderModule device
       matrixMultiplicationDesc
@@ -842,16 +874,16 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         }
     renderPipeline <- liftEffect $ createRenderPipeline device pipelineDesc
     { canvasWidth, canvasHeight, context } <- liftEffect do
-      d <- window >>= document
+
       canvas <-
         ( (_ >>= fromElement) <$> getElementById "gfx"
-            (toNonElementParentNode d)
+            (toNonElementParentNode doc)
         ) >>= maybe
-          (showErrorMessage *> throwError (error "counld not find canvas"))
+          (showErrorMessage *> throwError (error "could not find canvas"))
           pure
 
       context <- getContext canvas >>= maybe
-        (showErrorMessage *> throwError (error "counld not find context"))
+        (showErrorMessage *> throwError (error "could not find context"))
         pure
       canvasWidth <- width canvas
       canvasHeight <- height canvas
@@ -898,9 +930,10 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         -- 💻 Encode compute commands
         scalePassEncoder <- beginComputePass commandEncoder (x {})
         tn <- (getTime >>> (_ - startsAt) >>> (_ * 0.001)) <$> now
+        cf <- Ref.read currentFrame
         timeNowData :: Float32Array <- fromArray $ hackyFloatConv
-          [ (tn / 2.0) ]
-
+          [ (tn / 2.0), toNumber cf ]
+        Ref.modify_ (add 1) currentFrame
         writeBuffer queue timeBuffer 0 (fromFloat32Array timeNowData)
         GPUComputePassEncoder.setPipeline scalePassEncoder initialScalePipeline
         GPUComputePassEncoder.setBindGroup scalePassEncoder 0
@@ -1009,21 +1042,42 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         setIndexBuffer passEncoder indexBuffer uint16
         setBindGroup passEncoder 0 uniformBindGroup
         drawIndexedWithInstanceCount passEncoder 36 1
+        buf' <- liftST $ STArray.pop outputBuffers
+        buf <- flip fromMaybe buf'
+          <$> do
+            buffer <- createBuffer device $ x
+              { size: ((byteLength (Typed.buffer imx)) + 3) .&.
+                  complement 3
+              , usage: GPUBufferUsage.copyDst .|. GPUBufferUsage.mapRead
+              }
+            pure buffer
         end passEncoder
         --------
-        copyBufferToBuffer commandEncoder rotateXBuffer 0
-          hackyBuffer
-          0 
+        -- write to output buffer
+        -- we use this as a test 
+        copyBufferToBuffer commandEncoder perspectiveResultBuffer 0
+          buf
+          0
           (4 * 16)
         -- 🙌 finish commandEncoder
         toSubmit <- finish commandEncoder
         submit queue [ toSubmit ]
-        -- launchAff_ do
-        --   toAffE $ convertPromise <$> mapAsync hackyBuffer  GPUMapMode.read
-        --   liftEffect do
-        --     mr <- getMappedRange hackyBuffer
-        --     arr <- (whole mr :: Effect Float32Array) >>= toArray
-        --     logShow arr
+        launchAff_ do
+          toAffE $ convertPromise <$> mapAsync buf GPUMapMode.read
+          liftEffect do
+            mr <- getMappedRange buf
+            -- we don't use the mapped range, but we go through the process of
+            -- getting it in order to fully test the mapAsync function's timing
+            _ <- (whole mr :: Effect Float32Array) >>= toArray
+            tnx <- (getTime >>> (_ - startsAt) >>> (_ * 0.001)) <$> now
+            cfx <- Ref.read currentFrame
+            avgTn <- timeDeltaAverager (tnx - tn)
+            avgCf <- frameDeltaAverager (toNumber (cfx - cf))
+            setTextContent
+              ("Delta time: " <> show (toStringWith (precision 2) avgTn) <> ", Delta frames: " <> show (toStringWith (precision 2) avgCf))
+              (toNode renderStats)
+            unmap buf
+            void $ liftST $ STArray.push buf outputBuffers
     let
       render = unit # fix \f _ -> do
         -- ⏭ Acquire next image from context
@@ -1034,7 +1088,6 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         encodeCommands colorTextureView
 
         -- ➿ Refresh canvas
-        -- msdelta
         window >>= void <<< requestAnimationFrame (f unit)
 
     liftEffect render

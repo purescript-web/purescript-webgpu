@@ -16,6 +16,7 @@ for root, dirs, files in os.walk("src", topdown=False):
                 elif '::' in l and '->' in l: candidates.append(content[x])
             candidates = [x.replace('foreign import','').split('::')[0].strip() for x in candidates]
             candidates = [x for x in candidates if '--' not in x]
+            candidates = [x for x in candidates if 'Impl' not in x] # no ffi yet
             arity = {}
             for candidate in candidates:
                 for x in range(len(content)):

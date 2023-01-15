@@ -1,4 +1,3 @@
--- @inline export unsafeGetBindGroupLayoutImpl arity=2
 module Web.GPU.GPUPipelineBase where
 
 import Effect (Effect)

@@ -1,6 +1,4 @@
--- @inline export requestAdapterImpl arity=1
 -- @inline export requestAdapter arity=1
--- @inline export getPreferredCanvasFormatImpl arity=1
 -- @inline export getPreferredCanvasFormat arity=1
 module Web.GPU.GPU
   ( GPU,requestAdapter

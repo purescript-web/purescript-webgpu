@@ -1,4 +1,3 @@
--- @inline export getContextImpl arity=1
 module Web.GPU.HTMLCanvasElement
   ( getContext
   ) where

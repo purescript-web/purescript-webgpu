@@ -1,8 +1,3 @@
--- @inline export gpuBufferBindingLayout arity=3
--- @inline export gpuSamplerBindingLayout arity=3
--- @inline export gpuTextureBindingLayout arity=3
--- @inline export gpuStorageTextureBindingLayout arity=3
--- @inline export gpuExternalTextureBindingLayout arity=3
 module Web.GPU.GPUBindGroupLayoutEntry where
 
 import Unsafe.Coerce (unsafeCoerce)

@@ -1,17 +1,9 @@
--- @inline export submitImpl arity=2
--- @inline export onSubmittedWorkDoneImpl arity=1
 -- @inline export onSubmittedWorkDone arity=1
--- @inline export writeBufferImpl arity=4
 -- @inline export writeBuffer arity=4
--- @inline export writeBufferWithOffsetImpl arity=5
 -- @inline export writeBufferWithOffset arity=5
--- @inline export writeBufferWithSizeImpl arity=5
 -- @inline export writeBufferWithSize arity=5
--- @inline export writeBufferWithOffsetAndSizeImpl arity=6
 -- @inline export writeBufferWithOffsetAndSize arity=6
--- @inline export writeTextureImpl arity=5
 -- @inline export writeTexture arity=5
--- @inline export copyExternalImageToTextureImpl arity=4
 -- @inline export copyExternalImageToTexture arity=4
 module Web.GPU.GPUQueue
   ( GPUQueue

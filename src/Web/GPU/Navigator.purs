@@ -1,4 +1,3 @@
--- @inline export gpuImpl arity=4
 -- @inline export gpu arity=4
 module Web.GPU.Navigator (gpu) where
 

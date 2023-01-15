@@ -1,33 +1,17 @@
--- @inline export beginRenderPassImpl arity=2
 -- @inline export beginRenderPass arity=2
--- @inline export beginComputePassImpl arity=2
 -- @inline export beginComputePass arity=2
--- @inline export copyBufferToBufferImpl arity=6
 -- @inline export copyBufferToBuffer arity=6
--- @inline export copyBufferToTextureImpl arity=4
--- @inline export copyTextureToBufferImpl arity=4
 -- @inline export copyTextureToBuffer arity=4
--- @inline export copyTextureToTextureImpl arity=4
 -- @inline export copyTextureToTexture arity=4
--- @inline export clearBufferImpl arity=2
 -- @inline export clearBuffer arity=2
--- @inline export clearBufferWithOffsetImpl arity=3
 -- @inline export clearBufferWithOffset arity=3
--- @inline export clearBufferWithSizeImpl arity=3
 -- @inline export clearBufferWithSize arity=3
--- @inline export clearBufferWithOffsetAndSizeImpl arity=4
 -- @inline export clearBufferWithOffsetAndSize arity=4
--- @inline export writeTimestampImpl arity=3
 -- @inline export writeTimestamp arity=3
--- @inline export resolveQuerySetImpl arity=6
 -- @inline export resolveQuerySet arity=6
--- @inline export finishImpl arity=1
 -- @inline export finish arity=1
--- @inline export pushDebugGroupImpl arity=2
 -- @inline export pushDebugGroup arity=2
--- @inline export popDebugGroupImpl arity=1
 -- @inline export popDebugGroup arity=1
--- @inline export insertDebugMarkerImpl arity=2
 -- @inline export insertDebugMarker arity=2
 module Web.GPU.GPUCommandEncoder
   ( GPUCommandEncoder(..)
@@ -47,12 +31,12 @@ module Web.GPU.GPUCommandEncoder
   , pushDebugGroup
   , resolveQuerySet
   , writeTimestamp
-  )
-  where
+  ) where
 
 import Prelude
 
 import Effect (Effect)
+import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, EffectFn5, runEffectFn1, runEffectFn2, runEffectFn3, runEffectFn5)
 import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.GPUComputePassDescriptor (GPUComputePassDescriptor)
 import Web.GPU.GPUComputePassEncoder (GPUComputePassEncoder)
@@ -69,30 +53,25 @@ data GPUCommandEncoder
 
 foreign import beginRenderPassImpl
   :: GPUCommandEncoder
-  -> GPURenderPassDescriptor
-  -> Effect GPURenderPassEncoder
+  -> EffectFn1 GPURenderPassDescriptor GPURenderPassEncoder
 
 beginRenderPass
   :: GPUCommandEncoder -> GPURenderPassDescriptor -> Effect GPURenderPassEncoder
-beginRenderPass = beginRenderPassImpl
+beginRenderPass a b = runEffectFn1 (beginRenderPassImpl a) b
 
 foreign import beginComputePassImpl
   :: GPUCommandEncoder
-  -> GPUComputePassDescriptor
-  -> Effect GPUComputePassEncoder
+  -> EffectFn1 GPUComputePassDescriptor GPUComputePassEncoder
 
 beginComputePass
-  :: GPUCommandEncoder -> GPUComputePassDescriptor -> Effect GPUComputePassEncoder
-beginComputePass = beginComputePassImpl
+  :: GPUCommandEncoder
+  -> GPUComputePassDescriptor
+  -> Effect GPUComputePassEncoder
+beginComputePass a b = runEffectFn1 (beginComputePassImpl a) b
 
 foreign import copyBufferToBufferImpl
   :: GPUCommandEncoder
-  -> GPUBuffer
-  -> GPUSize64
-  -> GPUBuffer
-  -> GPUSize64
-  -> GPUSize64
-  -> Effect Unit
+  -> EffectFn5 GPUBuffer GPUSize64 GPUBuffer GPUSize64 GPUSize64 Unit
 
 copyBufferToBuffer
   :: GPUCommandEncoder
@@ -102,14 +81,12 @@ copyBufferToBuffer
   -> Int
   -> Int
   -> Effect Unit
-copyBufferToBuffer = copyBufferToBufferImpl
+copyBufferToBuffer a b c d e f = runEffectFn5 (copyBufferToBufferImpl a) b c d e
+  f
 
 foreign import copyBufferToTextureImpl
   :: GPUCommandEncoder
-  -> GPUImageCopyBuffer
-  -> GPUImageCopyTexture
-  -> GPUExtent3D
-  -> Effect Unit
+  -> EffectFn3 GPUImageCopyBuffer GPUImageCopyTexture GPUExtent3D Unit
 
 copyBufferToTexture
   ∷ GPUCommandEncoder
@@ -117,14 +94,11 @@ copyBufferToTexture
   → GPUImageCopyTexture
   → GPUExtent3D
   → Effect Unit
-copyBufferToTexture = copyBufferToTextureImpl
+copyBufferToTexture a b c d = runEffectFn3 (copyBufferToTextureImpl a) b c d
 
 foreign import copyTextureToBufferImpl
   :: GPUCommandEncoder
-  -> GPUImageCopyTexture
-  -> GPUImageCopyBuffer
-  -> GPUExtent3D
-  -> Effect Unit
+  -> EffectFn3 GPUImageCopyTexture GPUImageCopyBuffer GPUExtent3D Unit
 
 copyTextureToBuffer
   :: GPUCommandEncoder
@@ -132,14 +106,11 @@ copyTextureToBuffer
   -> GPUImageCopyBuffer
   -> GPUExtent3D
   -> Effect Unit
-copyTextureToBuffer = copyTextureToBufferImpl
+copyTextureToBuffer a b c d = runEffectFn3 (copyTextureToBufferImpl a) b c d
 
 foreign import copyTextureToTextureImpl
   :: GPUCommandEncoder
-  -> GPUImageCopyTexture
-  -> GPUImageCopyTexture
-  -> GPUExtent3D
-  -> Effect Unit
+  -> EffectFn3 GPUImageCopyTexture GPUImageCopyTexture GPUExtent3D Unit
 
 copyTextureToTexture
   :: GPUCommandEncoder
@@ -147,59 +118,46 @@ copyTextureToTexture
   -> GPUImageCopyTexture
   -> GPUExtent3D
   -> Effect Unit
-copyTextureToTexture = copyTextureToTextureImpl
+copyTextureToTexture a b c d = runEffectFn3 (copyTextureToTextureImpl a) b c d
 
 foreign import clearBufferImpl
   :: GPUCommandEncoder
-  -> GPUBuffer
-  -> Effect Unit
+  -> EffectFn1 GPUBuffer Unit
 
 clearBuffer :: GPUCommandEncoder -> GPUBuffer -> Effect Unit
-clearBuffer = clearBufferImpl
+clearBuffer a b = runEffectFn1 (clearBufferImpl a) b
 
 foreign import clearBufferWithOffsetImpl
   :: GPUCommandEncoder
-  -> GPUBuffer
-  -> GPUSize64
-  -> Effect Unit
+  -> EffectFn2 GPUBuffer GPUSize64 Unit
 
 clearBufferWithOffset :: GPUCommandEncoder -> GPUBuffer -> Int -> Effect Unit
-clearBufferWithOffset = clearBufferWithOffsetImpl
+clearBufferWithOffset a b c = runEffectFn2 (clearBufferWithOffsetImpl a) b c
 
 foreign import clearBufferWithSizeImpl
   :: GPUCommandEncoder
-  -> GPUBuffer
-  -> GPUSize64
-  -> Effect Unit
+  ->EffectFn2 GPUBuffer  GPUSize64  Unit
 
 clearBufferWithSize :: GPUCommandEncoder -> GPUBuffer -> Int -> Effect Unit
-clearBufferWithSize = clearBufferWithSizeImpl
+clearBufferWithSize a b c = runEffectFn2 (clearBufferWithSizeImpl a) b c
 
 foreign import clearBufferWithOffsetAndSizeImpl
   :: GPUCommandEncoder
-  -> GPUBuffer
-  -> GPUSize64
-  -> GPUSize64
-  -> Effect Unit
+  -> EffectFn3 GPUBuffer GPUSize64 GPUSize64 Unit
 
 clearBufferWithOffsetAndSize
   :: GPUCommandEncoder -> GPUBuffer -> Int -> Int -> Effect Unit
-clearBufferWithOffsetAndSize = clearBufferWithOffsetAndSizeImpl
+clearBufferWithOffsetAndSize a b c d = runEffectFn3 (clearBufferWithOffsetAndSizeImpl a) b c d
 
 foreign import writeTimestampImpl
-  :: GPUCommandEncoder -> GPUQuerySet -> GPUSize32 -> Effect Unit
+  :: GPUCommandEncoder -> EffectFn2 GPUQuerySet GPUSize32 Unit
 
 writeTimestamp :: GPUCommandEncoder -> GPUQuerySet -> Int -> Effect Unit
-writeTimestamp = writeTimestampImpl
+writeTimestamp a b c = runEffectFn2 (writeTimestampImpl a) b c
 
 foreign import resolveQuerySetImpl
   :: GPUCommandEncoder
-  -> GPUQuerySet
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUBuffer
-  -> GPUSize64
-  -> Effect Unit
+  -> EffectFn5 GPUQuerySet GPUSize32 GPUSize32 GPUBuffer GPUSize64 Unit
 
 resolveQuerySet
   :: GPUCommandEncoder
@@ -209,17 +167,17 @@ resolveQuerySet
   -> GPUBuffer
   -> Int
   -> Effect Unit
-resolveQuerySet = resolveQuerySetImpl
+resolveQuerySet a b c d e f = runEffectFn5 (resolveQuerySetImpl a) b c d e f
 
 foreign import finishImpl :: GPUCommandEncoder -> Effect GPUCommandBuffer
 
 finish :: GPUCommandEncoder -> Effect GPUCommandBuffer
 finish = finishImpl
 
-foreign import pushDebugGroupImpl :: GPUCommandEncoder -> String -> Effect Unit
+foreign import pushDebugGroupImpl ::  GPUCommandEncoder -> EffectFn1 String Unit
 
 pushDebugGroup :: GPUCommandEncoder -> String -> Effect Unit
-pushDebugGroup = pushDebugGroupImpl
+pushDebugGroup a b = runEffectFn1 (pushDebugGroupImpl a) b
 
 foreign import popDebugGroupImpl :: GPUCommandEncoder -> Effect Unit
 
@@ -227,7 +185,7 @@ popDebugGroup :: GPUCommandEncoder -> Effect Unit
 popDebugGroup = popDebugGroupImpl
 
 foreign import insertDebugMarkerImpl
-  :: GPUCommandEncoder -> String -> Effect Unit
+  :: GPUCommandEncoder -> EffectFn1 String Unit
 
 insertDebugMarker :: GPUCommandEncoder -> String -> Effect Unit
-insertDebugMarker = insertDebugMarkerImpl
+insertDebugMarker a b = runEffectFn1 (insertDebugMarkerImpl a) b

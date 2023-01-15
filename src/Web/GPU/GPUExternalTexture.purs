@@ -1,4 +1,3 @@
--- @inline export expiredImpl arity=1
 -- @inline export expired arity=1
 module Web.GPU.GPUExternalTexture
   ( GPUExternalTexture

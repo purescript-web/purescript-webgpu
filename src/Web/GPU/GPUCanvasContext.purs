@@ -1,10 +1,6 @@
--- @inline export canvasImpl arity=1
 -- @inline export canvas arity=1
--- @inline export configureImpl arity=2
 -- @inline export configure arity=2
--- @inline export unconfigureImpl arity=1
 -- @inline export unconfigure arity=1
--- @inline export getCurrentTextureImpl arity=1
 -- @inline export getCurrentTexture arity=1
 module Web.GPU.GPUCanvasContext
   ( GPUCanvasContext

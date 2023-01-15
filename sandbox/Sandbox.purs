@@ -892,9 +892,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
       (config :: GPUCanvasConfiguration) = x
         { device
         , format: GPUTextureFormat.bgra8unorm
-        , usage:
-            GPUTextureUsage.renderAttachment .|.
-              GPUTextureUsage.copySrc
+        , usage:            GPUTextureUsage.renderAttachment
         , alphaMode: opaque
         }
     liftEffect $ configure context config

@@ -892,7 +892,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
       (config :: GPUCanvasConfiguration) = x
         { device
         , format: GPUTextureFormat.bgra8unorm
-        , usage:            GPUTextureUsage.renderAttachment
+        , usage: GPUTextureUsage.renderAttachment
         , alphaMode: opaque
         }
     liftEffect $ configure context config
@@ -1072,7 +1072,10 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
             avgTn <- timeDeltaAverager (tnx - tn)
             avgCf <- frameDeltaAverager (toNumber (cfx - cf))
             setTextContent
-              ("Delta time: " <> show (toStringWith (precision 2) avgTn) <> ", Delta frames: " <> show (toStringWith (precision 2) avgCf))
+              ( "Delta time: " <> show (toStringWith (precision 2) avgTn)
+                  <> ", Delta frames: "
+                  <> show (toStringWith (precision 2) avgCf)
+              )
               (toNode renderStats)
             unmap buf
             void $ liftST $ STArray.push buf outputBuffers

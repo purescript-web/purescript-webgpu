@@ -1,6 +1,5 @@
 module Web.GPU.GPUTextureView
   ( GPUTextureView
-  )
-  where
+  ) where
 
 data GPUTextureView

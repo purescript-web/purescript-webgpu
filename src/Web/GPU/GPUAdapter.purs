@@ -11,15 +11,14 @@ module Web.GPU.GPUAdapter
   , limits
   , requestAdapterInfo
   , requestDevice
-  )
-  where
+  ) where
 
 import Data.Maybe (Maybe(..))
 import Data.Set as Set
 import Effect (Effect)
 import Web.GPU.GPUDeviceDescriptor (GPUDeviceDescriptor)
 import Web.GPU.GPUFeatureName (GPUFeatureName)
-import Web.GPU.GPUDevice(GPUDevice)
+import Web.GPU.GPUDevice (GPUDevice)
 import Web.GPU.GPUSupportedLimits (GPUSupportedLimits)
 import Web.GPU.UnmaskHint (UnmaskHint)
 import Web.Promise (Promise)

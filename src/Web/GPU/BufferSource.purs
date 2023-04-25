@@ -15,6 +15,7 @@ import Data.ArrayBuffer.Types (ArrayBuffer, DataView, Float32Array, Float64Array
 import Unsafe.Coerce (unsafeCoerce)
 
 data BufferSource
+
 fromArrayBuffer :: ArrayBuffer -> BufferSource
 fromArrayBuffer = unsafeCoerce
 

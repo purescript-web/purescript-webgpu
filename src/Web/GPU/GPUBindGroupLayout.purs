@@ -1,6 +1,5 @@
 module Web.GPU.GPUBindGroupLayout
   ( GPUBindGroupLayout
-  )
-  where
+  ) where
 
 data GPUBindGroupLayout

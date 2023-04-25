@@ -5,6 +5,7 @@ import Unsafe.Coerce (unsafeCoerce)
 import Web.GPU.GPUPipelineLayout (GPUPipelineLayout)
 
 data GPUShaderModuleCompilationHint
+
 auto :: GPUShaderModuleCompilationHint
 auto = unsafeCoerce "auto"
 

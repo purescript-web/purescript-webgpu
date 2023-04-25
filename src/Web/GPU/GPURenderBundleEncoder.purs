@@ -39,7 +39,8 @@
 -- @inline export popDebugGroup arity=1
 -- @inline export insertDebugMarker arity=2
 module Web.GPU.GPURenderBundleEncoder
-  (GPURenderBundleEncoder,draw
+  ( GPURenderBundleEncoder
+  , draw
   , drawIndexed
   , drawIndexedIndirect
   , drawIndexedWithBaseVertex
@@ -95,6 +96,7 @@ import Web.GPU.GPURenderPipeline (GPURenderPipeline)
 import Web.GPU.Internal.Types (GPUBufferDynamicOffset, GPUIndex32, GPUSignedOffset32, GPUSize32, GPUSize64)
 
 data GPURenderBundleEncoder
+
 foreign import finishImpl
   :: GPURenderBundleEncoder
   -> GPURenderBundleDescriptor

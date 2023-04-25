@@ -6,7 +6,7 @@
   "scripts": {
     "sandbox": "spago -x sandbox.dhall build && vite build sandbox/",
     "sandbox-dev": "spago -x sandbox-dev.dhall build && vite dev sandbox/",
-    "format": "purs-tidy format-in-place \"src/**/*.purs sandbox/**/*.purs\" && prettier --write \"src/**/*.js\""
+    "format": "purs-tidy format-in-place \"src/**/*.purs sandbox/**/*.purs\" && prettier --arrow-parens avoid --write \"src/**/*.js\""
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,5 @@
 module Web.GPU.GPUSampler
   ( GPUSampler
-  )
-  where
+  ) where
 
 data GPUSampler

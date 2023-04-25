@@ -40,8 +40,7 @@ module Web.GPU.GPUDevice
   , limits
   , queue
   , toEventTarget
-  )
-  where
+  ) where
 
 import Prelude
 

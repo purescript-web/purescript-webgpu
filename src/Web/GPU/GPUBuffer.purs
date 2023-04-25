@@ -26,8 +26,7 @@ module Web.GPU.GPUBuffer
   , size
   , unmap
   , usage
-  )
-  where
+  ) where
 
 import Prelude
 
@@ -40,6 +39,7 @@ import Web.GPU.Internal.Types (GPUSize64)
 import Web.Promise (Promise)
 
 data GPUBuffer
+
 foreign import sizeImpl :: GPUBuffer -> Effect GPUSize64
 
 size :: GPUBuffer -> Effect GPUSize64

@@ -9,6 +9,7 @@ import Web.GPU.Internal.Types (ImageBitmap, OffscreenCanvas)
 import Web.HTML (HTMLCanvasElement, HTMLVideoElement)
 
 data GPUImageCopyExternalImageSource
+
 fromImageBitmap :: ImageBitmap -> GPUImageCopyExternalImageSource
 fromImageBitmap = unsafeCoerce
 

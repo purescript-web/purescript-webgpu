@@ -6,8 +6,7 @@ module Web.GPU.GPUTextureUsage
   , renderAttachment
   , storageBinding
   , textureBinding
-  )
-  where
+  ) where
 
 import Data.Int.Bits as Bits
 import Web.GPU.Internal.Bitwise (class Bitwise)

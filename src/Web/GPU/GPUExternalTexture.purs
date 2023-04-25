@@ -2,12 +2,12 @@
 module Web.GPU.GPUExternalTexture
   ( GPUExternalTexture
   , expired
-  )
-  where
+  ) where
 
 import Effect (Effect)
 
 data GPUExternalTexture
+
 foreign import expiredImpl :: GPUExternalTexture -> Effect Boolean
 
 expired :: GPUExternalTexture -> Effect Boolean

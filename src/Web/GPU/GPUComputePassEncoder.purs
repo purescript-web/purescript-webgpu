@@ -26,11 +26,9 @@ module Web.GPU.GPUComputePassEncoder
   ) where
 
 import Prelude
-import Effect.Uncurried(EffectFn1, runEffectFn1)
-
 import Data.ArrayBuffer.Types (Uint32Array)
 import Effect (Effect)
-import Effect.Uncurried (EffectFn2, EffectFn3, EffectFn4, EffectFn6, runEffectFn2, runEffectFn3, runEffectFn4, runEffectFn6)
+import Effect.Uncurried (EffectFn1, runEffectFn1, EffectFn2, EffectFn3, EffectFn4, EffectFn6, runEffectFn2, runEffectFn3, runEffectFn4, runEffectFn6)
 import Web.GPU.GPUBindGroup (GPUBindGroup)
 import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.GPUComputePipeline (GPUComputePipeline)

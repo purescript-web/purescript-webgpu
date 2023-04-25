@@ -16,6 +16,7 @@ to generate this file without the comments in this block.
   , "effect"
   , "foreign"
   , "foreign-object"
+  , "functions"
   , "integers"
   , "maybe"
   , "newtype"

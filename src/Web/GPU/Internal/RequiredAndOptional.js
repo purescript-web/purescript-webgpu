@@ -1,4 +1,4 @@
-export const requiredAndOptionalImpl = required => optional => ({
+export const requiredAndOptionalImpl = (required, optional) => ({
   ...required,
   ...optional,
 });

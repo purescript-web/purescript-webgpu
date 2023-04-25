@@ -8,13 +8,14 @@ module Web.GPU.Internal.RequiredAndOptional
   , requiredAndOptional
   ) where
 
+import Data.Function.Uncurried (Fn2, runFn2)
 import Data.Newtype (class Newtype)
 import Prim.Row (class Union)
 import Unsafe.Coerce (unsafeCoerce)
 
 data RequiredAndOptional (required :: Row Type) (optional :: Row Type)
 
-foreign import requiredAndOptionalImpl :: forall a b c. a -> b -> c
+foreign import requiredAndOptionalImpl :: forall a b c. Fn2 a b c
 
 requiredAndOptional
   :: forall nt required optionalL optionalR optional
@@ -23,7 +24,7 @@ requiredAndOptional
   => { | required }
   -> { | optionalL }
   -> nt
-requiredAndOptional = requiredAndOptionalImpl
+requiredAndOptional a b = runFn2 requiredAndOptionalImpl a b
 
 infixl 4 requiredAndOptional as ~
 

@@ -11,22 +11,20 @@ module Web.GPU.GPUQuerySet
 import Prelude
 
 import Effect (Effect)
+import Effect.Uncurried (EffectFn1, runEffectFn1)
 import Web.GPU.GPUQueryType (GPUQueryType)
 import Web.GPU.Internal.Types (GPUSize32)
 
 data GPUQuerySet
 
-foreign import destroyImpl :: GPUQuerySet -> Effect Unit
-
+foreign import destroyImpl :: EffectFn1 GPUQuerySet  Unit
 destroy :: GPUQuerySet -> Effect Unit
-destroy = destroyImpl
+destroy a = runEffectFn1 destroyImpl a
 
-foreign import typeImpl :: GPUQuerySet -> Effect GPUQueryType
-
+foreign import typeImpl :: EffectFn1 GPUQuerySet  GPUQueryType
 type' :: GPUQuerySet -> Effect GPUQueryType
-type' = typeImpl
+type' a = runEffectFn1 typeImpl a
 
-foreign import countImpl :: GPUQuerySet -> Effect GPUSize32
-
+foreign import countImpl :: EffectFn1 GPUQuerySet  GPUSize32
 count :: GPUQuerySet -> Effect Int
-count = countImpl
+count a = runEffectFn1 countImpl a

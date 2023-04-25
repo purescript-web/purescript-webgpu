@@ -5,10 +5,10 @@ module Web.GPU.GPUExternalTexture
   ) where
 
 import Effect (Effect)
+import Effect.Uncurried(EffectFn1, runEffectFn1)
 
 data GPUExternalTexture
 
-foreign import expiredImpl :: GPUExternalTexture -> Effect Boolean
-
+foreign import expiredImpl :: EffectFn1 GPUExternalTexture  Boolean
 expired :: GPUExternalTexture -> Effect Boolean
-expired = expiredImpl
+expired a = runEffectFn1 expiredImpl a

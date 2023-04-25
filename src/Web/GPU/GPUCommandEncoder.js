@@ -64,10 +64,10 @@ export const resolveQuerySetImpl = (
     destination,
     destinationOffset
   );
-export const finishImpl = commandEncoder => () => commandEncoder.finish();
+export const finishImpl = commandEncoder => commandEncoder.finish();
 export const pushDebugGroupImpl = (commandEncoder, groupLabel) =>
   commandEncoder.pushDebugGroup(groupLabel);
-export const popDebugGroupImpl = commandEncoder => () =>
+export const popDebugGroupImpl = commandEncoder =>
   commandEncoder.popDebugGroup();
 export const insertDebugMarkerImpl = (commandEncoder, markerLabel) =>
   commandEncoder.insertDebugMarker(markerLabel);

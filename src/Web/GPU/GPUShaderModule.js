@@ -1,2 +1,2 @@
-export const compilationInfoImpl = shaderModule => () =>
+export const compilationInfoImpl = shaderModule =>
   shaderModule.compilationInfo();

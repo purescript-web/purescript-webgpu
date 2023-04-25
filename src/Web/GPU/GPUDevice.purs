@@ -46,6 +46,7 @@ import Prelude
 
 import Data.Set as Set
 import Effect (Effect)
+import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, runEffectFn1, runEffectFn2, runEffectFn3)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.Event.Internal.Types (EventTarget)
 import Web.GPU.GPUBindGroup (GPUBindGroup)
@@ -81,199 +82,149 @@ import Web.Promise (Promise)
 data GPUDevice
 
 -- features
-foreign import featuresImpl
-  :: (GPUFeatureName -> Set.Set GPUFeatureName -> Set.Set GPUFeatureName)
-  -> Set.Set GPUFeatureName
-  -> GPUDevice
-  -> Effect (Set.Set GPUFeatureName)
-
+foreign import featuresImpl :: EffectFn3 (GPUFeatureName -> Set.Set GPUFeatureName -> Set.Set GPUFeatureName) (Set.Set GPUFeatureName) GPUDevice  (Set.Set GPUFeatureName)
 features :: GPUDevice -> Effect (Set.Set GPUFeatureName)
-features = featuresImpl Set.insert Set.empty
+features a = runEffectFn3 featuresImpl Set.insert Set.empty a
 
 -- limits
-foreign import limitsImpl :: GPUDevice -> Effect { | GPUSupportedLimits }
-
+foreign import limitsImpl :: EffectFn1 GPUDevice  { | GPUSupportedLimits }
 limits :: GPUDevice -> Effect { | GPUSupportedLimits }
-limits = limitsImpl
+limits a = runEffectFn1 limitsImpl a
 
 -- queue
 
-foreign import queueImpl :: GPUDevice -> Effect GPUQueue
-
+foreign import queueImpl :: EffectFn1 GPUDevice  GPUQueue
 queue :: GPUDevice -> Effect GPUQueue
-queue = queueImpl
+queue a = runEffectFn1 queueImpl a
 
 -- destroy
 
-foreign import destroyImpl :: GPUDevice -> Effect Unit
-
+foreign import destroyImpl :: EffectFn1 GPUDevice  Unit
 destroy :: GPUDevice -> Effect Unit
-destroy = destroyImpl
+destroy a = runEffectFn1 destroyImpl a
 
 -- createBuffer
-foreign import createBufferImpl
-  :: GPUDevice -> GPUBufferDescriptor -> Effect GPUBuffer
-
+foreign import createBufferImpl :: EffectFn2 GPUDevice GPUBufferDescriptor  GPUBuffer
 createBuffer
   :: GPUDevice
   -> GPUBufferDescriptor
   -> Effect GPUBuffer
-createBuffer = createBufferImpl
+createBuffer a b = runEffectFn2 createBufferImpl a b
 
 -- createTexture
-foreign import createTextureImpl
-  :: GPUDevice -> GPUTextureDescriptor -> Effect GPUTexture
-
+foreign import createTextureImpl :: EffectFn2 GPUDevice GPUTextureDescriptor  GPUTexture
 createTexture
   :: GPUDevice
   -> GPUTextureDescriptor
   -> Effect GPUTexture
-createTexture = createTextureImpl
+createTexture a b = runEffectFn2 createTextureImpl a b
 
 -- createSampler
 
-foreign import createSamplerImpl
-  :: GPUDevice -> GPUSamplerDescriptor -> Effect GPUSampler
-
+foreign import createSamplerImpl :: EffectFn2 GPUDevice GPUSamplerDescriptor  GPUSampler
 createSampler
   :: GPUDevice
   -> GPUSamplerDescriptor
   -> Effect GPUSampler
-createSampler = createSamplerImpl
+createSampler a b = runEffectFn2 createSamplerImpl a b
 
 -- importExternalTexture
 
-foreign import importExternalTextureImpl
-  :: GPUDevice
-  -> GPUExternalTextureDescriptor
-  -> Effect GPUExternalTexture
-
+foreign import importExternalTextureImpl :: EffectFn2 GPUDevice GPUExternalTextureDescriptor  GPUExternalTexture
 importExternalTexture
   :: GPUDevice
   -> GPUExternalTextureDescriptor
   -> Effect GPUExternalTexture
-importExternalTexture = importExternalTextureImpl
+importExternalTexture a b = runEffectFn2 importExternalTextureImpl a b
 
 -- createBindGroupLayout
 
-foreign import createBindGroupLayoutImpl
-  :: GPUDevice
-  -> GPUBindGroupLayoutDescriptor
-  -> Effect GPUBindGroupLayout
-
+foreign import createBindGroupLayoutImpl :: EffectFn2 GPUDevice GPUBindGroupLayoutDescriptor  GPUBindGroupLayout
 createBindGroupLayout
   :: GPUDevice
   -> GPUBindGroupLayoutDescriptor
   -> Effect GPUBindGroupLayout
-createBindGroupLayout = createBindGroupLayoutImpl
+createBindGroupLayout a b = runEffectFn2 createBindGroupLayoutImpl a b
 
 -- createPipelineLayout
 
-foreign import createPipelineLayoutImpl
-  :: GPUDevice -> GPUPipelineLayoutDescriptor -> Effect GPUPipelineLayout
-
+foreign import createPipelineLayoutImpl :: EffectFn2 GPUDevice GPUPipelineLayoutDescriptor  GPUPipelineLayout
 createPipelineLayout
   :: GPUDevice
   -> GPUPipelineLayoutDescriptor
   -> Effect GPUPipelineLayout
-createPipelineLayout = createPipelineLayoutImpl
+createPipelineLayout a b = runEffectFn2 createPipelineLayoutImpl a b
 
 -- createBindGroup
 
-foreign import createBindGroupImpl
-  :: GPUDevice -> GPUBindGroupDescriptor -> Effect GPUBindGroup
-
+foreign import createBindGroupImpl :: EffectFn2 GPUDevice GPUBindGroupDescriptor  GPUBindGroup
 createBindGroup :: GPUDevice -> GPUBindGroupDescriptor -> Effect GPUBindGroup
-createBindGroup = createBindGroupImpl
+createBindGroup a b = runEffectFn2 createBindGroupImpl a b
 
 -- createShaderModule
 
-foreign import createShaderModuleImpl
-  :: GPUDevice -> GPUShaderModuleDescriptor -> Effect GPUShaderModule
-
+foreign import createShaderModuleImpl :: EffectFn2 GPUDevice GPUShaderModuleDescriptor  GPUShaderModule
 createShaderModule
   :: GPUDevice
   -> GPUShaderModuleDescriptor
   -> Effect GPUShaderModule
-createShaderModule = createShaderModuleImpl
+createShaderModule a b = runEffectFn2 createShaderModuleImpl a b
 
 -- createComputePipeline
-foreign import createComputePipelineImpl
-  :: GPUDevice
-  -> GPUComputePipelineDescriptor
-  -> Effect GPUComputePipeline
-
+foreign import createComputePipelineImpl :: EffectFn2 GPUDevice GPUComputePipelineDescriptor  GPUComputePipeline
 createComputePipeline
   :: GPUDevice
   -> GPUComputePipelineDescriptor
   -> Effect GPUComputePipeline
-createComputePipeline = createComputePipelineImpl
+createComputePipeline a b = runEffectFn2 createComputePipelineImpl a b
 
 -- createRenderPipeline
 
-foreign import createRenderPipelineImpl
-  :: GPUDevice
-  -> GPURenderPipelineDescriptor
-  -> Effect GPURenderPipeline
-
+foreign import createRenderPipelineImpl :: EffectFn2 GPUDevice GPURenderPipelineDescriptor  GPURenderPipeline
 createRenderPipeline
   :: GPUDevice
   -> GPURenderPipelineDescriptor
   -> Effect GPURenderPipeline
-createRenderPipeline = createRenderPipelineImpl
+createRenderPipeline a b = runEffectFn2 createRenderPipelineImpl a b
 
 -- createComputePipelineAsnyc
-foreign import createComputePipelineAsyncImpl
-  :: GPUDevice
-  -> GPUComputePipelineDescriptor
-  -> Effect (Promise GPUComputePipeline)
-
+foreign import createComputePipelineAsyncImpl :: EffectFn2 GPUDevice GPUComputePipelineDescriptor  (Promise GPUComputePipeline)
 createComputePipelineAsnyc
   :: GPUDevice
   -> GPUComputePipelineDescriptor
   -> Effect (Promise GPUComputePipeline)
-createComputePipelineAsnyc = createComputePipelineAsyncImpl
+createComputePipelineAsnyc a b = runEffectFn2 createComputePipelineAsyncImpl a b
 
 -- createRenderPipelineAsync
 
-foreign import createRenderPipelineAsyncImpl
-  :: GPUDevice
-  -> GPURenderPipelineDescriptor
-  -> Effect (Promise GPURenderPipeline)
-
+foreign import createRenderPipelineAsyncImpl :: EffectFn2 GPUDevice GPURenderPipelineDescriptor  (Promise GPURenderPipeline)
 createRenderPipelineAsync
   :: GPUDevice
   -> GPURenderPipelineDescriptor
   -> Effect (Promise GPURenderPipeline)
-createRenderPipelineAsync = createRenderPipelineAsyncImpl
+createRenderPipelineAsync a b = runEffectFn2 createRenderPipelineAsyncImpl a b
 
 -- createCommandEncoder
 
-foreign import createCommandEncoderImpl
-  :: GPUDevice -> GPUCommandEncoderDescriptor -> Effect GPUCommandEncoder
-
+foreign import createCommandEncoderImpl :: EffectFn2 GPUDevice GPUCommandEncoderDescriptor  GPUCommandEncoder
 createCommandEncoder
   :: GPUDevice -> GPUCommandEncoderDescriptor -> Effect GPUCommandEncoder
-createCommandEncoder = createCommandEncoderImpl
+createCommandEncoder a b = runEffectFn2 createCommandEncoderImpl a b
 
 -- createRenderBundleEncoder
 
-foreign import createRenderBundleEncoderImpl
-  :: GPUDevice -> GPURenderBundleEncoderDescriptor -> Effect GPUBuffer
-
+foreign import createRenderBundleEncoderImpl :: EffectFn2 GPUDevice GPURenderBundleEncoderDescriptor  GPUBuffer
 createRenderBundleEncoder
   :: GPUDevice
   -> GPURenderBundleEncoderDescriptor
   -> Effect GPUBuffer
-createRenderBundleEncoder = createRenderBundleEncoderImpl
+createRenderBundleEncoder a b = runEffectFn2 createRenderBundleEncoderImpl a b
 
 -- createQuerySet
 
-foreign import createQuerySetImpl
-  :: GPUDevice -> GPUQuerySetDescriptor -> Effect GPUQuerySet
-
+foreign import createQuerySetImpl :: EffectFn2 GPUDevice GPUQuerySetDescriptor  GPUQuerySet
 createQuerySet :: GPUDevice -> GPUQuerySetDescriptor -> Effect GPUQuerySet
-createQuerySet = createQuerySetImpl
+createQuerySet a b = runEffectFn2 createQuerySetImpl a b
 
 toEventTarget :: GPUDevice -> EventTarget
 toEventTarget = unsafeCoerce

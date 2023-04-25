@@ -87,6 +87,7 @@ import Prelude
 
 import Data.ArrayBuffer.Types (Uint32Array)
 import Effect (Effect)
+import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, EffectFn4, EffectFn5, EffectFn6, runEffectFn1, runEffectFn2, runEffectFn3, runEffectFn4, runEffectFn5, runEffectFn6)
 import Web.GPU.GPUBindGroup (GPUBindGroup)
 import Web.GPU.GPUBuffer (GPUBuffer)
 import Web.GPU.GPUIndexFormat (GPUIndexFormat)
@@ -97,66 +98,39 @@ import Web.GPU.Internal.Types (GPUBufferDynamicOffset, GPUIndex32, GPUSignedOffs
 
 data GPURenderBundleEncoder
 
-foreign import finishImpl
-  :: GPURenderBundleEncoder
-  -> GPURenderBundleDescriptor
-  -> Effect GPURenderBundle
-
+foreign import finishImpl :: EffectFn2 GPURenderBundleEncoder GPURenderBundleDescriptor  GPURenderBundle
 finish
   ∷ GPURenderBundleEncoder -> GPURenderBundleDescriptor → Effect GPURenderBundle
-finish = finishImpl
+finish a b = runEffectFn2 finishImpl a b
 
-foreign import setPipelineImpl
-  :: GPURenderBundleEncoder -> GPURenderPipeline -> Effect Unit
-
+foreign import setPipelineImpl :: EffectFn2 GPURenderBundleEncoder GPURenderPipeline  Unit
 setPipeline :: GPURenderBundleEncoder -> GPURenderPipeline -> Effect Unit
-setPipeline = setPipelineImpl
+setPipeline a b = runEffectFn2 setPipelineImpl a b
 
-foreign import setIndexBufferImpl
-  :: GPURenderBundleEncoder -> GPUBuffer -> GPUIndexFormat -> Effect Unit
-
+foreign import setIndexBufferImpl :: EffectFn3 GPURenderBundleEncoder GPUBuffer GPUIndexFormat  Unit
 setIndexBuffer
   :: GPURenderBundleEncoder -> GPUBuffer -> GPUIndexFormat -> Effect Unit
-setIndexBuffer = setIndexBufferImpl
+setIndexBuffer a b c = runEffectFn3 setIndexBufferImpl a b c
 
-foreign import setIndexBufferWithSizeImpl
-  :: GPURenderBundleEncoder
-  -> GPUBuffer
-  -> GPUIndexFormat
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import setIndexBufferWithSizeImpl :: EffectFn4 GPURenderBundleEncoder GPUBuffer GPUIndexFormat GPUSize64  Unit
 setIndexBufferWithSize
   :: GPURenderBundleEncoder
   -> GPUBuffer
   -> GPUIndexFormat
   -> GPUSize64
   -> Effect Unit
-setIndexBufferWithSize = setIndexBufferWithSizeImpl
+setIndexBufferWithSize a b c d = runEffectFn4 setIndexBufferWithSizeImpl a b c d
 
-foreign import setIndexBufferWithOffsetImpl
-  :: GPURenderBundleEncoder
-  -> GPUBuffer
-  -> GPUIndexFormat
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import setIndexBufferWithOffsetImpl :: EffectFn4 GPURenderBundleEncoder GPUBuffer GPUIndexFormat GPUSize64  Unit
 setIndexBufferWithOffset
   :: GPURenderBundleEncoder
   -> GPUBuffer
   -> GPUIndexFormat
   -> GPUSize64
   -> Effect Unit
-setIndexBufferWithOffset = setIndexBufferWithOffsetImpl
+setIndexBufferWithOffset a b c d = runEffectFn4 setIndexBufferWithOffsetImpl a b c d
 
-foreign import setIndexBufferWithOffsetAndSizeImpl
-  :: GPURenderBundleEncoder
-  -> GPUBuffer
-  -> GPUIndexFormat
-  -> GPUSize64
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import setIndexBufferWithOffsetAndSizeImpl :: EffectFn5 GPURenderBundleEncoder GPUBuffer GPUIndexFormat GPUSize64 GPUSize64  Unit
 setIndexBufferWithOffsetAndSize
   :: GPURenderBundleEncoder
   -> GPUBuffer
@@ -164,53 +138,32 @@ setIndexBufferWithOffsetAndSize
   -> GPUSize64
   -> GPUSize64
   -> Effect Unit
-setIndexBufferWithOffsetAndSize = setIndexBufferWithOffsetAndSizeImpl
+setIndexBufferWithOffsetAndSize a b c d e = runEffectFn5 setIndexBufferWithOffsetAndSizeImpl a b c d e
 
-foreign import setVertexBufferImpl
-  :: GPURenderBundleEncoder -> GPUIndex32 -> GPUBuffer -> Effect Unit
-
+foreign import setVertexBufferImpl :: EffectFn3 GPURenderBundleEncoder GPUIndex32 GPUBuffer  Unit
 setVertexBuffer
   :: GPURenderBundleEncoder -> GPUIndex32 -> GPUBuffer -> Effect Unit
-setVertexBuffer = setVertexBufferImpl
+setVertexBuffer a b c = runEffectFn3 setVertexBufferImpl a b c
 
-foreign import setVertexBufferWithOffsetImpl
-  :: GPURenderBundleEncoder
-  -> GPUIndex32
-  -> GPUBuffer
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import setVertexBufferWithOffsetImpl :: EffectFn4 GPURenderBundleEncoder GPUIndex32 GPUBuffer GPUSize64  Unit
 setVertexBufferWithOffset
   :: GPURenderBundleEncoder
   -> GPUIndex32
   -> GPUBuffer
   -> GPUSize64
   -> Effect Unit
-setVertexBufferWithOffset = setVertexBufferWithOffsetImpl
+setVertexBufferWithOffset a b c d = runEffectFn4 setVertexBufferWithOffsetImpl a b c d
 
-foreign import setVertexBufferWithSizeImpl
-  :: GPURenderBundleEncoder
-  -> GPUIndex32
-  -> GPUBuffer
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import setVertexBufferWithSizeImpl :: EffectFn4 GPURenderBundleEncoder GPUIndex32 GPUBuffer GPUSize64  Unit
 setVertexBufferWithSize
   :: GPURenderBundleEncoder
   -> GPUIndex32
   -> GPUBuffer
   -> GPUSize64
   -> Effect Unit
-setVertexBufferWithSize = setVertexBufferWithSizeImpl
+setVertexBufferWithSize a b c d = runEffectFn4 setVertexBufferWithSizeImpl a b c d
 
-foreign import setVertexBufferWithOffsetAndSizeImpl
-  :: GPURenderBundleEncoder
-  -> GPUIndex32
-  -> GPUBuffer
-  -> GPUSize64
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import setVertexBufferWithOffsetAndSizeImpl :: EffectFn5 GPURenderBundleEncoder GPUIndex32 GPUBuffer GPUSize64 GPUSize64  Unit
 setVertexBufferWithOffsetAndSize
   :: GPURenderBundleEncoder
   -> GPUIndex32
@@ -218,88 +171,56 @@ setVertexBufferWithOffsetAndSize
   -> GPUSize64
   -> GPUSize64
   -> Effect Unit
-setVertexBufferWithOffsetAndSize = setVertexBufferWithOffsetAndSizeImpl
+setVertexBufferWithOffsetAndSize a b c d e = runEffectFn5 setVertexBufferWithOffsetAndSizeImpl a b c d e
 
-foreign import drawImpl :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-
+foreign import drawImpl :: EffectFn2 GPURenderBundleEncoder GPUSize32  Unit
 draw :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-draw = drawImpl
+draw a b = runEffectFn2 drawImpl a b
 
-foreign import drawWithInstanceCountImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-
+foreign import drawWithInstanceCountImpl :: EffectFn3 GPURenderBundleEncoder GPUSize32 GPUSize32  Unit
 drawWithInstanceCount
   :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-drawWithInstanceCount = drawWithInstanceCountImpl
+drawWithInstanceCount a b c = runEffectFn3 drawWithInstanceCountImpl a b c
 
-foreign import drawWithFirstVertexImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-
+foreign import drawWithFirstVertexImpl :: EffectFn2 GPURenderBundleEncoder GPUSize32  Unit
 drawWithFirstVertex
   :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-drawWithFirstVertex = drawWithFirstVertexImpl
+drawWithFirstVertex a b = runEffectFn2 drawWithFirstVertexImpl a b
 
-foreign import drawWithFirstInstanceImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-
+foreign import drawWithFirstInstanceImpl :: EffectFn2 GPURenderBundleEncoder GPUSize32  Unit
 drawWithFirstInstance
   :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-drawWithFirstInstance = drawWithFirstInstanceImpl
+drawWithFirstInstance a b = runEffectFn2 drawWithFirstInstanceImpl a b
 
-foreign import drawWithInstanceCountAndFirstVertexImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawWithInstanceCountAndFirstVertexImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32  Unit
 drawWithInstanceCountAndFirstVertex
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawWithInstanceCountAndFirstVertex = drawWithInstanceCountAndFirstVertexImpl
+drawWithInstanceCountAndFirstVertex a b c d = runEffectFn4 drawWithInstanceCountAndFirstVertexImpl a b c d
 
-foreign import drawWithInstanceCountAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawWithInstanceCountAndFirstInstanceImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32  Unit
 drawWithInstanceCountAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawWithInstanceCountAndFirstInstance =
-  drawWithInstanceCountAndFirstInstanceImpl
+drawWithInstanceCountAndFirstInstance a b c d =
+  runEffectFn4 drawWithInstanceCountAndFirstInstanceImpl a b c d
 
-foreign import drawWithFirstVertexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawWithFirstVertexAndFirstInstanceImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32  Unit
 drawWithFirstVertexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawWithFirstVertexAndFirstInstance = drawWithFirstVertexAndFirstInstanceImpl
+drawWithFirstVertexAndFirstInstance a b c d = runEffectFn4 drawWithFirstVertexAndFirstInstanceImpl a b c d
 
-foreign import drawWithInstanceCountAndFirstVertexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawWithInstanceCountAndFirstVertexAndFirstInstanceImpl :: EffectFn5 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32 GPUSize32  Unit
 drawWithInstanceCountAndFirstVertexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
@@ -307,147 +228,94 @@ drawWithInstanceCountAndFirstVertexAndFirstInstance
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawWithInstanceCountAndFirstVertexAndFirstInstance =
-  drawWithInstanceCountAndFirstVertexAndFirstInstanceImpl
+drawWithInstanceCountAndFirstVertexAndFirstInstance a b c d e =
+  runEffectFn5 drawWithInstanceCountAndFirstVertexAndFirstInstanceImpl a b c d e
 
-foreign import drawIndexedImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-
+foreign import drawIndexedImpl :: EffectFn2 GPURenderBundleEncoder GPUSize32  Unit
 drawIndexed :: GPURenderBundleEncoder -> GPUSize32 -> Effect Unit
-drawIndexed = drawIndexedImpl
+drawIndexed a b = runEffectFn2 drawIndexedImpl a b
 
-foreign import drawIndexedWithInstanceCountImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountImpl :: EffectFn3 GPURenderBundleEncoder GPUSize32 GPUSize32  Unit
 drawIndexedWithInstanceCount
   :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-drawIndexedWithInstanceCount = drawIndexedWithInstanceCountImpl
+drawIndexedWithInstanceCount a b c = runEffectFn3 drawIndexedWithInstanceCountImpl a b c
 
-foreign import drawIndexedWithFirstIndexImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-
+foreign import drawIndexedWithFirstIndexImpl :: EffectFn3 GPURenderBundleEncoder GPUSize32 GPUSize32  Unit
 drawIndexedWithFirstIndex
   :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-drawIndexedWithFirstIndex = drawIndexedWithFirstIndexImpl
+drawIndexedWithFirstIndex a b c = runEffectFn3 drawIndexedWithFirstIndexImpl a b c
 
-foreign import drawIndexedWithBaseVertexImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> GPUSignedOffset32 -> Effect Unit
-
+foreign import drawIndexedWithBaseVertexImpl :: EffectFn3 GPURenderBundleEncoder GPUSize32 GPUSignedOffset32  Unit
 drawIndexedWithBaseVertex
   :: GPURenderBundleEncoder -> GPUSize32 -> GPUSignedOffset32 -> Effect Unit
-drawIndexedWithBaseVertex = drawIndexedWithBaseVertexImpl
+drawIndexedWithBaseVertex a b c = runEffectFn3 drawIndexedWithBaseVertexImpl a b c
 
-foreign import drawIndexedWithFirstInstanceImpl
-  :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-
+foreign import drawIndexedWithFirstInstanceImpl :: EffectFn3 GPURenderBundleEncoder GPUSize32 GPUSize32  Unit
 drawIndexedWithFirstInstance
   :: GPURenderBundleEncoder -> GPUSize32 -> GPUSize32 -> Effect Unit
-drawIndexedWithFirstInstance = drawIndexedWithFirstInstanceImpl
+drawIndexedWithFirstInstance a b c = runEffectFn3 drawIndexedWithFirstInstanceImpl a b c
 
-foreign import drawIndexedWithInstanceCountAndFirstIndexImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountAndFirstIndexImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32  Unit
 drawIndexedWithInstanceCountAndFirstIndex
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithInstanceCountAndFirstIndex =
-  drawIndexedWithInstanceCountAndFirstIndexImpl
+drawIndexedWithInstanceCountAndFirstIndex a b c d =
+  runEffectFn4 drawIndexedWithInstanceCountAndFirstIndexImpl a b c d
 
-foreign import drawIndexedWithInstanceCountAndBaseVertexImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSignedOffset32
-  -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountAndBaseVertexImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSignedOffset32  Unit
 drawIndexedWithInstanceCountAndBaseVertex
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSignedOffset32
   -> Effect Unit
-drawIndexedWithInstanceCountAndBaseVertex =
-  drawIndexedWithInstanceCountAndBaseVertexImpl
+drawIndexedWithInstanceCountAndBaseVertex a b c d =
+  runEffectFn4 drawIndexedWithInstanceCountAndBaseVertexImpl a b c d
 
-foreign import drawIndexedWithInstanceCountAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountAndFirstInstanceImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32  Unit
 drawIndexedWithInstanceCountAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithInstanceCountAndFirstInstance =
-  drawIndexedWithInstanceCountAndFirstInstanceImpl
+drawIndexedWithInstanceCountAndFirstInstance a b c d =
+  runEffectFn4 drawIndexedWithInstanceCountAndFirstInstanceImpl a b c d
 
-foreign import drawIndexedWithFirstIndexAndBaseVertexImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSignedOffset32
-  -> Effect Unit
-
+foreign import drawIndexedWithFirstIndexAndBaseVertexImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSignedOffset32  Unit
 drawIndexedWithFirstIndexAndBaseVertex
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSignedOffset32
   -> Effect Unit
-drawIndexedWithFirstIndexAndBaseVertex =
-  drawIndexedWithFirstIndexAndBaseVertexImpl
+drawIndexedWithFirstIndexAndBaseVertex a b c d =
+  runEffectFn4 drawIndexedWithFirstIndexAndBaseVertexImpl a b c d
 
-foreign import drawIndexedWithFirstIndexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithFirstIndexAndFirstInstanceImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32  Unit
 drawIndexedWithFirstIndexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithFirstIndexAndFirstInstance =
-  drawIndexedWithFirstIndexAndFirstInstanceImpl
+drawIndexedWithFirstIndexAndFirstInstance a b c d =
+  runEffectFn4 drawIndexedWithFirstIndexAndFirstInstanceImpl a b c d
 
-foreign import drawIndexedWithBaseVertexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSignedOffset32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithBaseVertexAndFirstInstanceImpl :: EffectFn4 GPURenderBundleEncoder GPUSize32 GPUSignedOffset32 GPUSize32  Unit
 drawIndexedWithBaseVertexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
   -> GPUSignedOffset32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithBaseVertexAndFirstInstance =
-  drawIndexedWithBaseVertexAndFirstInstanceImpl
+drawIndexedWithBaseVertexAndFirstInstance a b c d =
+  runEffectFn4 drawIndexedWithBaseVertexAndFirstInstanceImpl a b c d
 
-foreign import drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSignedOffset32
-  -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexImpl :: EffectFn5 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32 GPUSignedOffset32  Unit
 drawIndexedWithInstanceCountAndFirstIndexAndBaseVertex
   :: GPURenderBundleEncoder
   -> GPUSize32
@@ -455,17 +323,10 @@ drawIndexedWithInstanceCountAndFirstIndexAndBaseVertex
   -> GPUSize32
   -> GPUSignedOffset32
   -> Effect Unit
-drawIndexedWithInstanceCountAndFirstIndexAndBaseVertex =
-  drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexImpl
+drawIndexedWithInstanceCountAndFirstIndexAndBaseVertex a b c d e =
+  runEffectFn5 drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexImpl a b c d e
 
-foreign import drawIndexedWithInstanceCountAndFirstIndexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountAndFirstIndexAndFirstInstanceImpl :: EffectFn5 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32 GPUSize32  Unit
 drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
@@ -473,17 +334,10 @@ drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance
   -> GPUSize32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance =
-  drawIndexedWithInstanceCountAndFirstIndexAndFirstInstanceImpl
+drawIndexedWithInstanceCountAndFirstIndexAndFirstInstance a b c d e = runEffectFn5
+  drawIndexedWithInstanceCountAndFirstIndexAndFirstInstanceImpl a b c d e
 
-foreign import drawIndexedWithFirstIndexAndBaseVertexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSignedOffset32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithFirstIndexAndBaseVertexAndFirstInstanceImpl :: EffectFn5 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSignedOffset32 GPUSize32  Unit
 drawIndexedWithFirstIndexAndBaseVertexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
@@ -491,18 +345,10 @@ drawIndexedWithFirstIndexAndBaseVertexAndFirstInstance
   -> GPUSignedOffset32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithFirstIndexAndBaseVertexAndFirstInstance =
-  drawIndexedWithFirstIndexAndBaseVertexAndFirstInstanceImpl
+drawIndexedWithFirstIndexAndBaseVertexAndFirstInstance a b c d e =
+  runEffectFn5 drawIndexedWithFirstIndexAndBaseVertexAndFirstInstanceImpl a b c d e
 
-foreign import drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstanceImpl
-  :: GPURenderBundleEncoder
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSize32
-  -> GPUSignedOffset32
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstanceImpl :: EffectFn6 GPURenderBundleEncoder GPUSize32 GPUSize32 GPUSize32 GPUSignedOffset32 GPUSize32  Unit
 drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstance
   :: GPURenderBundleEncoder
   -> GPUSize32
@@ -511,53 +357,33 @@ drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstance
   -> GPUSignedOffset32
   -> GPUSize32
   -> Effect Unit
-drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstance =
-  drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstanceImpl
+drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstance a b c d e f =
+  runEffectFn6 drawIndexedWithInstanceCountAndFirstIndexAndBaseVertexAndFirstInstanceImpl a b c d e f
 
-foreign import drawIndirectImpl
-  :: GPURenderBundleEncoder -> GPUBuffer -> GPUSize64 -> Effect Unit
-
+foreign import drawIndirectImpl :: EffectFn3 GPURenderBundleEncoder GPUBuffer GPUSize64  Unit
 drawIndirect :: GPURenderBundleEncoder -> GPUBuffer -> GPUSize64 -> Effect Unit
-drawIndirect = drawIndirectImpl
+drawIndirect a b c = runEffectFn3 drawIndirectImpl a b c
 
-foreign import drawIndexedIndirectImpl
-  :: GPURenderBundleEncoder -> GPUBuffer -> GPUSize64 -> Effect Unit
-
+foreign import drawIndexedIndirectImpl :: EffectFn3 GPURenderBundleEncoder GPUBuffer GPUSize64  Unit
 drawIndexedIndirect
   :: GPURenderBundleEncoder -> GPUBuffer -> GPUSize64 -> Effect Unit
-drawIndexedIndirect = drawIndexedIndirectImpl
+drawIndexedIndirect a b c = runEffectFn3 drawIndexedIndirectImpl a b c
 
-foreign import setBindGroupImpl
-  :: GPURenderBundleEncoder -> GPUIndex32 -> GPUBindGroup -> Effect Unit
-
+foreign import setBindGroupImpl :: EffectFn3 GPURenderBundleEncoder GPUIndex32 GPUBindGroup  Unit
 setBindGroup
   :: GPURenderBundleEncoder -> GPUIndex32 -> GPUBindGroup -> Effect Unit
-setBindGroup = setBindGroupImpl
+setBindGroup a b c = runEffectFn3 setBindGroupImpl a b c
 
-foreign import setBindGroupWithDynamicOffsetsImpl
-  :: GPURenderBundleEncoder
-  -> GPUIndex32
-  -> GPUBindGroup
-  -> Array GPUBufferDynamicOffset
-  -> Effect Unit
-
+foreign import setBindGroupWithDynamicOffsetsImpl :: EffectFn4 GPURenderBundleEncoder GPUIndex32 GPUBindGroup (Array GPUBufferDynamicOffset)  Unit
 setBindGroupWithDynamicOffsets
   :: GPURenderBundleEncoder
   -> GPUIndex32
   -> GPUBindGroup
   -> Array GPUBufferDynamicOffset
   -> Effect Unit
-setBindGroupWithDynamicOffsets = setBindGroupWithDynamicOffsetsImpl
+setBindGroupWithDynamicOffsets a b c d = runEffectFn4 setBindGroupWithDynamicOffsetsImpl a b c d
 
-foreign import setBindGroupWithDyanmicOffsetBoundsImpl
-  :: GPURenderBundleEncoder
-  -> GPUIndex32
-  -> GPUBindGroup
-  -> Uint32Array
-  -> GPUSize64
-  -> GPUSize32
-  -> Effect Unit
-
+foreign import setBindGroupWithDyanmicOffsetBoundsImpl :: EffectFn6 GPURenderBundleEncoder GPUIndex32 GPUBindGroup Uint32Array GPUSize64 GPUSize32  Unit
 setBindGroupWithDyanmicOffsetBounds
   :: GPURenderBundleEncoder
   -> GPUIndex32
@@ -566,21 +392,16 @@ setBindGroupWithDyanmicOffsetBounds
   -> GPUSize64
   -> GPUSize32
   -> Effect Unit
-setBindGroupWithDyanmicOffsetBounds = setBindGroupWithDyanmicOffsetBoundsImpl
+setBindGroupWithDyanmicOffsetBounds a b c d e f = runEffectFn6 setBindGroupWithDyanmicOffsetBoundsImpl a b c d e f
 
-foreign import pushDebugGroupImpl
-  :: GPURenderBundleEncoder -> String -> Effect Unit
-
+foreign import pushDebugGroupImpl :: EffectFn2 GPURenderBundleEncoder String  Unit
 pushDebugGroup :: GPURenderBundleEncoder -> String -> Effect Unit
-pushDebugGroup = pushDebugGroupImpl
+pushDebugGroup a b = runEffectFn2 pushDebugGroupImpl a b
 
-foreign import popDebugGroupImpl :: GPURenderBundleEncoder -> Effect Unit
-
+foreign import popDebugGroupImpl :: EffectFn1 GPURenderBundleEncoder  Unit
 popDebugGroup :: GPURenderBundleEncoder -> Effect Unit
-popDebugGroup = popDebugGroupImpl
+popDebugGroup a = runEffectFn1 popDebugGroupImpl a
 
-foreign import insertDebugMarkerImpl
-  :: GPURenderBundleEncoder -> String -> Effect Unit
-
+foreign import insertDebugMarkerImpl :: EffectFn2 GPURenderBundleEncoder String  Unit
 insertDebugMarker :: GPURenderBundleEncoder -> String -> Effect Unit
-insertDebugMarker = insertDebugMarkerImpl
+insertDebugMarker a b = runEffectFn2 insertDebugMarkerImpl a b

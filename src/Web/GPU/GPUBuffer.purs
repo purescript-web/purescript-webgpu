@@ -29,6 +29,7 @@ module Web.GPU.GPUBuffer
   ) where
 
 import Prelude
+import Effect.Uncurried(EffectFn1, runEffectFn1,EffectFn2, runEffectFn2,EffectFn3, runEffectFn3,EffectFn4, runEffectFn4)
 
 import Data.ArrayBuffer.Types (ArrayBuffer)
 import Effect (Effect)
@@ -40,77 +41,58 @@ import Web.Promise (Promise)
 
 data GPUBuffer
 
-foreign import sizeImpl :: GPUBuffer -> Effect GPUSize64
-
+foreign import sizeImpl :: EffectFn1 GPUBuffer  GPUSize64
 size :: GPUBuffer -> Effect GPUSize64
-size = sizeImpl
+size a = runEffectFn1 sizeImpl a
 
-foreign import usageImpl :: GPUBuffer -> Effect GPUBufferUsage
-
+foreign import usageImpl :: EffectFn1 GPUBuffer  GPUBufferUsage
 usage :: GPUBuffer -> Effect GPUBufferUsage
-usage = usageImpl
+usage a = runEffectFn1 usageImpl a
 
-foreign import mapStateImpl :: GPUBuffer -> Effect GPUBufferMapState
-
+foreign import mapStateImpl :: EffectFn1 GPUBuffer  GPUBufferMapState
 mapState :: GPUBuffer -> Effect GPUBufferMapState
-mapState = mapStateImpl
+mapState a = runEffectFn1 mapStateImpl a
 
-foreign import mapAsyncImpl :: GPUBuffer -> GPUMapMode -> Effect (Promise Unit)
-
+foreign import mapAsyncImpl :: EffectFn2 GPUBuffer GPUMapMode  (Promise Unit)
 mapAsync :: GPUBuffer -> GPUMapMode -> Effect (Promise Unit)
-mapAsync = mapAsyncImpl
+mapAsync a b = runEffectFn2 mapAsyncImpl a b
 
-foreign import mapAsyncWithOffsetImpl
-  :: GPUBuffer -> GPUMapMode -> GPUSize64 -> Effect (Promise Unit)
-
+foreign import mapAsyncWithOffsetImpl :: EffectFn3 GPUBuffer GPUMapMode GPUSize64  (Promise Unit)
 mapAsyncWithOffset
   :: GPUBuffer -> GPUMapMode -> GPUSize64 -> Effect (Promise Unit)
-mapAsyncWithOffset = mapAsyncWithOffsetImpl
+mapAsyncWithOffset a b c = runEffectFn3 mapAsyncWithOffsetImpl a b c
 
-foreign import mapAsyncWithSizeImpl
-  :: GPUBuffer -> GPUMapMode -> GPUSize64 -> Effect (Promise Unit)
-
+foreign import mapAsyncWithSizeImpl :: EffectFn3 GPUBuffer GPUMapMode GPUSize64  (Promise Unit)
 mapAsyncWithSize
   :: GPUBuffer -> GPUMapMode -> GPUSize64 -> Effect (Promise Unit)
-mapAsyncWithSize = mapAsyncWithSizeImpl
+mapAsyncWithSize a b c = runEffectFn3 mapAsyncWithSizeImpl a b c
 
-foreign import mapAsyncWithOffsetAndSizeImpl
-  :: GPUBuffer -> GPUMapMode -> GPUSize64 -> GPUSize64 -> Effect (Promise Unit)
-
+foreign import mapAsyncWithOffsetAndSizeImpl :: EffectFn4 GPUBuffer GPUMapMode GPUSize64 GPUSize64  (Promise Unit)
 mapAsyncWithOffsetAndSize
   :: GPUBuffer -> GPUMapMode -> GPUSize64 -> GPUSize64 -> Effect (Promise Unit)
-mapAsyncWithOffsetAndSize = mapAsyncWithOffsetAndSizeImpl
+mapAsyncWithOffsetAndSize a b c d = runEffectFn4 mapAsyncWithOffsetAndSizeImpl a b c d
 
-foreign import getMappedRangeImpl :: GPUBuffer -> Effect ArrayBuffer
-
+foreign import getMappedRangeImpl :: EffectFn1 GPUBuffer  ArrayBuffer
 getMappedRange :: GPUBuffer -> Effect ArrayBuffer
-getMappedRange = getMappedRangeImpl
+getMappedRange a = runEffectFn1 getMappedRangeImpl a
 
-foreign import getMappedRangeWithOffsetImpl
-  :: GPUBuffer -> GPUSize64 -> Effect ArrayBuffer
-
+foreign import getMappedRangeWithOffsetImpl :: EffectFn2 GPUBuffer GPUSize64  ArrayBuffer
 getMappedRangeWithOffset :: GPUBuffer -> GPUSize64 -> Effect ArrayBuffer
-getMappedRangeWithOffset = getMappedRangeWithOffsetImpl
+getMappedRangeWithOffset a b = runEffectFn2 getMappedRangeWithOffsetImpl a b
 
-foreign import getMappedRangeWithSizeImpl
-  :: GPUBuffer -> GPUSize64 -> Effect ArrayBuffer
-
+foreign import getMappedRangeWithSizeImpl :: EffectFn2 GPUBuffer GPUSize64  ArrayBuffer
 getMappedRangeWithSize :: GPUBuffer -> GPUSize64 -> Effect ArrayBuffer
-getMappedRangeWithSize = getMappedRangeWithSizeImpl
+getMappedRangeWithSize a b = runEffectFn2 getMappedRangeWithSizeImpl a b
 
-foreign import getMappedRangeWithOffsetAndSizeImpl
-  :: GPUBuffer -> GPUSize64 -> GPUSize64 -> Effect ArrayBuffer
-
+foreign import getMappedRangeWithOffsetAndSizeImpl :: EffectFn3 GPUBuffer GPUSize64 GPUSize64  ArrayBuffer
 getMappedRangeWithOffsetAndSize
   :: GPUBuffer -> GPUSize64 -> GPUSize64 -> Effect ArrayBuffer
-getMappedRangeWithOffsetAndSize = getMappedRangeWithOffsetAndSizeImpl
+getMappedRangeWithOffsetAndSize a b c = runEffectFn3 getMappedRangeWithOffsetAndSizeImpl a b c
 
-foreign import unmapImpl :: GPUBuffer -> Effect Unit
-
+foreign import unmapImpl :: EffectFn1 GPUBuffer  Unit
 unmap :: GPUBuffer -> Effect Unit
-unmap = unmapImpl
+unmap a = runEffectFn1 unmapImpl a
 
-foreign import destroyImpl :: GPUBuffer -> Effect Unit
-
+foreign import destroyImpl :: EffectFn1 GPUBuffer  Unit
 destroy :: GPUBuffer -> Effect Unit
-destroy = destroyImpl
+destroy a = runEffectFn1 destroyImpl a

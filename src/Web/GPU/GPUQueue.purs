@@ -18,6 +18,7 @@ module Web.GPU.GPUQueue
   ) where
 
 import Prelude
+import Effect.Uncurried(EffectFn1, runEffectFn1,EffectFn2, runEffectFn2,EffectFn4, runEffectFn4,EffectFn5, runEffectFn5,EffectFn6, runEffectFn6)
 
 import Effect (Effect)
 import Web.GPU.BufferSource (BufferSource)
@@ -33,67 +34,34 @@ import Web.Promise (Promise)
 
 data GPUQueue
 
-foreign import submitImpl :: GPUQueue -> Array GPUCommandBuffer -> Effect Unit
-
+foreign import submitImpl :: EffectFn2 GPUQueue (Array GPUCommandBuffer)  Unit
 submit ∷ GPUQueue → Array GPUCommandBuffer → Effect Unit
-submit = submitImpl
+submit a b = runEffectFn2 submitImpl a b
 
-foreign import onSubmittedWorkDoneImpl :: GPUQueue -> Effect (Promise Unit)
-
+foreign import onSubmittedWorkDoneImpl :: EffectFn1 GPUQueue  (Promise Unit)
 onSubmittedWorkDone :: GPUQueue -> Effect (Promise Unit)
-onSubmittedWorkDone = onSubmittedWorkDoneImpl
+onSubmittedWorkDone a = runEffectFn1 onSubmittedWorkDoneImpl a
 
-foreign import writeBufferImpl
-  :: GPUQueue -> GPUBuffer -> GPUSize64 -> BufferSource -> Effect Unit
-
+foreign import writeBufferImpl :: EffectFn4 GPUQueue GPUBuffer GPUSize64 BufferSource  Unit
 writeBuffer :: GPUQueue -> GPUBuffer -> Int -> BufferSource -> Effect Unit
-writeBuffer = writeBufferImpl
+writeBuffer a b c d = runEffectFn4 writeBufferImpl a b c d
 
-foreign import writeBufferWithOffsetImpl
-  :: GPUQueue
-  -> GPUBuffer
-  -> GPUSize64
-  -> BufferSource
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import writeBufferWithOffsetImpl :: EffectFn5 GPUQueue GPUBuffer GPUSize64 BufferSource GPUSize64  Unit
 writeBufferWithOffset
   :: GPUQueue -> GPUBuffer -> Int -> BufferSource -> Int -> Effect Unit
-writeBufferWithOffset = writeBufferWithOffsetImpl
+writeBufferWithOffset a b c d e = runEffectFn5 writeBufferWithOffsetImpl a b c d e
 
-foreign import writeBufferWithSizeImpl
-  :: GPUQueue
-  -> GPUBuffer
-  -> GPUSize64
-  -> BufferSource
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import writeBufferWithSizeImpl :: EffectFn5 GPUQueue GPUBuffer GPUSize64 BufferSource GPUSize64  Unit
 writeBufferWithSize
   :: GPUQueue -> GPUBuffer -> Int -> BufferSource -> Int -> Effect Unit
-writeBufferWithSize = writeBufferWithSizeImpl
+writeBufferWithSize a b c d e = runEffectFn5 writeBufferWithSizeImpl a b c d e
 
-foreign import writeBufferWithOffsetAndSizeImpl
-  :: GPUQueue
-  -> GPUBuffer
-  -> GPUSize64
-  -> BufferSource
-  -> GPUSize64
-  -> GPUSize64
-  -> Effect Unit
-
+foreign import writeBufferWithOffsetAndSizeImpl :: EffectFn6 GPUQueue GPUBuffer GPUSize64 BufferSource GPUSize64 GPUSize64  Unit
 writeBufferWithOffsetAndSize
   :: GPUQueue -> GPUBuffer -> Int -> BufferSource -> Int -> Int -> Effect Unit
-writeBufferWithOffsetAndSize = writeBufferWithOffsetAndSizeImpl
+writeBufferWithOffsetAndSize a b c d e f = runEffectFn6 writeBufferWithOffsetAndSizeImpl a b c d e f
 
-foreign import writeTextureImpl
-  :: GPUQueue
-  -> GPUImageCopyTexture
-  -> BufferSource
-  -> GPUImageDataLayout
-  -> GPUExtent3D
-  -> Effect Unit
-
+foreign import writeTextureImpl :: EffectFn5 GPUQueue GPUImageCopyTexture BufferSource GPUImageDataLayout GPUExtent3D  Unit
 writeTexture
   :: GPUQueue
   -> GPUImageCopyTexture
@@ -101,19 +69,13 @@ writeTexture
   -> GPUImageDataLayout
   -> GPUExtent3D
   -> Effect Unit
-writeTexture = writeTextureImpl
+writeTexture a b c d e = runEffectFn5 writeTextureImpl a b c d e
 
-foreign import copyExternalImageToTextureImpl
-  :: GPUQueue
-  -> GPUImageCopyExternalImage
-  -> GPUImageCopyTextureTagged
-  -> GPUExtent3D
-  -> Effect Unit
-
+foreign import copyExternalImageToTextureImpl :: EffectFn4 GPUQueue GPUImageCopyExternalImage GPUImageCopyTextureTagged GPUExtent3D  Unit
 copyExternalImageToTexture
   :: GPUQueue
   -> GPUImageCopyExternalImage
   -> GPUImageCopyTextureTagged
   -> GPUExtent3D
   -> Effect Unit
-copyExternalImageToTexture = copyExternalImageToTextureImpl
+copyExternalImageToTexture a b c d = runEffectFn4 copyExternalImageToTextureImpl a b c d

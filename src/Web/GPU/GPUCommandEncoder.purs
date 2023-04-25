@@ -34,6 +34,7 @@ module Web.GPU.GPUCommandEncoder
   ) where
 
 import Prelude
+import Effect.Uncurried(EffectFn1, runEffectFn1)
 
 import Effect (Effect)
 import Effect.Uncurried (EffectFn2, EffectFn3, EffectFn4, EffectFn6, runEffectFn2, runEffectFn3, runEffectFn4, runEffectFn6)
@@ -173,20 +174,18 @@ resolveQuerySet
   -> Effect Unit
 resolveQuerySet a b c d e f = runEffectFn6 resolveQuerySetImpl a b c d e f
 
-foreign import finishImpl :: GPUCommandEncoder -> Effect GPUCommandBuffer
-
+foreign import finishImpl :: EffectFn1 GPUCommandEncoder  GPUCommandBuffer
 finish :: GPUCommandEncoder -> Effect GPUCommandBuffer
-finish = finishImpl
+finish a = runEffectFn1 finishImpl a
 
 foreign import pushDebugGroupImpl :: EffectFn2 GPUCommandEncoder String Unit
 
 pushDebugGroup :: GPUCommandEncoder -> String -> Effect Unit
 pushDebugGroup a b = runEffectFn2 pushDebugGroupImpl a b
 
-foreign import popDebugGroupImpl :: GPUCommandEncoder -> Effect Unit
-
+foreign import popDebugGroupImpl :: EffectFn1 GPUCommandEncoder  Unit
 popDebugGroup :: GPUCommandEncoder -> Effect Unit
-popDebugGroup = popDebugGroupImpl
+popDebugGroup a = runEffectFn1 popDebugGroupImpl a
 
 foreign import insertDebugMarkerImpl
   :: EffectFn2 GPUCommandEncoder String Unit

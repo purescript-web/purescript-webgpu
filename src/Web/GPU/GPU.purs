@@ -7,6 +7,7 @@ module Web.GPU.GPU
   ) where
 
 import Data.Maybe (Maybe(..))
+import Effect.Uncurried(EffectFn1, runEffectFn1,EffectFn4, runEffectFn4)
 import Effect (Effect)
 import Web.GPU.GPURequestAdapterOptions (GPURequestAdapterOptions)
 import Web.GPU.GPUTextureFormat (GPUTextureFormat)
@@ -17,22 +18,15 @@ data GPU
 
 -- requestAdapter
 
-foreign import requestAdapterImpl
-  :: (GPUAdapter -> Maybe GPUAdapter)
-  -> Maybe GPUAdapter
-  -> GPU
-  -> GPURequestAdapterOptions
-  -> Effect (Promise (Maybe GPUAdapter))
-
+foreign import requestAdapterImpl :: EffectFn4 (GPUAdapter -> Maybe GPUAdapter) (Maybe GPUAdapter) GPU GPURequestAdapterOptions  (Promise (Maybe GPUAdapter))
 requestAdapter
   :: GPU
   -> GPURequestAdapterOptions
   -> Effect (Promise (Maybe GPUAdapter))
-requestAdapter = requestAdapterImpl Just Nothing
+requestAdapter a b = runEffectFn4 requestAdapterImpl Just Nothing a b
 
 -- getPreferredCanvasFormat
 
-foreign import getPreferredCanvasFormatImpl :: GPU -> Effect GPUTextureFormat
-
+foreign import getPreferredCanvasFormatImpl :: EffectFn1 GPU  GPUTextureFormat
 getPreferredCanvasFormat :: GPU -> Effect GPUTextureFormat
-getPreferredCanvasFormat = getPreferredCanvasFormatImpl
+getPreferredCanvasFormat a = runEffectFn1 getPreferredCanvasFormatImpl a

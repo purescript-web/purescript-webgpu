@@ -1,1 +1,1 @@
-export const expiredImpl = texture => () => texture.expired;
+export const expiredImpl = texture => texture.expired;

@@ -14,6 +14,7 @@ module Web.GPU.GPUAdapter
   ) where
 
 import Data.Maybe (Maybe(..))
+import Effect.Uncurried(EffectFn1, runEffectFn1,EffectFn2, runEffectFn2,EffectFn3, runEffectFn3,EffectFn4, runEffectFn4)
 import Data.Set as Set
 import Effect (Effect)
 import Web.GPU.GPUDeviceDescriptor (GPUDeviceDescriptor)
@@ -26,45 +27,30 @@ import Web.Promise (Promise)
 data GPUAdapter
 
 -- features
-foreign import featuresImpl
-  :: (GPUFeatureName -> Set.Set GPUFeatureName -> Set.Set GPUFeatureName)
-  -> Set.Set GPUFeatureName
-  -> GPUAdapter
-  -> Effect (Set.Set GPUFeatureName)
-
+foreign import featuresImpl :: EffectFn3 (GPUFeatureName -> Set.Set GPUFeatureName -> Set.Set GPUFeatureName) (Set.Set GPUFeatureName) GPUAdapter  (Set.Set GPUFeatureName)
 features :: GPUAdapter -> Effect (Set.Set GPUFeatureName)
-features = featuresImpl Set.insert Set.empty
+features a = runEffectFn3 featuresImpl Set.insert Set.empty a
 
-foreign import limitsImpl :: GPUAdapter -> Effect { | GPUSupportedLimits }
-
+foreign import limitsImpl :: EffectFn1 GPUAdapter  { | GPUSupportedLimits }
 limits :: GPUAdapter -> Effect { | GPUSupportedLimits }
-limits = limitsImpl
+limits a = runEffectFn1 limitsImpl a
 
-foreign import isFallbackAdapterImpl :: GPUAdapter -> Effect Boolean
-
+foreign import isFallbackAdapterImpl :: EffectFn1 GPUAdapter  Boolean
 isFallbackAdapter :: GPUAdapter -> Effect Boolean
-isFallbackAdapter = isFallbackAdapterImpl
+isFallbackAdapter a = runEffectFn1 isFallbackAdapterImpl a
 
 -- requestDevice
 
-foreign import requestDeviceImpl
-  :: (GPUDevice -> Maybe GPUDevice)
-  -> Maybe GPUDevice
-  -> GPUAdapter
-  -> GPUDeviceDescriptor
-  -> Effect (Promise (Maybe GPUDevice))
-
+foreign import requestDeviceImpl :: EffectFn4 (GPUDevice -> Maybe GPUDevice)( Maybe GPUDevice) GPUAdapter GPUDeviceDescriptor  (Promise (Maybe GPUDevice))
 requestDevice
   :: GPUAdapter
   -> GPUDeviceDescriptor
   -> Effect (Promise (Maybe GPUDevice))
-requestDevice = requestDeviceImpl Just Nothing
+requestDevice a b= runEffectFn4 requestDeviceImpl Just Nothing a b
 
 -- requestAdapterInfo
 
-foreign import requestAdapterInfoImpl
-  :: GPUAdapter -> Array (UnmaskHint) -> Effect (Promise GPUAdapterInfo)
-
+foreign import requestAdapterInfoImpl :: EffectFn2 GPUAdapter (Array UnmaskHint)  (Promise GPUAdapterInfo)
 type GPUAdapterInfo =
   { vendor :: String
   , architecture :: String
@@ -74,4 +60,4 @@ type GPUAdapterInfo =
 
 requestAdapterInfo
   :: GPUAdapter -> Array UnmaskHint -> Effect (Promise GPUAdapterInfo)
-requestAdapterInfo = requestAdapterInfoImpl
+requestAdapterInfo a b = runEffectFn2 requestAdapterInfoImpl a b

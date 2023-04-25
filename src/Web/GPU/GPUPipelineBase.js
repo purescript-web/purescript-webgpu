@@ -1,2 +1,2 @@
-export const unsafeGetBindGroupLayoutImpl = pipeline => index => () =>
+export const unsafeGetBindGroupLayoutImpl = (pipeline, index) =>
   pipeline.getBindGroupLayout(index);

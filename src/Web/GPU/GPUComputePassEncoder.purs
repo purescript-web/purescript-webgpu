@@ -26,6 +26,7 @@ module Web.GPU.GPUComputePassEncoder
   ) where
 
 import Prelude
+import Effect.Uncurried(EffectFn1, runEffectFn1)
 
 import Data.ArrayBuffer.Types (Uint32Array)
 import Effect (Effect)
@@ -79,10 +80,9 @@ dispatchWorkgroupsIndirect a b c = runEffectFn3
   b
   c
 
-foreign import endImpl :: GPUComputePassEncoder -> Effect Unit
-
+foreign import endImpl :: EffectFn1 GPUComputePassEncoder  Unit
 end :: GPUComputePassEncoder -> Effect Unit
-end = endImpl
+end a = runEffectFn1 endImpl a
 
 foreign import setBindGroupImpl
   :: EffectFn3 GPUComputePassEncoder GPUIndex32 GPUBindGroup Unit
@@ -130,10 +130,9 @@ foreign import pushDebugGroupImpl
 pushDebugGroup :: GPUComputePassEncoder -> String -> Effect Unit
 pushDebugGroup a b = runEffectFn2 pushDebugGroupImpl a b
 
-foreign import popDebugGroupImpl :: GPUComputePassEncoder -> Effect Unit
-
+foreign import popDebugGroupImpl :: EffectFn1 GPUComputePassEncoder  Unit
 popDebugGroup :: GPUComputePassEncoder -> Effect Unit
-popDebugGroup = popDebugGroupImpl
+popDebugGroup a = runEffectFn1 popDebugGroupImpl a
 
 foreign import insertDebugMarkerImpl
   :: EffectFn2 GPUComputePassEncoder String Unit

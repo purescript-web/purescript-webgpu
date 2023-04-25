@@ -7,6 +7,7 @@ import Web.GPU.GPUTextureUsage (GPUTextureUsageFlags)
 import Web.GPU.Internal.RequiredAndOptional (RequiredAndOptional)
 import Web.GPU.PredefinedColorSpace (PredefinedColorSpace)
 import Web.GPU.GPUDevice (GPUDevice)
+
 newtype GPUCanvasConfiguration = GPUCanvasConfiguration
   ( RequiredAndOptional
       ( device :: GPUDevice

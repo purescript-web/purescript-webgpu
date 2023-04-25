@@ -1,6 +1,5 @@
 module Web.GPU.GPUPipelineLayout
   ( GPUPipelineLayout
-  )
-  where
+  ) where
 
 data GPUPipelineLayout

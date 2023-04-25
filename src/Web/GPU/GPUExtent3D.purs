@@ -7,6 +7,7 @@ import Unsafe.Coerce (unsafeCoerce)
 import Web.GPU.Internal.Types (GPUIntegerCoordinate)
 
 data GPUExtent3D
+
 gpuExtent3DW :: GPUIntegerCoordinate -> GPUExtent3D
 gpuExtent3DW w = unsafeCoerce [ w ]
 

@@ -1,6 +1,5 @@
 module Web.GPU.GPURenderBundle
   ( GPURenderBundle
-  )
-  where
+  ) where
 
 data GPURenderBundle

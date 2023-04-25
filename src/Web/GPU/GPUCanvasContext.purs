@@ -11,6 +11,7 @@ module Web.GPU.GPUCanvasContext
   ) where
 
 import Prelude
+import Effect.Uncurried(EffectFn1, runEffectFn1,EffectFn2, runEffectFn2)
 
 import Effect (Effect)
 import Web.GPU.GPUCanvasConfiguration (GPUCanvasConfiguration)
@@ -19,23 +20,18 @@ import Web.HTML (HTMLCanvasElement)
 
 data GPUCanvasContext
 
-foreign import canvasImpl :: GPUCanvasContext -> Effect HTMLCanvasElement
-
+foreign import canvasImpl :: EffectFn1 GPUCanvasContext  HTMLCanvasElement
 canvas :: GPUCanvasContext -> Effect HTMLCanvasElement
-canvas = canvasImpl
+canvas a = runEffectFn1 canvasImpl a
 
-foreign import configureImpl
-  :: GPUCanvasContext -> GPUCanvasConfiguration -> Effect Unit
-
+foreign import configureImpl :: EffectFn2 GPUCanvasContext GPUCanvasConfiguration  Unit
 configure :: GPUCanvasContext -> GPUCanvasConfiguration -> Effect Unit
-configure = configureImpl
+configure a b = runEffectFn2 configureImpl a b
 
-foreign import unconfigureImpl :: GPUCanvasContext -> Effect Unit
-
+foreign import unconfigureImpl :: EffectFn1 GPUCanvasContext  Unit
 unconfigure :: GPUCanvasContext -> Effect Unit
-unconfigure = unconfigureImpl
+unconfigure a = runEffectFn1 unconfigureImpl a
 
-foreign import getCurrentTextureImpl :: GPUCanvasContext -> Effect GPUTexture
-
+foreign import getCurrentTextureImpl :: EffectFn1 GPUCanvasContext  GPUTexture
 getCurrentTexture :: GPUCanvasContext -> Effect GPUTexture
-getCurrentTexture = getCurrentTextureImpl
+getCurrentTexture a = runEffectFn1 getCurrentTextureImpl a

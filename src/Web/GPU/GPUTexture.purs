@@ -25,6 +25,7 @@ module Web.GPU.GPUTexture
   ) where
 
 import Prelude
+import Effect.Uncurried(EffectFn1, runEffectFn1,EffectFn2, runEffectFn2)
 
 import Effect (Effect)
 import Web.GPU.GPUTextureDimension (GPUTextureDimension)
@@ -36,64 +37,51 @@ import Web.GPU.Internal.Types (GPUIntegerCoordinate, GPUSize32)
 
 data GPUTexture
 
-foreign import createViewWithDescriptorImpl
-  :: GPUTexture -> GPUTextureViewDescriptor -> Effect GPUTextureView
-
+foreign import createViewWithDescriptorImpl :: EffectFn2 GPUTexture GPUTextureViewDescriptor  GPUTextureView
 createViewWithDescriptor
   :: GPUTexture
   -> GPUTextureViewDescriptor
   -> Effect GPUTextureView
-createViewWithDescriptor = createViewWithDescriptorImpl
+createViewWithDescriptor a b = runEffectFn2 createViewWithDescriptorImpl a b
 
-foreign import createViewImpl :: GPUTexture -> Effect GPUTextureView
-
+foreign import createViewImpl :: EffectFn1 GPUTexture  GPUTextureView
 createView
   :: GPUTexture
   -> Effect GPUTextureView
-createView = createViewImpl
+createView a = runEffectFn1 createViewImpl a
 
-foreign import destroyImpl :: GPUTexture -> Effect Unit
-
+foreign import destroyImpl :: EffectFn1 GPUTexture  Unit
 destroy :: GPUTexture -> Effect Unit
-destroy = destroyImpl
+destroy a = runEffectFn1 destroyImpl a
 
-foreign import widthImpl :: GPUTexture -> Effect GPUIntegerCoordinate
-
+foreign import widthImpl :: EffectFn1 GPUTexture  GPUIntegerCoordinate
 width :: GPUTexture -> Effect GPUIntegerCoordinate
-width = widthImpl
+width a = runEffectFn1 widthImpl a
 
-foreign import heightImpl :: GPUTexture -> Effect GPUIntegerCoordinate
-
+foreign import heightImpl :: EffectFn1 GPUTexture  GPUIntegerCoordinate
 height :: GPUTexture -> Effect GPUIntegerCoordinate
-height = heightImpl
+height a = runEffectFn1 heightImpl a
 
-foreign import depthOrArrayLayersImpl
-  :: GPUTexture -> Effect GPUIntegerCoordinate
-
+foreign import depthOrArrayLayersImpl :: EffectFn1 GPUTexture  GPUIntegerCoordinate
 depthOrArrayLayers :: GPUTexture -> Effect GPUIntegerCoordinate
-depthOrArrayLayers = depthOrArrayLayersImpl
+depthOrArrayLayers a = runEffectFn1 depthOrArrayLayersImpl a
 
-foreign import mipLevelCountImpl :: GPUTexture -> Effect GPUIntegerCoordinate
-
+foreign import mipLevelCountImpl :: EffectFn1 GPUTexture  GPUIntegerCoordinate
 mipLevelCount :: GPUTexture -> Effect GPUIntegerCoordinate
-mipLevelCount = mipLevelCountImpl
+mipLevelCount a = runEffectFn1 mipLevelCountImpl a
 
-foreign import sampleCountImpl :: GPUTexture -> Effect GPUSize32
-
+foreign import sampleCountImpl :: EffectFn1 GPUTexture  GPUSize32
 sampleCount :: GPUTexture -> Effect GPUSize32
-sampleCount = sampleCountImpl
+sampleCount a = runEffectFn1 sampleCountImpl a
 
-foreign import dimensionImpl :: GPUTexture -> Effect GPUTextureDimension
-
+foreign import dimensionImpl :: EffectFn1 GPUTexture  GPUTextureDimension
 dimension :: GPUTexture -> Effect GPUTextureDimension
-dimension = dimensionImpl
+dimension a = runEffectFn1 dimensionImpl a
 
-foreign import formatImpl :: GPUTexture -> Effect GPUTextureFormat
-
+foreign import formatImpl :: EffectFn1 GPUTexture  GPUTextureFormat
 format :: GPUTexture -> Effect GPUTextureFormat
-format = formatImpl
+format a = runEffectFn1 formatImpl a
 
-foreign import usageImpl :: GPUTexture -> Effect GPUTextureUsage
-
+foreign import usageImpl :: EffectFn1 GPUTexture  GPUTextureUsage
 usage :: GPUTexture -> Effect GPUTextureUsage
-usage = usageImpl
+usage a = runEffectFn1 usageImpl a

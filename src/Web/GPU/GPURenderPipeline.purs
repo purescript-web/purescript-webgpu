@@ -1,6 +1,5 @@
 module Web.GPU.GPURenderPipeline
   ( GPURenderPipeline
-  )
-  where
+  ) where
 
 data GPURenderPipeline

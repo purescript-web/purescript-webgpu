@@ -2,12 +2,11 @@
 module Web.GPU.Navigator (gpu) where
 
 import Data.Maybe (Maybe(..))
+import Effect.Uncurried(EffectFn3, runEffectFn3)
 import Effect (Effect)
 import Web.GPU.GPU (GPU)
 import Web.HTML.Navigator (Navigator)
 
-foreign import gpuImpl
-  :: (GPU -> Maybe GPU) -> Maybe GPU -> Navigator -> Effect (Maybe GPU)
-
+foreign import gpuImpl :: EffectFn3 (GPU -> Maybe GPU) (Maybe GPU) Navigator  (Maybe GPU)
 gpu :: Navigator -> Effect (Maybe GPU)
-gpu = gpuImpl Just Nothing
+gpu a = runEffectFn3 gpuImpl Just Nothing a

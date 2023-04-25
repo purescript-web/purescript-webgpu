@@ -1,6 +1,5 @@
 module Web.GPU.GPUBindGroup
   ( GPUBindGroup
-  )
-  where
+  ) where
 
 data GPUBindGroup

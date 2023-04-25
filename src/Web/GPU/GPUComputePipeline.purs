@@ -1,6 +1,5 @@
 module Web.GPU.GPUComputePipeline
   ( GPUComputePipeline
-  )
-  where
+  ) where
 
 data GPUComputePipeline

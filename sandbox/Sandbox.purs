@@ -86,7 +86,7 @@ import Web.HTML (window)
 import Web.HTML.HTMLCanvasElement (fromElement, height, width)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, navigator, requestAnimationFrame)
-import Web.Promise as Web.Promise
+import Promise as Promise
 
 averager :: forall a. EuclideanRing a => Effect (a -> Effect a)
 averager = do
@@ -105,7 +105,7 @@ hackyFloatConv = unsafeCoerce
 hackyIntConv :: Array Int -> Array UInt
 hackyIntConv = unsafeCoerce
 
-convertPromise :: Web.Promise.Promise ~> Control.Promise.Promise
+convertPromise :: Promise.Promise ~> Control.Promise.Promise
 convertPromise = unsafeCoerce
 
 -- a port of alaingalvan/webgpu-seed
@@ -517,7 +517,7 @@ fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
 @group(0) @binding(0) var<storage, read_write> resultMatrix : array<f32>;
 @group(1) @binding(0) var<storage, read> time : f32;
 fn xyt2trig(x: u32, y: u32, time: f32) -> f32 {
-  const pi = 3.14159; 
+  const pi = 3.14159;
   var o = (x << 1) + y;
   return sin((time * pi) + (f32((o + 1) % 3) * (pi / 2.0)));
 }
@@ -1052,7 +1052,7 @@ fn main(@location(0) inColor: vec3<f32>) -> @location(0) vec4<f32> {
         end passEncoder
         --------
         -- write to output buffer
-        -- we use this as a test 
+        -- we use this as a test
         copyBufferToBuffer commandEncoder perspectiveResultBuffer 0
           buf
           0

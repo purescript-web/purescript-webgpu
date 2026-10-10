@@ -17,14 +17,17 @@ import Web.GPU.Internal.Types (GPUSize32)
 
 data GPUQuerySet
 
-foreign import destroyImpl :: EffectFn1 GPUQuerySet  Unit
+foreign import destroyImpl :: EffectFn1 GPUQuerySet Unit
+
 destroy :: GPUQuerySet -> Effect Unit
 destroy a = runEffectFn1 destroyImpl a
 
-foreign import typeImpl :: EffectFn1 GPUQuerySet  GPUQueryType
+foreign import typeImpl :: EffectFn1 GPUQuerySet GPUQueryType
+
 type' :: GPUQuerySet -> Effect GPUQueryType
 type' a = runEffectFn1 typeImpl a
 
-foreign import countImpl :: EffectFn1 GPUQuerySet  GPUSize32
+foreign import countImpl :: EffectFn1 GPUQuerySet GPUSize32
+
 count :: GPUQuerySet -> Effect Int
 count a = runEffectFn1 countImpl a

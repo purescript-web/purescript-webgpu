@@ -1,9 +1,5 @@
-export const copySrc = window.GPUTextureUsage
-  ? window.GPUTextureUsage.COPY_SRC
-  : 0x0000;
-export const copyDst = window.GPUTextureUsage
-  ? window.GPUTextureUsage.COPY_DST
-  : 0x0000;
+export const copySrc = window.GPUTextureUsage ? window.GPUTextureUsage.COPY_SRC : 0x0000;
+export const copyDst = window.GPUTextureUsage ? window.GPUTextureUsage.COPY_DST : 0x0000;
 export const textureBinding = window.GPUTextureUsage
   ? window.GPUTextureUsage.TEXTURE_BINDING
   : 0x0000;

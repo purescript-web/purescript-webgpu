@@ -7,7 +7,9 @@ import Web.GPU.GPUComputePipeline (GPUComputePipeline)
 import Web.GPU.GPURenderPipeline (GPURenderPipeline)
 import Web.GPU.Internal.Types (UnsignedLong)
 
-foreign import unsafeGetBindGroupLayoutImpl :: forall a. EffectFn2 a UnsignedLong  GPUBindGroupLayout
+foreign import unsafeGetBindGroupLayoutImpl
+  :: forall a. EffectFn2 a UnsignedLong GPUBindGroupLayout
+
 class GPUPipelineBase a where
   getBindGroupLayout :: a -> UnsignedLong -> Effect GPUBindGroupLayout
 

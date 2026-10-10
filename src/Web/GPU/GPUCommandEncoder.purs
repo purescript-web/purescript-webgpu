@@ -59,7 +59,8 @@ beginRenderPass a b = runEffectFn2 beginRenderPassImpl a b
 
 foreign import beginComputePassImpl
   :: EffectFn2 GPUCommandEncoder
-     GPUComputePassDescriptor GPUComputePassEncoder
+       GPUComputePassDescriptor
+       GPUComputePassEncoder
 
 beginComputePass
   :: GPUCommandEncoder
@@ -69,7 +70,12 @@ beginComputePass a b = runEffectFn2 beginComputePassImpl a b
 
 foreign import copyBufferToBufferImpl
   :: EffectFn6 GPUCommandEncoder
-     GPUBuffer GPUSize64 GPUBuffer GPUSize64 GPUSize64 Unit
+       GPUBuffer
+       GPUSize64
+       GPUBuffer
+       GPUSize64
+       GPUSize64
+       Unit
 
 copyBufferToBuffer
   :: GPUCommandEncoder
@@ -84,7 +90,10 @@ copyBufferToBuffer a b c d e f = runEffectFn6 copyBufferToBufferImpl a b c d e
 
 foreign import copyBufferToTextureImpl
   :: EffectFn4 GPUCommandEncoder
-      GPUImageCopyBuffer GPUImageCopyTexture GPUExtent3D Unit
+       GPUImageCopyBuffer
+       GPUImageCopyTexture
+       GPUExtent3D
+       Unit
 
 copyBufferToTexture
   ∷ GPUCommandEncoder
@@ -96,7 +105,10 @@ copyBufferToTexture a b c d = runEffectFn4 copyBufferToTextureImpl a b c d
 
 foreign import copyTextureToBufferImpl
   :: EffectFn4 GPUCommandEncoder
-        GPUImageCopyTexture GPUImageCopyBuffer GPUExtent3D Unit
+       GPUImageCopyTexture
+       GPUImageCopyBuffer
+       GPUExtent3D
+       Unit
 
 copyTextureToBuffer
   :: GPUCommandEncoder
@@ -108,7 +120,10 @@ copyTextureToBuffer a b c d = runEffectFn4 copyTextureToBufferImpl a b c d
 
 foreign import copyTextureToTextureImpl
   :: EffectFn4 GPUCommandEncoder
-        GPUImageCopyTexture GPUImageCopyTexture GPUExtent3D Unit
+       GPUImageCopyTexture
+       GPUImageCopyTexture
+       GPUExtent3D
+       Unit
 
 copyTextureToTexture
   :: GPUCommandEncoder
@@ -120,34 +135,42 @@ copyTextureToTexture a b c d = runEffectFn4 copyTextureToTextureImpl a b c d
 
 foreign import clearBufferImpl
   :: EffectFn2 GPUCommandEncoder
-      GPUBuffer Unit
+       GPUBuffer
+       Unit
 
 clearBuffer :: GPUCommandEncoder -> GPUBuffer -> Effect Unit
 clearBuffer a b = runEffectFn2 clearBufferImpl a b
 
 foreign import clearBufferWithOffsetImpl
   :: EffectFn3 GPUCommandEncoder
-       GPUBuffer GPUSize64 Unit
+       GPUBuffer
+       GPUSize64
+       Unit
 
 clearBufferWithOffset :: GPUCommandEncoder -> GPUBuffer -> Int -> Effect Unit
 clearBufferWithOffset a b c = runEffectFn3 clearBufferWithOffsetImpl a b c
 
 foreign import clearBufferWithSizeImpl
   :: EffectFn3 GPUCommandEncoder
-       GPUBuffer GPUSize64 Unit
+       GPUBuffer
+       GPUSize64
+       Unit
 
 clearBufferWithSize :: GPUCommandEncoder -> GPUBuffer -> Int -> Effect Unit
 clearBufferWithSize a b c = runEffectFn3 clearBufferWithSizeImpl a b c
 
 foreign import clearBufferWithOffsetAndSizeImpl
   :: EffectFn4 GPUCommandEncoder
-      GPUBuffer GPUSize64 GPUSize64 Unit
+       GPUBuffer
+       GPUSize64
+       GPUSize64
+       Unit
 
 clearBufferWithOffsetAndSize
   :: GPUCommandEncoder -> GPUBuffer -> Int -> Int -> Effect Unit
 clearBufferWithOffsetAndSize a b c d = runEffectFn4
   clearBufferWithOffsetAndSizeImpl
-  a 
+  a
   b
   c
   d
@@ -160,7 +183,12 @@ writeTimestamp a b c = runEffectFn3 writeTimestampImpl a b c
 
 foreign import resolveQuerySetImpl
   :: EffectFn6 GPUCommandEncoder
-      GPUQuerySet GPUSize32 GPUSize32 GPUBuffer GPUSize64 Unit
+       GPUQuerySet
+       GPUSize32
+       GPUSize32
+       GPUBuffer
+       GPUSize64
+       Unit
 
 resolveQuerySet
   :: GPUCommandEncoder
@@ -172,7 +200,8 @@ resolveQuerySet
   -> Effect Unit
 resolveQuerySet a b c d e f = runEffectFn6 resolveQuerySetImpl a b c d e f
 
-foreign import finishImpl :: EffectFn1 GPUCommandEncoder  GPUCommandBuffer
+foreign import finishImpl :: EffectFn1 GPUCommandEncoder GPUCommandBuffer
+
 finish :: GPUCommandEncoder -> Effect GPUCommandBuffer
 finish a = runEffectFn1 finishImpl a
 
@@ -181,7 +210,8 @@ foreign import pushDebugGroupImpl :: EffectFn2 GPUCommandEncoder String Unit
 pushDebugGroup :: GPUCommandEncoder -> String -> Effect Unit
 pushDebugGroup a b = runEffectFn2 pushDebugGroupImpl a b
 
-foreign import popDebugGroupImpl :: EffectFn1 GPUCommandEncoder  Unit
+foreign import popDebugGroupImpl :: EffectFn1 GPUCommandEncoder Unit
+
 popDebugGroup :: GPUCommandEncoder -> Effect Unit
 popDebugGroup a = runEffectFn1 popDebugGroupImpl a
 

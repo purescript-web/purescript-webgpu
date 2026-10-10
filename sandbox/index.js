@@ -1,2 +1,2 @@
-import { main } from "../output/Sandbox" // find way to do vite alias on windows, seems broken...
+import { main } from "../output-es/Sandbox/index.js";
 main();

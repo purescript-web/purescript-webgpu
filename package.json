@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "sandbox": "spago -x sandbox.dhall build && vite build sandbox/",
-    "sandbox-dev": "spago -x sandbox-dev.dhall build && vite dev sandbox/",
+    "build": "spago build -p webgpu --pedantic-packages",
+    "test": "spago build -p webgpu-tests --pedantic-packages",
+    "sandbox": "spago build -p webgpu-sandbox --pedantic-packages && purs-backend-es build && vite build sandbox/",
+    "sandbox-dev": "spago build -p webgpu-sandbox --pedantic-packages && purs-backend-es build && vite dev sandbox/",
     "format": "purs-tidy format-in-place \"src/**/*.purs sandbox/**/*.purs\" && prettier --arrow-parens avoid --write \"src/**/*.js\""
   },
   "keywords": [],
@@ -13,10 +15,10 @@
   "license": "ISC",
   "devDependencies": {
     "prettier": "^2.8.1",
-    "purescript": "^0.15.7",
+    "purescript": "0.15.16",
     "purs-backend-es": "^1.3.1",
     "purs-tidy": "^0.9.2",
-    "spago": "^0.20.9",
+    "spago": "1.0.4",
     "vite": "^4.0.4"
   },
   "dependencies": {

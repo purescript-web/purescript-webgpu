@@ -1,6 +1,5 @@
 export const createViewImpl = texture => texture.createView();
-export const createViewWithDescriptorImpl = (texture, descriptor) =>
-  texture.createView(descriptor);
+export const createViewWithDescriptorImpl = (texture, descriptor) => texture.createView(descriptor);
 export const destroyImpl = texture => texture.destroy();
 export const widthImpl = texture => texture.width;
 export const heightImpl = texture => texture.height;

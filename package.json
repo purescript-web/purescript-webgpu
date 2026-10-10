@@ -4,20 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "sandbox": "spago -x sandbox.dhall build && vite build sandbox/",
-    "sandbox-dev": "spago -x sandbox-dev.dhall build && vite dev sandbox/",
-    "format": "purs-tidy format-in-place \"src/**/*.purs sandbox/**/*.purs\" && prettier --arrow-parens avoid --write \"src/**/*.js\""
+    "build": "spago build -p webgpu --pedantic-packages",
+    "test": "spago build -p webgpu-tests --pedantic-packages",
+    "sandbox": "spago build -p webgpu-sandbox --pedantic-packages && purs-backend-es build && vite build sandbox/",
+    "sandbox-dev": "spago build -p webgpu-sandbox --pedantic-packages && purs-backend-es build && vite dev sandbox/",
+    "lint": "oxlint --deny-warnings src sandbox/index.js",
+    "format": "purs-tidy format-in-place \"src/**/*.purs\" \"type-tests/src/**/*.purs\" \"sandbox/src/**/*.purs\" && oxfmt --write \"src/**/*.js\" sandbox/index.js",
+    "format:check": "purs-tidy check \"src/**/*.purs\" \"type-tests/src/**/*.purs\" \"sandbox/src/**/*.purs\" && oxfmt --check \"src/**/*.js\" sandbox/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "prettier": "^2.8.1",
-    "purescript": "^0.15.7",
-    "purs-backend-es": "^1.3.1",
-    "purs-tidy": "^0.9.2",
-    "spago": "^0.20.9",
-    "vite": "^4.0.4"
+    "oxfmt": "0.72.0",
+    "oxlint": "1.87.0",
+    "purescript": "0.15.16",
+    "purs-backend-es": "1.4.3",
+    "purs-tidy": "0.11.1",
+    "spago": "1.0.4",
+    "vite": "8.3.4"
   },
   "dependencies": {
     "gl-matrix": "^3.4.3"

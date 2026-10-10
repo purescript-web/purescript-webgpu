@@ -43,13 +43,13 @@ setPipeline ∷ GPUComputePassEncoder → GPUComputePipeline → Effect Unit
 setPipeline a b = runEffectFn2 setPipelineImpl a b
 
 foreign import dispatchWorkgroupsImpl
-  ::EffectFn2 GPUComputePassEncoder GPUSize32 Unit
+  :: EffectFn2 GPUComputePassEncoder GPUSize32 Unit
 
 dispatchWorkgroups ∷ GPUComputePassEncoder → Int → Effect Unit
 dispatchWorkgroups a b = runEffectFn2 dispatchWorkgroupsImpl a b
 
 foreign import dispatchWorkgroupsXImpl
-  ::  EffectFn2 GPUComputePassEncoder GPUSize32 Unit
+  :: EffectFn2 GPUComputePassEncoder GPUSize32 Unit
 
 dispatchWorkgroupsX ∷ GPUComputePassEncoder → Int → Effect Unit
 dispatchWorkgroupsX a b = runEffectFn2 dispatchWorkgroupsXImpl a b
@@ -78,7 +78,8 @@ dispatchWorkgroupsIndirect a b c = runEffectFn3
   b
   c
 
-foreign import endImpl :: EffectFn1 GPUComputePassEncoder  Unit
+foreign import endImpl :: EffectFn1 GPUComputePassEncoder Unit
+
 end :: GPUComputePassEncoder -> Effect Unit
 end a = runEffectFn1 endImpl a
 
@@ -90,7 +91,10 @@ setBindGroup a b c = runEffectFn3 setBindGroupImpl a b c
 
 foreign import setBindGroupWithDynamicOffsetsImpl
   :: EffectFn4 GPUComputePassEncoder
-     GPUIndex32 GPUBindGroup (Array GPUBufferDynamicOffset) Unit
+       GPUIndex32
+       GPUBindGroup
+       (Array GPUBufferDynamicOffset)
+       Unit
 
 setBindGroupWithDynamicOffsets
   :: GPUComputePassEncoder -> Int -> GPUBindGroup -> Array Int -> Effect Unit
@@ -103,7 +107,12 @@ setBindGroupWithDynamicOffsets a b c d = runEffectFn4
 
 foreign import setBindGroupWithDyanmicOffsetBoundsImpl
   :: EffectFn6 GPUComputePassEncoder
-     GPUIndex32 GPUBindGroup Uint32Array GPUSize64 GPUSize32 Unit
+       GPUIndex32
+       GPUBindGroup
+       Uint32Array
+       GPUSize64
+       GPUSize32
+       Unit
 
 setBindGroupWithDyanmicOffsetBounds
   :: GPUComputePassEncoder
@@ -128,7 +137,8 @@ foreign import pushDebugGroupImpl
 pushDebugGroup :: GPUComputePassEncoder -> String -> Effect Unit
 pushDebugGroup a b = runEffectFn2 pushDebugGroupImpl a b
 
-foreign import popDebugGroupImpl :: EffectFn1 GPUComputePassEncoder  Unit
+foreign import popDebugGroupImpl :: EffectFn1 GPUComputePassEncoder Unit
+
 popDebugGroup :: GPUComputePassEncoder -> Effect Unit
 popDebugGroup a = runEffectFn1 popDebugGroupImpl a
 

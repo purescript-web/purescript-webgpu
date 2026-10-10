@@ -9,12 +9,9 @@ export const featuresImpl = (insert, empty, adapter) => {
 export const limitsImpl = adapter => adapter.limits;
 export const queueImpl = device => device.queue;
 export const destroyImpl = device => device.destroy();
-export const createBufferImpl = (device, descriptor) =>
-  device.createBuffer(descriptor);
-export const createTextureImpl = (device, descriptor) =>
-  device.createTexture(descriptor);
-export const createSamplerImpl = (device, descriptor) =>
-  device.createSampler(descriptor);
+export const createBufferImpl = (device, descriptor) => device.createBuffer(descriptor);
+export const createTextureImpl = (device, descriptor) => device.createTexture(descriptor);
+export const createSamplerImpl = (device, descriptor) => device.createSampler(descriptor);
 export const importExternalTextureImpl = (device, descriptor) =>
   device.importExternalTexture(descriptor);
 export const bindGroupLayoutEntryForBufferImpl = options => buffer => ({
@@ -29,18 +26,20 @@ export const bindGroupLayoutEntryForTextureImpl = options => texture => ({
   texture,
   ...options,
 });
-export const bindGroupLayoutEntryForStorageTextureImpl =
-  options => storageTexture => ({ storageTexture, ...options });
-export const bindGroupLayoutEntryForExternalTextureImpl =
-  options => externalTexture => ({ externalTexture, ...options });
+export const bindGroupLayoutEntryForStorageTextureImpl = options => storageTexture => ({
+  storageTexture,
+  ...options,
+});
+export const bindGroupLayoutEntryForExternalTextureImpl = options => externalTexture => ({
+  externalTexture,
+  ...options,
+});
 export const createBindGroupLayoutImpl = (device, descriptor) =>
   device.createBindGroupLayout(descriptor);
 export const createPipelineLayoutImpl = (device, descriptor) =>
   device.createPipelineLayout(descriptor);
-export const createBindGroupImpl = (device, descriptor) =>
-  device.createBindGroup(descriptor);
-export const createShaderModuleImpl = (device, descriptor) =>
-  device.createShaderModule(descriptor);
+export const createBindGroupImpl = (device, descriptor) => device.createBindGroup(descriptor);
+export const createShaderModuleImpl = (device, descriptor) => device.createShaderModule(descriptor);
 export const createComputePipelineImpl = (device, descriptor) =>
   device.createComputePipeline(descriptor);
 export const createRenderPipelineImpl = (device, descriptor) =>
@@ -53,5 +52,4 @@ export const createCommandEncoderImpl = (device, descriptor) =>
   device.createCommandEncoder(descriptor);
 export const createRenderBundleEncoderImpl = (device, descriptor) =>
   device.createRenderBundleEncoder(descriptor);
-export const createQuerySetImpl = (device, descriptor) =>
-  device.createQuerySet(descriptor);
+export const createQuerySetImpl = (device, descriptor) => device.createQuerySet(descriptor);
